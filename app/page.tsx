@@ -37,6 +37,7 @@ interface Departure {
   color: string;
   headsign: string;
   minutesUntil: number;
+  distance: number;
   key: string;
 }
 
@@ -104,15 +105,27 @@ export default function Home() {
               color: st.trip.route.color ? `#${st.trip.route.color}` : "#1e40af",
               headsign: st.headsign,
               minutesUntil: minutes,
+              distance: node.distance,
               key: `${node.stop.gtfsId}-${st.trip.route.shortName}-${st.serviceDay}-${st.scheduledDeparture}-${idx}`,
             });
           }
         });
       });
 
+      // Deduplicate: for each route+headsign, only keep the one from the closest stop
+      const seen = new Map<string, Departure>();
+      allDepartures.forEach((dep) => {
+        const routeKey = `${dep.routeNumber}-${dep.headsign}`;
+        const existing = seen.get(routeKey);
+        if (!existing || dep.distance < existing.distance) {
+          seen.set(routeKey, dep);
+        }
+      });
+      const dedupedDepartures = Array.from(seen.values());
+
       // Sort by time
-      allDepartures.sort((a, b) => a.minutesUntil - b.minutesUntil);
-      setDepartures(allDepartures);
+      dedupedDepartures.sort((a, b) => a.minutesUntil - b.minutesUntil);
+      setDepartures(dedupedDepartures);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to fetch stops");
     } finally {
@@ -175,12 +188,12 @@ export default function Home() {
       <div className="max-w-2xl mx-auto">
         {location.status === "idle" && (
           <div className="flex flex-col items-center gap-8 py-16">
-            <p className="text-white/80 text-center font-bold text-3xl">
+            <p className="text-white/80 text-center font-bold text-2xl sm:text-3xl">
               To show nearby departures, we need your location
             </p>
             <button
               onClick={requestLocation}
-              className="rounded-full bg-white px-10 py-5 font-extrabold text-2xl transition-opacity hover:opacity-90"
+              className="rounded-full bg-white px-10 py-5 font-extrabold text-xl sm:text-2xl transition-opacity hover:opacity-90"
               style={{ color: "#1b57cf" }}
             >
               Share My Location
@@ -189,14 +202,14 @@ export default function Home() {
         )}
 
         {location.status === "requesting" && (
-          <p className="py-16 text-white/80 text-center font-bold text-3xl">
+          <p className="py-16 text-white/80 text-center font-bold text-2xl sm:text-3xl">
             Requesting location...
           </p>
         )}
 
         {location.status === "denied" && (
           <div className="flex flex-col items-center gap-6 w-full py-12">
-            <p className="text-white/80 text-center font-bold text-2xl">
+            <p className="text-white/80 text-center font-bold text-xl sm:text-2xl">
               Location access denied. Please enter your location:
             </p>
             <form
@@ -208,11 +221,11 @@ export default function Home() {
                 value={manualInput}
                 onChange={(e) => setManualInput(e.target.value)}
                 placeholder="Enter address or city"
-                className="w-full rounded-xl border-2 border-white/30 bg-white/10 px-6 py-5 text-white text-2xl placeholder:text-white/50 focus:border-white/50 focus:outline-none font-bold"
+                className="w-full rounded-xl border-2 border-white/30 bg-white/10 px-6 py-5 text-white text-xl sm:text-2xl placeholder:text-white/50 focus:border-white/50 focus:outline-none font-bold"
               />
               <button
                 type="submit"
-                className="rounded-full bg-white px-10 py-5 font-extrabold text-2xl transition-opacity hover:opacity-90"
+                className="rounded-full bg-white px-10 py-5 font-extrabold text-xl sm:text-2xl transition-opacity hover:opacity-90"
                 style={{ color: "#1b57cf" }}
               >
                 Use This Location
@@ -222,13 +235,13 @@ export default function Home() {
         )}
 
         {error && (
-          <div className="w-full p-6 rounded-xl bg-red-500/20 text-white font-bold text-xl mb-6">
+          <div className="w-full p-6 rounded-xl bg-red-500/20 text-white font-bold text-base sm:text-xl mb-6">
             {error}
           </div>
         )}
 
         {loading && (
-          <p className="py-12 text-white/80 text-center font-bold text-3xl">
+          <p className="py-12 text-white/80 text-center font-bold text-2xl sm:text-3xl">
             Loading...
           </p>
         )}
@@ -237,7 +250,7 @@ export default function Home() {
           !loading &&
           departures.length === 0 &&
           !error && (
-            <p className="py-12 text-white/80 text-center font-bold text-3xl">
+            <p className="py-12 text-white/80 text-center font-bold text-2xl sm:text-3xl">
               No departures found nearby
             </p>
           )}
@@ -247,18 +260,23 @@ export default function Home() {
             {departures.slice(0, displayLimit).map((dep) => (
               <div
                 key={dep.key}
-                className="flex items-center gap-5 py-5 border-b border-white/20"
+                className="flex items-center gap-3 sm:gap-5 py-4 sm:py-5 border-b border-white/20"
               >
                 <span
-                  className="font-black min-w-[5rem] px-4 py-2 rounded-lg text-center text-white text-2xl"
+                  className="font-black min-w-[4rem] sm:min-w-[5rem] px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-center text-white text-lg sm:text-2xl"
                   style={{ backgroundColor: dep.color }}
                 >
                   {dep.routeNumber}
                 </span>
-                <span className="flex-1 text-white font-bold text-2xl truncate">
-                  {dep.headsign}
-                </span>
-                <span className="text-white font-extrabold text-3xl whitespace-nowrap">
+                <div className="flex-1 min-w-0">
+                  <span className="text-white font-bold text-lg sm:text-2xl truncate block">
+                    {dep.headsign}
+                  </span>
+                  <span className="text-white/50 text-xs sm:text-sm">
+                    {dep.distance}m away
+                  </span>
+                </div>
+                <span className="text-white font-extrabold text-xl sm:text-3xl whitespace-nowrap">
                   {dep.minutesUntil === 0
                     ? "Now"
                     : dep.minutesUntil === 1
@@ -271,7 +289,7 @@ export default function Home() {
               {displayLimit > 10 && (
                 <button
                   onClick={() => setDisplayLimit((prev) => Math.max(10, prev - 10))}
-                  className="text-white/70 hover:text-white font-bold transition-colors text-xl"
+                  className="text-white/70 hover:text-white font-bold transition-colors text-base sm:text-xl"
                 >
                   Show Less
                 </button>
@@ -279,7 +297,7 @@ export default function Home() {
               {departures.length > displayLimit && (
                 <button
                   onClick={() => setDisplayLimit((prev) => prev + 10)}
-                  className="text-white/70 hover:text-white font-bold transition-colors text-xl"
+                  className="text-white/70 hover:text-white font-bold transition-colors text-base sm:text-xl"
                 >
                   Show More ({departures.length - displayLimit} remaining)
                 </button>
@@ -294,13 +312,13 @@ export default function Home() {
               onClick={() =>
                 fetchNearbyStops(location.coords.lat, location.coords.lng)
               }
-              className="text-white/70 hover:text-white font-bold transition-colors text-xl"
+              className="text-white/70 hover:text-white font-bold transition-colors text-base sm:text-xl"
             >
               Refresh
             </button>
             <button
               onClick={requestLocation}
-              className="text-white/70 hover:text-white font-bold transition-colors text-xl"
+              className="text-white/70 hover:text-white font-bold transition-colors text-base sm:text-xl"
             >
               Update Location
             </button>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { Navigation } from "lucide-react";
 
 interface StopTime {
   scheduledDeparture: number;
@@ -24,6 +25,8 @@ interface Stop {
   name: string;
   code?: string;
   platformCode?: string;
+  lat: number;
+  lon: number;
   stoptimesWithoutPatterns: StopTime[];
 }
 
@@ -38,6 +41,8 @@ interface Departure {
   headsign: string;
   minutesUntil: number;
   distance: number;
+  stopLat: number;
+  stopLon: number;
   key: string;
 }
 
@@ -107,6 +112,8 @@ export default function Home() {
               headsign: st.headsign,
               minutesUntil: minutes,
               distance: node.distance,
+              stopLat: node.stop.lat,
+              stopLon: node.stop.lon,
               key: `${node.stop.gtfsId}-${st.trip.route.shortName}-${st.serviceDay}-${st.scheduledDeparture}-${idx}`,
             });
           }
@@ -284,6 +291,17 @@ export default function Home() {
                       ? "1 min"
                       : `${dep.minutesUntil} min`}
                 </span>
+                {location.status === "success" && (
+                  <a
+                    href={`https://www.google.com/maps/dir/?api=1&origin=${location.coords.lat},${location.coords.lng}&destination=${dep.stopLat},${dep.stopLon}&travelmode=walking`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-2 text-white/70 hover:text-white transition-colors"
+                    title="Get directions to stop"
+                  >
+                    <Navigation className="w-5 h-5 sm:w-6 sm:h-6" />
+                  </a>
+                )}
               </div>
             ))}
             <div className="flex justify-center gap-6 pt-6">

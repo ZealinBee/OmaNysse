@@ -12,6 +12,8 @@ const NEARBY_STOPS_QUERY = `
             name
             code
             platformCode
+            lat
+            lon
             stoptimesWithoutPatterns(numberOfDepartures: 5) {
               scheduledDeparture
               realtimeDeparture

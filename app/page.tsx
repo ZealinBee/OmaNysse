@@ -318,10 +318,11 @@ export default function Home() {
                     href={`https://www.google.com/maps/dir/?api=1&origin=${location.coords.lat},${location.coords.lng}&destination=${dep.stopLat},${dep.stopLon}&travelmode=walking`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="p-2 text-white/70 hover:text-white transition-colors"
+                    className="flex items-center gap-1.5 px-3 py-2 bg-white/20 hover:bg-white/30 rounded-lg text-white text-xs sm:text-sm font-semibold transition-all hover:scale-105 active:scale-95"
                     title="Get directions to stop"
                   >
-                    <Navigation className="w-5 h-5 sm:w-6 sm:h-6" />
+                    <Navigation className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                    <span>Go to Stop</span>
                   </a>
                 )}
               </div>

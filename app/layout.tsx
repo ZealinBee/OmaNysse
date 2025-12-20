@@ -11,6 +11,10 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "OmaNysse - Transport Time Table in One Click",
   description: "Get public transport schedules near you instantly",
+  icons: {
+    icon: "/nysse.png",
+    apple: "/nysse.png",
+  },
 };
 
 export default function RootLayout({

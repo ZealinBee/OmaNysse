@@ -194,6 +194,7 @@ export default function Home() {
       style={{ backgroundColor: "#1b57cf" }}
     >
       <div className="max-w-2xl mx-auto">
+
         {location.status === "idle" && (
           <div className="flex flex-col items-center gap-8 py-16">
             <p className="text-white/80 text-center font-bold text-2xl sm:text-3xl">
@@ -349,6 +350,23 @@ export default function Home() {
             </div>
           </div>
         )}
+
+        <div className="mt-12 flex justify-center">
+          <a
+            href="https://www.buymeacoffee.com/zhiyuanliu"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-bold text-base transition-opacity hover:opacity-90"
+            style={{ backgroundColor: "#FFDD00", color: "#000000" }}
+          >
+            <img
+              src="https://cdn.buymeacoffee.com/buttons/bmc-new-btn-logo.svg"
+              alt=""
+              className="h-5 w-5"
+            />
+            buy me a coffee pls
+          </a>
+        </div>
       </div>
     </div>
   );

@@ -67,7 +67,7 @@ export default function Home() {
   const [departures, setDepartures] = useState<Departure[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [displayLimit, setDisplayLimit] = useState(20);
+  const MAX_DEPARTURES = 20;
   const [radius, setRadius] = useState(500);
 
   // Load saved location on mount
@@ -265,7 +265,7 @@ export default function Home() {
 
         {departures.length > 0 && (
           <div className="flex flex-col">
-            {departures.slice(0, displayLimit).map((dep) => (
+            {departures.slice(0, MAX_DEPARTURES).map((dep) => (
               <div
                 key={dep.key}
                 className="flex items-center gap-3 sm:gap-5 py-4 sm:py-5 border-b border-white/20"
@@ -304,24 +304,6 @@ export default function Home() {
                 )}
               </div>
             ))}
-            <div className="flex justify-center gap-6 pt-6">
-              {displayLimit > 10 && (
-                <button
-                  onClick={() => setDisplayLimit((prev) => Math.max(10, prev - 10))}
-                  className="text-white/70 hover:text-white font-bold transition-colors text-base sm:text-xl"
-                >
-                  Show Less
-                </button>
-              )}
-              {departures.length > displayLimit && (
-                <button
-                  onClick={() => setDisplayLimit((prev) => prev + 10)}
-                  className="text-white/70 hover:text-white font-bold transition-colors text-base sm:text-xl"
-                >
-                  Show More ({departures.length - displayLimit} remaining)
-                </button>
-              )}
-            </div>
           </div>
         )}
 

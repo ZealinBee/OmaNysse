@@ -61,6 +61,26 @@ function getMinutesUntil(serviceDay: number, departureSeconds: number): number {
 
 const STORAGE_KEY = "nysse-saved-location";
 
+// HSL region bounding box (greater Helsinki area)
+const HSL_BOUNDS = {
+  minLat: 59.9,
+  maxLat: 60.5,
+  minLon: 24.0,
+  maxLon: 25.5,
+};
+
+function getRegion(lat: number, lon: number): "hsl" | "waltti" {
+  if (
+    lat >= HSL_BOUNDS.minLat &&
+    lat <= HSL_BOUNDS.maxLat &&
+    lon >= HSL_BOUNDS.minLon &&
+    lon <= HSL_BOUNDS.maxLon
+  ) {
+    return "hsl";
+  }
+  return "waltti";
+}
+
 export default function Home() {
   const [location, setLocation] = useState<LocationState>({ status: "idle" });
   const [manualInput, setManualInput] = useState("");
@@ -87,9 +107,10 @@ export default function Home() {
   const fetchNearbyStops = async (lat: number, lng: number, searchRadius: number = radius) => {
     setLoading(true);
     setError(null);
+    const region = getRegion(lat, lng);
     try {
       const response = await fetch(
-        `/api/stops?lat=${lat}&lon=${lng}&radius=${searchRadius}`
+        `/api/stops?lat=${lat}&lon=${lng}&radius=${searchRadius}&region=${region}`
       );
       if (!response.ok) {
         throw new Error("Failed to fetch stops");
@@ -105,7 +126,7 @@ export default function Home() {
       stopNodes.forEach((node) => {
         node.stop.stoptimesWithoutPatterns.forEach((st, idx) => {
           const minutes = getMinutesUntil(st.serviceDay, st.realtimeDeparture);
-          if (minutes >= 0) {
+          if (minutes >= 0 && minutes <= 120) {
             allDepartures.push({
               routeNumber: st.trip.route.shortName,
               color: st.trip.route.color ? `#${st.trip.route.color}` : "#1e40af",

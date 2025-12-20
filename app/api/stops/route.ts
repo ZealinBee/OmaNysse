@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const API_URL = "https://api.digitransit.fi/routing/v2/waltti/gtfs/v1";
+const API_URLS = {
+  waltti: "https://api.digitransit.fi/routing/v2/waltti/gtfs/v1",
+  hsl: "https://api.digitransit.fi/routing/v2/hsl/gtfs/v1",
+} as const;
+
+type Region = keyof typeof API_URLS;
 
 const NEARBY_STOPS_QUERY = `
   query NearbyStops($lat: Float!, $lon: Float!, $radius: Int!) {
@@ -43,6 +48,7 @@ export async function GET(request: NextRequest) {
   const lat = searchParams.get("lat");
   const lon = searchParams.get("lon");
   const radius = searchParams.get("radius") || "500";
+  const region = (searchParams.get("region") || "waltti") as Region;
 
   if (!lat || !lon) {
     return NextResponse.json(
@@ -50,6 +56,8 @@ export async function GET(request: NextRequest) {
       { status: 400 }
     );
   }
+
+  const apiUrl = API_URLS[region] || API_URLS.waltti;
 
   const apiKey = process.env.NYSSE_API_KEY;
   if (!apiKey) {
@@ -60,7 +68,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const response = await fetch(API_URL, {
+    const response = await fetch(apiUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

@@ -182,11 +182,11 @@ export default function Home() {
     if (location.status !== "success") return;
 
     const interval = setInterval(() => {
-      fetchNearbyStops(location.coords.lat, location.coords.lng);
+      fetchNearbyStops(location.coords.lat, location.coords.lng, radius);
     }, 30000);
 
     return () => clearInterval(interval);
-  }, [location]);
+  }, [location, radius]);
 
   return (
     <div

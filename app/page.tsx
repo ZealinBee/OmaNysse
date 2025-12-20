@@ -63,6 +63,7 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [displayLimit, setDisplayLimit] = useState(20);
+  const [radius, setRadius] = useState(500);
 
   // Load saved location on mount
   useEffect(() => {
@@ -78,12 +79,12 @@ export default function Home() {
     }
   }, []);
 
-  const fetchNearbyStops = async (lat: number, lng: number) => {
+  const fetchNearbyStops = async (lat: number, lng: number, searchRadius: number = radius) => {
     setLoading(true);
     setError(null);
     try {
       const response = await fetch(
-        `/api/stops?lat=${lat}&lon=${lng}&radius=500`
+        `/api/stops?lat=${lat}&lon=${lng}&radius=${searchRadius}`
       );
       if (!response.ok) {
         throw new Error("Failed to fetch stops");
@@ -307,21 +308,45 @@ export default function Home() {
         )}
 
         {location.status === "success" && (
-          <div className="mt-8 flex gap-6 justify-center">
-            <button
-              onClick={() =>
-                fetchNearbyStops(location.coords.lat, location.coords.lng)
-              }
-              className="text-white/70 hover:text-white font-bold transition-colors text-base sm:text-xl"
-            >
-              Refresh
-            </button>
-            <button
-              onClick={requestLocation}
-              className="text-white/70 hover:text-white font-bold transition-colors text-base sm:text-xl"
-            >
-              Update Location
-            </button>
+          <div className="mt-8 flex flex-col gap-6 items-center">
+            <div className="flex gap-6 justify-center">
+              <button
+                onClick={() =>
+                  fetchNearbyStops(location.coords.lat, location.coords.lng)
+                }
+                className="text-white/70 hover:text-white font-bold transition-colors text-base sm:text-xl"
+              >
+                Refresh
+              </button>
+              <button
+                onClick={requestLocation}
+                className="text-white/70 hover:text-white font-bold transition-colors text-base sm:text-xl"
+              >
+                Update Location
+              </button>
+            </div>
+            <div className="flex flex-col items-center gap-2 w-full max-w-xs">
+              <label className="text-white/70 font-bold text-sm sm:text-base">
+                Search Radius: {radius}m
+              </label>
+              <input
+                type="range"
+                min="100"
+                max="2000"
+                step="100"
+                value={radius}
+                onChange={(e) => {
+                  const newRadius = parseInt(e.target.value);
+                  setRadius(newRadius);
+                  fetchNearbyStops(location.coords.lat, location.coords.lng, newRadius);
+                }}
+                className="w-full h-2 bg-white/30 rounded-lg appearance-none cursor-pointer accent-white"
+              />
+              <div className="flex justify-between w-full text-white/50 text-xs">
+                <span>100m</span>
+                <span>2000m</span>
+              </div>
+            </div>
           </div>
         )}
       </div>

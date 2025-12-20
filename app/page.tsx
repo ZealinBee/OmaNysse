@@ -53,12 +53,29 @@ function getMinutesUntil(serviceDay: number, departureSeconds: number): number {
   return Math.round((departureTime - now) / 60000);
 }
 
+const STORAGE_KEY = "nysse-saved-location";
+
 export default function Home() {
   const [location, setLocation] = useState<LocationState>({ status: "idle" });
   const [manualInput, setManualInput] = useState("");
   const [departures, setDepartures] = useState<Departure[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [displayLimit, setDisplayLimit] = useState(20);
+
+  // Load saved location on mount
+  useEffect(() => {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      try {
+        const coords = JSON.parse(saved) as { lat: number; lng: number };
+        setLocation({ status: "success", coords });
+        fetchNearbyStops(coords.lat, coords.lng);
+      } catch {
+        localStorage.removeItem(STORAGE_KEY);
+      }
+    }
+  }, []);
 
   const fetchNearbyStops = async (lat: number, lng: number) => {
     setLoading(true);
@@ -117,6 +134,7 @@ export default function Home() {
           lat: position.coords.latitude,
           lng: position.coords.longitude,
         };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(coords));
         setLocation({ status: "success", coords });
         fetchNearbyStops(coords.lat, coords.lng);
       },
@@ -226,7 +244,7 @@ export default function Home() {
 
         {departures.length > 0 && (
           <div className="flex flex-col">
-            {departures.map((dep) => (
+            {departures.slice(0, displayLimit).map((dep) => (
               <div
                 key={dep.key}
                 className="flex items-center gap-3 py-3 border-b border-white/20"
@@ -249,18 +267,44 @@ export default function Home() {
                 </span>
               </div>
             ))}
+            <div className="flex justify-center gap-4 pt-4">
+              {displayLimit > 10 && (
+                <button
+                  onClick={() => setDisplayLimit((prev) => Math.max(10, prev - 10))}
+                  className="text-white/70 hover:text-white font-semibold transition-colors text-sm"
+                >
+                  Show Less
+                </button>
+              )}
+              {departures.length > displayLimit && (
+                <button
+                  onClick={() => setDisplayLimit((prev) => prev + 10)}
+                  className="text-white/70 hover:text-white font-semibold transition-colors text-sm"
+                >
+                  Show More ({departures.length - displayLimit} remaining)
+                </button>
+              )}
+            </div>
           </div>
         )}
 
         {location.status === "success" && (
-          <button
-            onClick={() =>
-              fetchNearbyStops(location.coords.lat, location.coords.lng)
-            }
-            className="mt-6 w-full text-white/70 hover:text-white font-semibold transition-colors text-center"
-          >
-            Refresh
-          </button>
+          <div className="mt-6 flex gap-4 justify-center">
+            <button
+              onClick={() =>
+                fetchNearbyStops(location.coords.lat, location.coords.lng)
+              }
+              className="text-white/70 hover:text-white font-semibold transition-colors"
+            >
+              Refresh
+            </button>
+            <button
+              onClick={requestLocation}
+              className="text-white/70 hover:text-white font-semibold transition-colors"
+            >
+              Update Location
+            </button>
+          </div>
         )}
       </div>
     </div>

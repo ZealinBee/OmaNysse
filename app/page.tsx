@@ -169,18 +169,18 @@ export default function Home() {
 
   return (
     <div
-      className="min-h-screen p-4 sm:p-8"
+      className="min-h-screen p-6 sm:p-10"
       style={{ backgroundColor: "#1b57cf" }}
     >
-      <div className="max-w-md mx-auto">
+      <div className="max-w-2xl mx-auto">
         {location.status === "idle" && (
-          <div className="flex flex-col items-center gap-4 py-12">
-            <p className="text-white/80 text-center font-semibold">
+          <div className="flex flex-col items-center gap-8 py-16">
+            <p className="text-white/80 text-center font-bold text-3xl">
               To show nearby departures, we need your location
             </p>
             <button
               onClick={requestLocation}
-              className="rounded-full bg-white px-6 py-3 font-semibold transition-opacity hover:opacity-90"
+              className="rounded-full bg-white px-10 py-5 font-extrabold text-2xl transition-opacity hover:opacity-90"
               style={{ color: "#1b57cf" }}
             >
               Share My Location
@@ -189,30 +189,30 @@ export default function Home() {
         )}
 
         {location.status === "requesting" && (
-          <p className="py-12 text-white/80 text-center font-semibold">
+          <p className="py-16 text-white/80 text-center font-bold text-3xl">
             Requesting location...
           </p>
         )}
 
         {location.status === "denied" && (
-          <div className="flex flex-col items-center gap-4 w-full py-8">
-            <p className="text-white/80 text-center font-semibold">
+          <div className="flex flex-col items-center gap-6 w-full py-12">
+            <p className="text-white/80 text-center font-bold text-2xl">
               Location access denied. Please enter your location:
             </p>
             <form
               onSubmit={handleManualSubmit}
-              className="flex flex-col gap-3 w-full"
+              className="flex flex-col gap-5 w-full"
             >
               <input
                 type="text"
                 value={manualInput}
                 onChange={(e) => setManualInput(e.target.value)}
                 placeholder="Enter address or city"
-                className="w-full rounded-lg border border-white/30 bg-white/10 px-4 py-3 text-white placeholder:text-white/50 focus:border-white/50 focus:outline-none font-semibold"
+                className="w-full rounded-xl border-2 border-white/30 bg-white/10 px-6 py-5 text-white text-2xl placeholder:text-white/50 focus:border-white/50 focus:outline-none font-bold"
               />
               <button
                 type="submit"
-                className="rounded-full bg-white px-6 py-3 font-semibold transition-opacity hover:opacity-90"
+                className="rounded-full bg-white px-10 py-5 font-extrabold text-2xl transition-opacity hover:opacity-90"
                 style={{ color: "#1b57cf" }}
               >
                 Use This Location
@@ -222,13 +222,13 @@ export default function Home() {
         )}
 
         {error && (
-          <div className="w-full p-4 rounded-lg bg-red-500/20 text-white font-semibold text-sm mb-4">
+          <div className="w-full p-6 rounded-xl bg-red-500/20 text-white font-bold text-xl mb-6">
             {error}
           </div>
         )}
 
         {loading && (
-          <p className="py-8 text-white/80 text-center font-semibold">
+          <p className="py-12 text-white/80 text-center font-bold text-3xl">
             Loading...
           </p>
         )}
@@ -237,7 +237,7 @@ export default function Home() {
           !loading &&
           departures.length === 0 &&
           !error && (
-            <p className="py-8 text-white/80 text-center font-semibold">
+            <p className="py-12 text-white/80 text-center font-bold text-3xl">
               No departures found nearby
             </p>
           )}
@@ -247,18 +247,18 @@ export default function Home() {
             {departures.slice(0, displayLimit).map((dep) => (
               <div
                 key={dep.key}
-                className="flex items-center gap-3 py-3 border-b border-white/20"
+                className="flex items-center gap-5 py-5 border-b border-white/20"
               >
                 <span
-                  className="font-bold min-w-[3.5rem] px-2 py-1 rounded text-center text-white text-sm"
+                  className="font-black min-w-[5rem] px-4 py-2 rounded-lg text-center text-white text-2xl"
                   style={{ backgroundColor: dep.color }}
                 >
                   {dep.routeNumber}
                 </span>
-                <span className="flex-1 text-white font-semibold truncate">
+                <span className="flex-1 text-white font-bold text-2xl truncate">
                   {dep.headsign}
                 </span>
-                <span className="text-white font-semibold whitespace-nowrap">
+                <span className="text-white font-extrabold text-3xl whitespace-nowrap">
                   {dep.minutesUntil === 0
                     ? "Now"
                     : dep.minutesUntil === 1
@@ -267,11 +267,11 @@ export default function Home() {
                 </span>
               </div>
             ))}
-            <div className="flex justify-center gap-4 pt-4">
+            <div className="flex justify-center gap-6 pt-6">
               {displayLimit > 10 && (
                 <button
                   onClick={() => setDisplayLimit((prev) => Math.max(10, prev - 10))}
-                  className="text-white/70 hover:text-white font-semibold transition-colors text-sm"
+                  className="text-white/70 hover:text-white font-bold transition-colors text-xl"
                 >
                   Show Less
                 </button>
@@ -279,7 +279,7 @@ export default function Home() {
               {departures.length > displayLimit && (
                 <button
                   onClick={() => setDisplayLimit((prev) => prev + 10)}
-                  className="text-white/70 hover:text-white font-semibold transition-colors text-sm"
+                  className="text-white/70 hover:text-white font-bold transition-colors text-xl"
                 >
                   Show More ({departures.length - displayLimit} remaining)
                 </button>
@@ -289,18 +289,18 @@ export default function Home() {
         )}
 
         {location.status === "success" && (
-          <div className="mt-6 flex gap-4 justify-center">
+          <div className="mt-8 flex gap-6 justify-center">
             <button
               onClick={() =>
                 fetchNearbyStops(location.coords.lat, location.coords.lng)
               }
-              className="text-white/70 hover:text-white font-semibold transition-colors"
+              className="text-white/70 hover:text-white font-bold transition-colors text-xl"
             >
               Refresh
             </button>
             <button
               onClick={requestLocation}
-              className="text-white/70 hover:text-white font-semibold transition-colors"
+              className="text-white/70 hover:text-white font-bold transition-colors text-xl"
             >
               Update Location
             </button>

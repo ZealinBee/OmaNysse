@@ -40,6 +40,7 @@ interface Departure {
   color: string;
   headsign: string;
   minutesUntil: number;
+  departureTime: string; // Formatted as "HH:MM"
   distance: number;
   stopLat: number;
   stopLon: number;
@@ -56,6 +57,13 @@ function getMinutesUntil(serviceDay: number, departureSeconds: number): number {
   const departureTime = (serviceDay + departureSeconds) * 1000;
   const now = Date.now();
   return Math.round((departureTime - now) / 60000);
+}
+
+function formatDepartureTime(serviceDay: number, departureSeconds: number): string {
+  const departureTime = new Date((serviceDay + departureSeconds) * 1000);
+  const hours = departureTime.getHours().toString().padStart(2, '0');
+  const minutes = departureTime.getMinutes().toString().padStart(2, '0');
+  return `${hours}:${minutes}`;
 }
 
 const STORAGE_KEY = "nysse-saved-location";
@@ -113,6 +121,7 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const MAX_DEPARTURES = 20;
   const [radius, setRadius] = useState(500);
+  const [refreshCountdown, setRefreshCountdown] = useState(30);
 
   // Get the theme color based on current location
   const themeColor =
@@ -161,6 +170,7 @@ export default function Home() {
               color: st.trip.route.color ? `#${st.trip.route.color}` : "#1e40af",
               headsign: st.headsign,
               minutesUntil: minutes,
+              departureTime: formatDepartureTime(st.serviceDay, st.realtimeDeparture),
               distance: node.distance,
               stopLat: node.stop.lat,
               stopLon: node.stop.lon,
@@ -224,16 +234,33 @@ export default function Home() {
 
     const interval = setInterval(() => {
       fetchNearbyStops(location.coords.lat, location.coords.lng, radius);
+      setRefreshCountdown(30);
     }, 30000);
 
     return () => clearInterval(interval);
   }, [location, radius]);
 
+  // Countdown timer
+  useEffect(() => {
+    if (location.status !== "success") return;
+
+    const countdownInterval = setInterval(() => {
+      setRefreshCountdown((prev) => (prev > 0 ? prev - 1 : 30));
+    }, 1000);
+
+    return () => clearInterval(countdownInterval);
+  }, [location]);
+
   return (
     <main
-      className="min-h-screen p-6 sm:p-10 transition-colors duration-500"
+      className="min-h-screen p-6 sm:p-10 transition-colors duration-500 relative"
       style={{ backgroundColor: themeColor }}
     >
+      {location.status === "success" && (
+        <div className="absolute top-3 right-3 sm:top-6 sm:right-6 text-white/60 text-xs sm:text-sm font-medium">
+          Päivittyy {refreshCountdown} s kuluttua
+        </div>
+      )}
       <div className="max-w-2xl mx-auto">
 
         {location.status === "idle" && (
@@ -310,13 +337,18 @@ export default function Home() {
                     {dep.distance}m päässä
                   </span>
                 </div>
-                <span className="text-white font-extrabold text-base sm:text-3xl whitespace-nowrap">
-                  {dep.minutesUntil === 0
-                    ? "Now"
-                    : dep.minutesUntil === 1
-                      ? "1 min"
-                      : `${dep.minutesUntil} min`}
-                </span>
+                <div className="flex flex-col items-end">
+                  <span className="text-white font-extrabold text-base sm:text-3xl whitespace-nowrap">
+                    {dep.minutesUntil === 0
+                      ? "Now"
+                      : dep.minutesUntil === 1
+                        ? "1 min"
+                        : `${dep.minutesUntil} min`}
+                  </span>
+                  <span className="text-white/50 text-[10px] sm:text-xs">
+                    {dep.departureTime}
+                  </span>
+                </div>
                 {location.status === "success" && (
                   <a
                     href={`https://www.google.com/maps/dir/?api=1&origin=${location.coords.lat},${location.coords.lng}&destination=${dep.stopLat},${dep.stopLon}&travelmode=walking`}
@@ -338,9 +370,10 @@ export default function Home() {
           <div className="mt-8 flex flex-col gap-6 items-center">
             <div className="flex gap-6 justify-center">
               <button
-                onClick={() =>
-                  fetchNearbyStops(location.coords.lat, location.coords.lng)
-                }
+                onClick={() => {
+                  fetchNearbyStops(location.coords.lat, location.coords.lng);
+                  setRefreshCountdown(30);
+                }}
                 className="text-white/70 hover:text-white font-bold transition-colors text-base sm:text-xl"
               >
                 Päivitä
@@ -366,6 +399,7 @@ export default function Home() {
                   const newRadius = parseInt(e.target.value);
                   setRadius(newRadius);
                   fetchNearbyStops(location.coords.lat, location.coords.lng, newRadius);
+                  setRefreshCountdown(30);
                 }}
                 className="w-full h-2 bg-white/30 rounded-lg appearance-none cursor-pointer accent-white"
               />

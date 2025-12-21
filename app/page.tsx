@@ -270,7 +270,7 @@ export default function Home() {
                   {dep.routeNumber}
                 </span>
                 <div className="flex-1 min-w-0">
-                  <span className="text-white font-bold text-sm sm:text-2xl truncate block">
+                  <span className="text-white font-bold text-base sm:text-2xl truncate block">
                     {dep.headsign}
                   </span>
                   <span className="text-white/50 text-[10px] sm:text-sm">
@@ -289,11 +289,11 @@ export default function Home() {
                     href={`https://www.google.com/maps/dir/?api=1&origin=${location.coords.lat},${location.coords.lng}&destination=${dep.stopLat},${dep.stopLon}&travelmode=walking`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-center p-1.5 sm:gap-1.5 sm:px-3 sm:py-2 bg-white/20 hover:bg-white/30 rounded-lg text-white text-xs sm:text-sm font-semibold transition-all hover:scale-105 active:scale-95"
+                    className="flex items-center justify-center gap-1 px-2 py-1.5 sm:gap-1.5 sm:px-3 sm:py-2 bg-white/20 hover:bg-white/30 rounded-lg text-white text-xs sm:text-sm font-semibold transition-all hover:scale-105 active:scale-95"
                     title="Get directions to stop"
                   >
                     <Navigation className="w-4 h-4" />
-                    <span className="hidden sm:inline">Go to Stop</span>
+                    <span>Go to Stop</span>
                   </a>
                 )}
               </div>

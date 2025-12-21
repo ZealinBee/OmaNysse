@@ -343,18 +343,18 @@ export default function Home() {
                 }
                 className="text-white/70 hover:text-white font-bold transition-colors text-base sm:text-xl"
               >
-                Refresh
+                Päivitä
               </button>
               <button
                 onClick={requestLocation}
                 className="text-white/70 hover:text-white font-bold transition-colors text-base sm:text-xl"
               >
-                Update Location
+                Päivitä sijainti
               </button>
             </div>
             <div className="flex flex-col items-center gap-2 w-full max-w-xs">
               <label className="text-white/70 font-bold text-sm sm:text-base">
-                Search Radius: {radius}m
+                Hakusäde: {radius} m
               </label>
               <input
                 type="range"
@@ -380,7 +380,7 @@ export default function Home() {
         {location.status === "success" && (
           <div className="mt-12 flex flex-col items-center gap-4">
             <p className="text-white/70 font-bold text-base sm:text-lg">
-              Buy me a coffee or a bus ticket if you like this app
+              Osta minulle kahvi tai bussilippu, jos pidät tästä sovelluksesta
             </p>
             <div className="flex gap-4">
               <a
@@ -395,7 +395,7 @@ export default function Home() {
                   alt="Buy Me a Coffee"
                   className="h-5 w-5"
                 />
-                Coffee
+                Kahvi
               </a>
               <a
                 href="https://qr.mobilepay.fi/box/446331ce-7196-49a7-8850-c0234677a0d2/pay-in"
@@ -409,7 +409,7 @@ export default function Home() {
                   alt="MobilePay"
                   className="h-8 rounded"
                 />
-                Bus Ticket
+                Bussilippu
               </a>
             </div>
           </div>

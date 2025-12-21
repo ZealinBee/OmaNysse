@@ -141,16 +141,21 @@ export default function Home() {
         });
       });
 
-      // Deduplicate: for each route+headsign, only keep the one from the closest stop
-      const seen = new Map<string, Departure>();
+      // Deduplicate: for each route+headsign, find the closest stop
+      const closestStopDistance = new Map<string, number>();
       allDepartures.forEach((dep) => {
         const routeKey = `${dep.routeNumber}-${dep.headsign}`;
-        const existing = seen.get(routeKey);
-        if (!existing || dep.distance < existing.distance) {
-          seen.set(routeKey, dep);
+        const existing = closestStopDistance.get(routeKey);
+        if (existing === undefined || dep.distance < existing) {
+          closestStopDistance.set(routeKey, dep.distance);
         }
       });
-      const dedupedDepartures = Array.from(seen.values());
+
+      // Keep all departures from the closest stop for each route+headsign
+      const dedupedDepartures = allDepartures.filter((dep) => {
+        const routeKey = `${dep.routeNumber}-${dep.headsign}`;
+        return dep.distance === closestStopDistance.get(routeKey);
+      });
 
       // Sort by time
       dedupedDepartures.sort((a, b) => a.minutesUntil - b.minutesUntil);
@@ -290,23 +295,23 @@ export default function Home() {
             {departures.slice(0, MAX_DEPARTURES).map((dep) => (
               <div
                 key={dep.key}
-                className="flex items-center gap-3 sm:gap-5 py-4 sm:py-5 border-b border-white/20"
+                className="flex items-center gap-2 sm:gap-5 py-3 sm:py-5 border-b-2 border-white/20"
               >
                 <span
-                  className="font-black min-w-[4rem] sm:min-w-[5rem] px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-center text-white text-lg sm:text-2xl"
+                  className="font-black min-w-[2.5rem] sm:min-w-[5rem] px-2 sm:px-4 py-1 sm:py-2 rounded-lg text-center text-white text-sm sm:text-2xl"
                   style={{ backgroundColor: dep.color }}
                 >
                   {dep.routeNumber}
                 </span>
                 <div className="flex-1 min-w-0">
-                  <span className="text-white font-bold text-lg sm:text-2xl truncate block">
+                  <span className="text-white font-bold text-sm sm:text-2xl truncate block">
                     {dep.headsign}
                   </span>
-                  <span className="text-white/50 text-xs sm:text-sm">
+                  <span className="text-white/50 text-[10px] sm:text-sm">
                     {dep.distance}m away
                   </span>
                 </div>
-                <span className="text-white font-extrabold text-xl sm:text-3xl whitespace-nowrap">
+                <span className="text-white font-extrabold text-base sm:text-3xl whitespace-nowrap">
                   {dep.minutesUntil === 0
                     ? "Now"
                     : dep.minutesUntil === 1
@@ -318,11 +323,11 @@ export default function Home() {
                     href={`https://www.google.com/maps/dir/?api=1&origin=${location.coords.lat},${location.coords.lng}&destination=${dep.stopLat},${dep.stopLon}&travelmode=walking`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-1.5 px-3 py-2 bg-white/20 hover:bg-white/30 rounded-lg text-white text-xs sm:text-sm font-semibold transition-all hover:scale-105 active:scale-95"
+                    className="flex items-center justify-center p-1.5 sm:gap-1.5 sm:px-3 sm:py-2 bg-white/20 hover:bg-white/30 rounded-lg text-white text-xs sm:text-sm font-semibold transition-all hover:scale-105 active:scale-95"
                     title="Get directions to stop"
                   >
-                    <Navigation className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                    <span>Go to Stop</span>
+                    <Navigation className="w-4 h-4" />
+                    <span className="hidden sm:inline">Go to Stop</span>
                   </a>
                 )}
               </div>

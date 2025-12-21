@@ -50,8 +50,7 @@ type LocationState =
   | { status: "idle" }
   | { status: "requesting" }
   | { status: "success"; coords: { lat: number; lng: number } }
-  | { status: "denied" }
-  | { status: "manual"; address: string };
+  | { status: "denied" };
 
 function getMinutesUntil(serviceDay: number, departureSeconds: number): number {
   const departureTime = (serviceDay + departureSeconds) * 1000;
@@ -83,9 +82,7 @@ function getRegion(lat: number, lon: number): "hsl" | "waltti" {
 
 export default function Home() {
   const [location, setLocation] = useState<LocationState>({ status: "idle" });
-  const [manualInput, setManualInput] = useState("");
   const [departures, setDepartures] = useState<Departure[]>([]);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const MAX_DEPARTURES = 20;
   const [radius, setRadius] = useState(500);
@@ -105,7 +102,6 @@ export default function Home() {
   }, []);
 
   const fetchNearbyStops = async (lat: number, lng: number, searchRadius: number = radius) => {
-    setLoading(true);
     setError(null);
     const region = getRegion(lat, lng);
     try {
@@ -162,8 +158,6 @@ export default function Home() {
       setDepartures(dedupedDepartures);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to fetch stops");
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -191,18 +185,6 @@ export default function Home() {
     );
   };
 
-  const handleManualSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!manualInput.trim()) return;
-
-    // For manual input, we'd need geocoding. For now, show a message.
-    // In production, integrate with a geocoding API
-    setLocation({ status: "manual", address: manualInput.trim() });
-    setError(
-      "Manual location search requires geocoding. Please allow location access for full functionality."
-    );
-  };
-
   // Auto-refresh departures every 30 seconds
   useEffect(() => {
     if (location.status !== "success") return;
@@ -224,7 +206,7 @@ export default function Home() {
         {location.status === "idle" && (
           <div className="flex flex-col items-center gap-8 py-16">
             <p className="text-white/80 text-center font-bold text-2xl sm:text-3xl">
-              To show nearby departures, we need your location
+              To show nearby departures, the app need your location
             </p>
             <button
               onClick={requestLocation}
@@ -243,29 +225,20 @@ export default function Home() {
         )}
 
         {location.status === "denied" && (
-          <div className="flex flex-col items-center gap-6 w-full py-12">
-            <p className="text-white/80 text-center font-bold text-xl sm:text-2xl">
-              Location access denied. Please enter your location:
+          <div className="flex flex-col items-center gap-8 py-16">
+            <p className="text-white/80 text-center font-bold text-2xl sm:text-3xl">
+              This app needs your location to show nearby departures
             </p>
-            <form
-              onSubmit={handleManualSubmit}
-              className="flex flex-col gap-5 w-full"
+            <p className="text-white/60 text-center text-base sm:text-lg max-w-md">
+              Please allow location access when prompted, or check your browser settings if you previously blocked it
+            </p>
+            <button
+              onClick={requestLocation}
+              className="rounded-full bg-white px-10 py-5 font-extrabold text-xl sm:text-2xl transition-opacity hover:opacity-90"
+              style={{ color: "#1b57cf" }}
             >
-              <input
-                type="text"
-                value={manualInput}
-                onChange={(e) => setManualInput(e.target.value)}
-                placeholder="Enter address or city"
-                className="w-full rounded-xl border-2 border-white/30 bg-white/10 px-6 py-5 text-white text-xl sm:text-2xl placeholder:text-white/50 focus:border-white/50 focus:outline-none font-bold"
-              />
-              <button
-                type="submit"
-                className="rounded-full bg-white px-10 py-5 font-extrabold text-xl sm:text-2xl transition-opacity hover:opacity-90"
-                style={{ color: "#1b57cf" }}
-              >
-                Use This Location
-              </button>
-            </form>
+              Try Again
+            </button>
           </div>
         )}
 
@@ -275,14 +248,7 @@ export default function Home() {
           </div>
         )}
 
-        {loading && (
-          <p className="py-12 text-white/80 text-center font-bold text-2xl sm:text-3xl">
-            Loading...
-          </p>
-        )}
-
         {location.status === "success" &&
-          !loading &&
           departures.length === 0 &&
           !error && (
             <p className="py-12 text-white/80 text-center font-bold text-2xl sm:text-3xl">
@@ -378,41 +344,43 @@ export default function Home() {
           </div>
         )}
 
-        <div className="mt-12 flex flex-col items-center gap-4">
-          <p className="text-white/70 font-bold text-base sm:text-lg">
-            Buy me a coffee or a bus ticket if you like this app
-          </p>
-          <div className="flex gap-4">
-            <a
-              href="https://www.buymeacoffee.com/zhiyuanliu"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-bold text-base transition-opacity hover:opacity-90"
-              style={{ backgroundColor: "#FFDD00", color: "#000000" }}
-            >
-              <img
-                src="https://cdn.buymeacoffee.com/buttons/bmc-new-btn-logo.svg"
-                alt=""
-                className="h-5 w-5"
-              />
-              Coffee
-            </a>
-            <a
-              href="https://qr.mobilepay.fi/box/446331ce-7196-49a7-8850-c0234677a0d2/pay-in"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-3 py-2 rounded-lg font-bold text-base text-white transition-opacity hover:opacity-90"
-              style={{ backgroundColor: "#5A78FF" }}
-            >
-              <img
-                src="/mobilepayicon.jpeg"
-                alt="MobilePay"
-                className="h-8 rounded"
-              />
-              Bus Ticket
-            </a>
+        {location.status === "success" && (
+          <div className="mt-12 flex flex-col items-center gap-4">
+            <p className="text-white/70 font-bold text-base sm:text-lg">
+              Buy me a coffee or a bus ticket if you like this app
+            </p>
+            <div className="flex gap-4">
+              <a
+                href="https://www.buymeacoffee.com/zhiyuanliu"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-bold text-base transition-opacity hover:opacity-90"
+                style={{ backgroundColor: "#FFDD00", color: "#000000" }}
+              >
+                <img
+                  src="https://cdn.buymeacoffee.com/buttons/bmc-new-btn-logo.svg"
+                  alt=""
+                  className="h-5 w-5"
+                />
+                Coffee
+              </a>
+              <a
+                href="https://qr.mobilepay.fi/box/446331ce-7196-49a7-8850-c0234677a0d2/pay-in"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-3 py-2 rounded-lg font-bold text-base text-white transition-opacity hover:opacity-90"
+                style={{ backgroundColor: "#5A78FF" }}
+              >
+                <img
+                  src="/mobilepayicon.jpeg"
+                  alt="MobilePay"
+                  className="h-8 rounded"
+                />
+                Bus Ticket
+              </a>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

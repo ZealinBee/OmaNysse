@@ -230,7 +230,7 @@ export default function Home() {
   }, [location, radius]);
 
   return (
-    <div
+    <main
       className="min-h-screen p-6 sm:p-10 transition-colors duration-500"
       style={{ backgroundColor: themeColor }}
     >
@@ -392,7 +392,7 @@ export default function Home() {
               >
                 <img
                   src="https://cdn.buymeacoffee.com/buttons/bmc-new-btn-logo.svg"
-                  alt=""
+                  alt="Buy Me a Coffee"
                   className="h-5 w-5"
                 />
                 Coffee
@@ -415,6 +415,6 @@ export default function Home() {
           </div>
         )}
       </div>
-    </div>
+    </main>
   );
 }

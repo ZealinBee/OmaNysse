@@ -16,6 +16,7 @@ export const metadata: Metadata = {
     icon: "/logo.png",
     apple: "/logo.png",
   },
+  manifest: "/manifest.json",
   metadataBase: new URL(
     process.env.VERCEL_URL
       ? `https://${process.env.VERCEL_URL}`
@@ -33,12 +34,46 @@ export const metadata: Metadata = {
       },
     ],
     type: "website",
+    locale: "fi_FI",
+    siteName: "Seuraava Bussi",
   },
   twitter: {
     card: "summary_large_image",
     title: "Seuraava Bussi - Näe milloin seuraava bussi on lähdössä",
     description: "Näyttää lähellä olevien pysäkkien seuraavat bussit reaaliajassa.",
     images: ["/banner.png"],
+  },
+  keywords: ["bussi", "aikataulu", "julkinen liikenne", "HSL", "Nysse", "Föli", "Linkki", "reaaliaikainen"],
+  authors: [{ name: "Zhiyuan Liu" }],
+  creator: "Zhiyuan Liu",
+  applicationName: "Seuraava Bussi",
+  category: "travel",
+};
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  name: "Seuraava Bussi",
+  description: "Näyttää lähellä olevien pysäkkien seuraavat bussit reaaliajassa.",
+  url: "https://seuraavabussi.fi",
+  applicationCategory: "TravelApplication",
+  operatingSystem: "Web",
+  browserRequirements: "Requires JavaScript and Geolocation API",
+  inLanguage: "fi",
+  isAccessibleForFree: true,
+  offers: {
+    "@type": "Offer",
+    price: "0",
+    priceCurrency: "EUR",
+  },
+  author: {
+    "@type": "Person",
+    name: "Zhiyuan Liu",
+  },
+  aggregateRating: {
+    "@type": "AggregateRating",
+    ratingValue: "5",
+    ratingCount: "1",
   },
 };
 
@@ -48,7 +83,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="fi">
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      </head>
       <body className={`${inter.variable} antialiased`}>
         {children}
         <Analytics />

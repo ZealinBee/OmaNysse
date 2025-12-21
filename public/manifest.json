@@ -1,0 +1,19 @@
+{
+  "name": "Seuraava Bussi",
+  "short_name": "Seuraava Bussi",
+  "description": "Näyttää lähellä olevien pysäkkien seuraavat bussit reaaliajassa",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1b57cf",
+  "theme_color": "#1b57cf",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "360x360",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["travel", "navigation", "utilities"]
+}

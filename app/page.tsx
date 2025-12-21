@@ -60,24 +60,51 @@ function getMinutesUntil(serviceDay: number, departureSeconds: number): number {
 
 const STORAGE_KEY = "nysse-saved-location";
 
-// HSL region bounding box (greater Helsinki area)
-const HSL_BOUNDS = {
-  minLat: 59.9,
-  maxLat: 60.5,
-  minLon: 24.0,
-  maxLon: 25.5,
+// Region bounding boxes for transit authorities
+const REGION_BOUNDS = {
+  uusimaa: { minLat: 59.9, maxLat: 60.7, minLon: 23.5, maxLon: 26.0 }, // HSL area
+  tampere: { minLat: 61.3, maxLat: 61.7, minLon: 23.3, maxLon: 24.2 }, // Pirkanmaa/Nysse
+  jyvaskyla: { minLat: 62.1, maxLat: 62.4, minLon: 25.5, maxLon: 26.0 }, // Linkki
+  turku: { minLat: 60.3, maxLat: 60.6, minLon: 22.0, maxLon: 22.8 }, // Föli
+  oulu: { minLat: 64.8, maxLat: 65.2, minLon: 25.2, maxLon: 25.9 }, // Oulu
 };
 
+const REGION_COLORS: Record<string, string> = {
+  uusimaa: "#007AC9", // HSL blue
+  tampere: "#1b57cf", // Nysse blue
+  jyvaskyla: "#009640", // Linkki green
+  turku: "#00A651", // Föli green
+  oulu: "#E4032E", // Oulu red
+  default: "#1b57cf", // Fallback to Nysse blue
+};
+
+function isInBounds(
+  lat: number,
+  lon: number,
+  bounds: { minLat: number; maxLat: number; minLon: number; maxLon: number }
+): boolean {
+  return (
+    lat >= bounds.minLat &&
+    lat <= bounds.maxLat &&
+    lon >= bounds.minLon &&
+    lon <= bounds.maxLon
+  );
+}
+
 function getRegion(lat: number, lon: number): "hsl" | "waltti" {
-  if (
-    lat >= HSL_BOUNDS.minLat &&
-    lat <= HSL_BOUNDS.maxLat &&
-    lon >= HSL_BOUNDS.minLon &&
-    lon <= HSL_BOUNDS.maxLon
-  ) {
+  if (isInBounds(lat, lon, REGION_BOUNDS.uusimaa)) {
     return "hsl";
   }
   return "waltti";
+}
+
+function getRegionColor(lat: number, lon: number): string {
+  for (const [region, bounds] of Object.entries(REGION_BOUNDS)) {
+    if (isInBounds(lat, lon, bounds)) {
+      return REGION_COLORS[region];
+    }
+  }
+  return REGION_COLORS.default;
 }
 
 export default function Home() {
@@ -86,6 +113,12 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const MAX_DEPARTURES = 20;
   const [radius, setRadius] = useState(500);
+
+  // Get the theme color based on current location
+  const themeColor =
+    location.status === "success"
+      ? getRegionColor(location.coords.lat, location.coords.lng)
+      : REGION_COLORS.default;
 
   // Load saved location on mount
   useEffect(() => {
@@ -198,8 +231,8 @@ export default function Home() {
 
   return (
     <div
-      className="min-h-screen p-6 sm:p-10"
-      style={{ backgroundColor: "#1b57cf" }}
+      className="min-h-screen p-6 sm:p-10 transition-colors duration-500"
+      style={{ backgroundColor: themeColor }}
     >
       <div className="max-w-2xl mx-auto">
 
@@ -210,8 +243,8 @@ export default function Home() {
             </p>
             <button
               onClick={requestLocation}
-              className="rounded-full bg-white px-10 py-5 font-extrabold text-xl sm:text-2xl transition-opacity hover:opacity-90"
-              style={{ color: "#1b57cf" }}
+              className="rounded-full bg-white px-10 py-5 font-extrabold text-xl sm:text-2xl transition-all hover:opacity-90"
+              style={{ color: themeColor }}
             >
               Share My Location
             </button>
@@ -234,8 +267,8 @@ export default function Home() {
             </p>
             <button
               onClick={requestLocation}
-              className="rounded-full bg-white px-10 py-5 font-extrabold text-xl sm:text-2xl transition-opacity hover:opacity-90"
-              style={{ color: "#1b57cf" }}
+              className="rounded-full bg-white px-10 py-5 font-extrabold text-xl sm:text-2xl transition-all hover:opacity-90"
+              style={{ color: themeColor }}
             >
               Try Again
             </button>

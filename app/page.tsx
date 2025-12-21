@@ -378,21 +378,40 @@ export default function Home() {
           </div>
         )}
 
-        <div className="mt-12 flex justify-center">
-          <a
-            href="https://www.buymeacoffee.com/zhiyuanliu"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-bold text-base transition-opacity hover:opacity-90"
-            style={{ backgroundColor: "#FFDD00", color: "#000000" }}
-          >
-            <img
-              src="https://cdn.buymeacoffee.com/buttons/bmc-new-btn-logo.svg"
-              alt=""
-              className="h-5 w-5"
-            />
-            buy me a coffee pls
-          </a>
+        <div className="mt-12 flex flex-col items-center gap-4">
+          <p className="text-white/70 font-bold text-base sm:text-lg">
+            Buy me a coffee or a bus ticket if you like this app
+          </p>
+          <div className="flex gap-4">
+            <a
+              href="https://www.buymeacoffee.com/zhiyuanliu"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-bold text-base transition-opacity hover:opacity-90"
+              style={{ backgroundColor: "#FFDD00", color: "#000000" }}
+            >
+              <img
+                src="https://cdn.buymeacoffee.com/buttons/bmc-new-btn-logo.svg"
+                alt=""
+                className="h-5 w-5"
+              />
+              Coffee
+            </a>
+            <a
+              href="https://qr.mobilepay.fi/box/446331ce-7196-49a7-8850-c0234677a0d2/pay-in"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-3 py-2 rounded-lg font-bold text-base text-white transition-opacity hover:opacity-90"
+              style={{ backgroundColor: "#5A78FF" }}
+            >
+              <img
+                src="/mobilepayicon.jpeg"
+                alt="MobilePay"
+                className="h-8 rounded"
+              />
+              Bus Ticket
+            </a>
+          </div>
         </div>
       </div>
     </div>

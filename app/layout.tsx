@@ -10,11 +10,11 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "OmaNysse - Transport Time Table in One Click",
-  description: "Get public transport schedules near you instantly",
+  title: "Seuraava Bussi - Näe milloin seuraava bussi on lähdössä",
+  description: "Näyttää lähellä olevien pysäkkien seuraavat bussit reaaliajassa.",
   icons: {
-    icon: "/nysse.png",
-    apple: "/nysse.png",
+    icon: "/logo.png",
+    apple: "/logo.png",
   },
 };
 

@@ -414,7 +414,7 @@ export default function Home() {
         {location.status === "success" && (
           <div className="mt-12 flex flex-col items-center gap-4">
             <p className="text-white/70 font-bold text-base sm:text-lg">
-              Osta minulle kahvi tai bussilippu, jos pidät tästä sovelluksesta
+              Tue sovellusta
             </p>
             <div className="flex gap-4">
               <a

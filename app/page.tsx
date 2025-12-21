@@ -307,7 +307,7 @@ export default function Home() {
                     {dep.headsign}
                   </span>
                   <span className="text-white/50 text-[10px] sm:text-sm">
-                    {dep.distance}m away
+                    {dep.distance}m päässä
                   </span>
                 </div>
                 <span className="text-white font-extrabold text-base sm:text-3xl whitespace-nowrap">
@@ -326,7 +326,7 @@ export default function Home() {
                     title="Get directions to stop"
                   >
                     <Navigation className="w-4 h-4" />
-                    <span>Go to Stop</span>
+                    <span>Pysäkille</span>
                   </a>
                 )}
               </div>

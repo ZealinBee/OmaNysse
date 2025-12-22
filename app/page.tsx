@@ -509,7 +509,7 @@ export default function Home() {
           departures.length === 0 &&
           !error && (
             <p className="py-12 text-white/80 text-center font-bold text-2xl sm:text-3xl">
-              No departures found nearby
+              Lähistöltä ei löytynyt lähtöjä.
             </p>
           )}
 

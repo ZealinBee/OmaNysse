@@ -136,6 +136,7 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const MAX_DEPARTURES = 20;
   const [radius, setRadius] = useState(500);
+  const [debouncedRadius, setDebouncedRadius] = useState(500);
   const [refreshCountdown, setRefreshCountdown] = useState(30);
 
   // Search state
@@ -301,17 +302,33 @@ export default function Home() {
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
+  // Debounced radius - delays server calls by 1.5 seconds
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedRadius(radius);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [radius]);
+
+  // Fetch when debounced radius changes
+  useEffect(() => {
+    if (location.status !== "success") return;
+    fetchNearbyStops(location.coords.lat, location.coords.lng, debouncedRadius);
+    setRefreshCountdown(30);
+  }, [debouncedRadius]);
+
   // Auto-refresh departures every 30 seconds
   useEffect(() => {
     if (location.status !== "success") return;
 
     const interval = setInterval(() => {
-      fetchNearbyStops(location.coords.lat, location.coords.lng, radius);
+      fetchNearbyStops(location.coords.lat, location.coords.lng, debouncedRadius);
       setRefreshCountdown(30);
     }, 30000);
 
     return () => clearInterval(interval);
-  }, [location, radius]);
+  }, [location, debouncedRadius]);
 
   // Countdown timer
   useEffect(() => {
@@ -566,12 +583,7 @@ export default function Home() {
                 max="2000"
                 step="100"
                 value={radius}
-                onChange={(e) => {
-                  const newRadius = parseInt(e.target.value);
-                  setRadius(newRadius);
-                  fetchNearbyStops(location.coords.lat, location.coords.lng, newRadius);
-                  setRefreshCountdown(30);
-                }}
+                onChange={(e) => setRadius(parseInt(e.target.value))}
                 className="w-full h-2 bg-white/30 rounded-lg appearance-none cursor-pointer accent-white"
               />
               <div className="flex justify-between w-full text-white/50 text-xs">

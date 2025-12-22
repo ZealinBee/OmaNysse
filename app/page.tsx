@@ -347,11 +347,22 @@ export default function Home() {
       style={{ backgroundColor: themeColor }}
     >
       {location.status === "success" && (
-        <div className="absolute top-3 right-3 sm:top-6 sm:right-6 text-white/60 text-xs sm:text-sm font-medium">
+        <div className="absolute top-3 right-3 sm:top-6 sm:right-6 h-6 sm:h-8 flex items-center text-white/60 text-xs sm:text-sm font-medium">
           Päivittyy {refreshCountdown} s kuluttua
         </div>
       )}
-      <div className="max-w-2xl mx-auto">
+      <div className="max-w-2xl mx-auto pt-6">
+        {/* Logo */}
+        <div className="absolute top-[11px] left-3 sm:top-[23px] sm:left-6 flex items-center gap-2">
+          <img
+            src="/white%20logo%20bus.png"
+            alt="SeuraavaBussi logo"
+            className="h-6 sm:h-8"
+          />
+          <span className="text-white font-bold text-lg sm:text-xl">
+            SeuraavaBussi.fi
+          </span>
+        </div>
 
         {location.status === "idle" && (
           <div className="flex flex-col items-center gap-8 py-16">

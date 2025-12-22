@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Navigation } from "lucide-react";
+import { Navigation, Search, X, MapPin } from "lucide-react";
 
 interface StopTime {
   scheduledDeparture: number;
@@ -52,6 +52,21 @@ type LocationState =
   | { status: "requesting" }
   | { status: "success"; coords: { lat: number; lng: number } }
   | { status: "denied" };
+
+interface GeocodedLocation {
+  type: "Feature";
+  geometry: {
+    type: "Point";
+    coordinates: [number, number]; // [lon, lat]
+  };
+  properties: {
+    id: string;
+    name: string;
+    label: string;
+    locality?: string;
+    region?: string;
+  };
+}
 
 function getMinutesUntil(serviceDay: number, departureSeconds: number): number {
   const departureTime = (serviceDay + departureSeconds) * 1000;
@@ -122,6 +137,13 @@ export default function Home() {
   const MAX_DEPARTURES = 20;
   const [radius, setRadius] = useState(500);
   const [refreshCountdown, setRefreshCountdown] = useState(30);
+
+  // Search state
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<GeocodedLocation[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [showSearchResults, setShowSearchResults] = useState(false);
+  const [searchedLocationName, setSearchedLocationName] = useState<string | null>(null);
 
   // Get the theme color based on current location
   const themeColor =
@@ -220,6 +242,7 @@ export default function Home() {
         };
         localStorage.setItem(STORAGE_KEY, JSON.stringify(coords));
         setLocation({ status: "success", coords });
+        setSearchedLocationName(null);
         fetchNearbyStops(coords.lat, coords.lng);
       },
       () => {
@@ -227,6 +250,56 @@ export default function Home() {
       }
     );
   };
+
+  // Search for locations by name
+  const searchLocations = async (query: string) => {
+    if (query.trim().length < 2) {
+      setSearchResults([]);
+      setShowSearchResults(false);
+      return;
+    }
+
+    setIsSearching(true);
+    try {
+      const response = await fetch(`/api/geocode?text=${encodeURIComponent(query)}&size=5`);
+      if (!response.ok) throw new Error("Search failed");
+
+      const data = await response.json();
+      const features: GeocodedLocation[] = data.features || [];
+      setSearchResults(features);
+      setShowSearchResults(features.length > 0);
+    } catch (err) {
+      console.error("Search error:", err);
+      setSearchResults([]);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  // Handle location selection from search
+  const selectSearchedLocation = (location: GeocodedLocation) => {
+    const [lon, lat] = location.geometry.coordinates;
+    const coords = { lat, lng: lon };
+
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(coords));
+    setLocation({ status: "success", coords });
+    setSearchedLocationName(location.properties.label);
+    setSearchQuery("");
+    setShowSearchResults(false);
+    setSearchResults([]);
+    fetchNearbyStops(lat, lon);
+  };
+
+  // Debounced search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (searchQuery.trim()) {
+        searchLocations(searchQuery);
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   // Auto-refresh departures every 30 seconds
   useEffect(() => {
@@ -275,6 +348,54 @@ export default function Home() {
             >
               Share My Location
             </button>
+            <div className="w-full max-w-md mt-4">
+              <p className="text-white/60 text-center text-sm mb-3">tai hae paikan nimellä</p>
+              <div className="relative">
+                <div className="flex items-center bg-white/20 rounded-xl px-4 py-3">
+                  <Search className="w-5 h-5 text-white/60 mr-3" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Hae paikkaa..."
+                    className="flex-1 bg-transparent text-white placeholder-white/50 outline-none text-base"
+                  />
+                  {searchQuery && (
+                    <button
+                      onClick={() => {
+                        setSearchQuery("");
+                        setSearchResults([]);
+                        setShowSearchResults(false);
+                      }}
+                      className="p-1 hover:bg-white/10 rounded-full"
+                    >
+                      <X className="w-4 h-4 text-white/60" />
+                    </button>
+                  )}
+                </div>
+                {showSearchResults && searchResults.length > 0 && (
+                  <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-lg overflow-hidden z-10">
+                    {searchResults.map((result) => (
+                      <button
+                        key={result.properties.id}
+                        onClick={() => selectSearchedLocation(result)}
+                        className="w-full px-4 py-3 text-left hover:bg-gray-100 flex items-center gap-3 border-b border-gray-100 last:border-0"
+                      >
+                        <MapPin className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                        <span className="text-gray-800 text-sm truncate">
+                          {result.properties.label}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+                {isSearching && (
+                  <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-lg p-4 text-center text-gray-500 text-sm">
+                    Haetaan...
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         )}
 
@@ -287,17 +408,65 @@ export default function Home() {
         {location.status === "denied" && (
           <div className="flex flex-col items-center gap-8 py-16">
             <p className="text-white/80 text-center font-bold text-2xl sm:text-3xl">
-              This app needs your location to show nearby departures
+              Hae lähtöjä paikan nimellä
             </p>
-            <p className="text-white/60 text-center text-base sm:text-lg max-w-md">
-              Please allow location access when prompted, or check your browser settings if you previously blocked it
-            </p>
+            <div className="w-full max-w-md">
+              <div className="relative">
+                <div className="flex items-center bg-white/20 rounded-xl px-4 py-3">
+                  <Search className="w-5 h-5 text-white/60 mr-3" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Hae paikkaa..."
+                    className="flex-1 bg-transparent text-white placeholder-white/50 outline-none text-base"
+                  />
+                  {searchQuery && (
+                    <button
+                      onClick={() => {
+                        setSearchQuery("");
+                        setSearchResults([]);
+                        setShowSearchResults(false);
+                      }}
+                      className="p-1 hover:bg-white/10 rounded-full"
+                    >
+                      <X className="w-4 h-4 text-white/60" />
+                    </button>
+                  )}
+                </div>
+                {showSearchResults && searchResults.length > 0 && (
+                  <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-lg overflow-hidden z-10">
+                    {searchResults.map((result) => (
+                      <button
+                        key={result.properties.id}
+                        onClick={() => selectSearchedLocation(result)}
+                        className="w-full px-4 py-3 text-left hover:bg-gray-100 flex items-center gap-3 border-b border-gray-100 last:border-0"
+                      >
+                        <MapPin className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                        <span className="text-gray-800 text-sm truncate">
+                          {result.properties.label}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+                {isSearching && (
+                  <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-lg p-4 text-center text-gray-500 text-sm">
+                    Haetaan...
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className="flex items-center gap-4 text-white/50 text-sm">
+              <span className="h-px w-12 bg-white/30" />
+              <span>tai</span>
+              <span className="h-px w-12 bg-white/30" />
+            </div>
             <button
               onClick={requestLocation}
-              className="rounded-full bg-white px-10 py-5 font-extrabold text-xl sm:text-2xl transition-all hover:opacity-90"
-              style={{ color: themeColor }}
+              className="rounded-full bg-white/20 px-8 py-4 font-bold text-lg text-white transition-all hover:bg-white/30"
             >
-              Try Again
+              Käytä sijaintia
             </button>
           </div>
         )}
@@ -407,6 +576,62 @@ export default function Home() {
                 <span>100m</span>
                 <span>2000m</span>
               </div>
+            </div>
+          </div>
+        )}
+
+        {location.status === "success" && (
+          <div className="mt-8 flex flex-col items-center gap-4 w-full max-w-md mx-auto">
+            {searchedLocationName && (
+              <p className="text-white/60 text-sm text-center">
+                Näytetään lähdöt lähellä: <span className="font-semibold text-white/80">{searchedLocationName}</span>
+              </p>
+            )}
+            <p className="text-white/70 font-bold text-sm">Hae toinen paikka</p>
+            <div className="relative w-full">
+              <div className="flex items-center bg-white/20 rounded-xl px-4 py-3">
+                <Search className="w-5 h-5 text-white/60 mr-3" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Hae paikkaa..."
+                  className="flex-1 bg-transparent text-white placeholder-white/50 outline-none text-base"
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => {
+                      setSearchQuery("");
+                      setSearchResults([]);
+                      setShowSearchResults(false);
+                    }}
+                    className="p-1 hover:bg-white/10 rounded-full"
+                  >
+                    <X className="w-4 h-4 text-white/60" />
+                  </button>
+                )}
+              </div>
+              {showSearchResults && searchResults.length > 0 && (
+                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-lg overflow-hidden z-10">
+                  {searchResults.map((result) => (
+                    <button
+                      key={result.properties.id}
+                      onClick={() => selectSearchedLocation(result)}
+                      className="w-full px-4 py-3 text-left hover:bg-gray-100 flex items-center gap-3 border-b border-gray-100 last:border-0"
+                    >
+                      <MapPin className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                      <span className="text-gray-800 text-sm truncate">
+                        {result.properties.label}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              )}
+              {isSearching && (
+                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-lg p-4 text-center text-gray-500 text-sm">
+                  Haetaan...
+                </div>
+              )}
             </div>
           </div>
         )}

@@ -278,30 +278,44 @@ export default function DepartureBoard({ onThemeColorChange }: DepartureBoardPro
         </div>
       )}
 
+      {/* Controls Section */}
       {location.status === "success" && (
-        <div className="mt-8 flex flex-col gap-6 items-center">
-          <div className="flex gap-6 justify-center">
+        <div className="mt-10 pt-8 border-t border-white/10">
+          {/* Current Location Info */}
+          {searchedLocationName && (
+            <p className="text-white/60 text-sm text-center mb-6">
+              Näytetään lähdöt lähellä:{" "}
+              <span className="font-semibold text-white/80">
+                {searchedLocationName}
+              </span>
+            </p>
+          )}
+
+          {/* Primary Actions */}
+          <div className="flex justify-center gap-3 mb-6">
             <button
               onClick={() => {
                 fetchNearbyStops(location.coords.lat, location.coords.lng);
                 setRefreshCountdown(30);
               }}
-              className="text-white/70 hover:text-white font-bold transition-colors text-base sm:text-xl flex items-center gap-2"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg font-bold text-sm transition-all"
             >
-              <RefreshCw className="w-4 h-4 sm:w-5 sm:h-5" />
+              <RefreshCw className="w-4 h-4" />
               Päivitä
             </button>
             <button
               onClick={requestLocation}
-              className="text-white/70 hover:text-white font-bold transition-colors text-base sm:text-xl flex items-center gap-2"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg font-bold text-sm transition-all"
             >
-              <LocateFixed className="w-4 h-4 sm:w-5 sm:h-5" />
+              <LocateFixed className="w-4 h-4" />
               Päivitä sijainti
             </button>
           </div>
-          <div className="flex flex-col items-center gap-2 w-full max-w-xs">
-            <label className="text-white/70 font-bold text-sm sm:text-base">
-              Hakusäde: {radius} m
+
+          {/* Radius Slider */}
+          <div className="flex flex-col items-center gap-2 w-full max-w-xs mx-auto mb-8">
+            <label className="text-white/60 text-sm">
+              Hakusäde: <span className="font-bold text-white/80">{radius} m</span>
             </label>
             <input
               type="range"
@@ -310,76 +324,71 @@ export default function DepartureBoard({ onThemeColorChange }: DepartureBoardPro
               step="100"
               value={radius}
               onChange={(e) => setRadius(parseInt(e.target.value))}
-              className="w-full h-2 bg-white/30 rounded-lg appearance-none cursor-pointer accent-white"
+              className="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer accent-white"
             />
-            <div className="flex justify-between w-full text-white/50 text-xs">
+            <div className="flex justify-between w-full text-white/40 text-xs">
               <span>100m</span>
               <span>2000m</span>
             </div>
           </div>
+
+          {/* Search Another Place */}
+          <div className="w-full max-w-sm mx-auto">
+            <p className="text-white/60 text-sm text-center mb-2">Hae toinen paikka</p>
+            <SearchInput onLocationSelect={handleLocationSelect} />
+          </div>
         </div>
       )}
 
+      {/* Footer Section */}
       {location.status === "success" && (
-        <div className="mt-8 flex flex-col items-center gap-4 w-full max-w-md mx-auto">
-          {searchedLocationName && (
-            <p className="text-white/60 text-sm text-center">
-              Näytetään lähdöt lähellä:{" "}
-              <span className="font-semibold text-white/80">
-                {searchedLocationName}
-              </span>
-            </p>
-          )}
-          <p className="text-white/70 font-bold text-sm">Hae toinen paikka</p>
-          <SearchInput onLocationSelect={handleLocationSelect} />
-        </div>
-      )}
-
-      {location.status === "success" && (
-        <div className="mt-10 flex flex-col items-center">
+        <div className="mt-12 pt-8 border-t border-white/10 flex flex-col items-center gap-8">
+          {/* For Companies */}
           <a
             href="/for-companies"
-            className="text-white/70 hover:text-white font-bold text-sm sm:text-base transition-colors underline underline-offset-2"
+            className="inline-flex items-center gap-3 px-6 py-3 bg-white text-black hover:bg-white/90 rounded-xl font-bold text-base transition-all shadow-lg"
           >
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+            </svg>
             Hallintapaneeli yrityksille
           </a>
-        </div>
-      )}
 
-      {location.status === "success" && (
-        <div className="mt-12 flex flex-col items-center gap-4">
-          <p className="text-white/70 font-bold text-base sm:text-lg">
-            Tue sovellusta
-          </p>
-          <div className="flex gap-4">
-            <a
-              href="https://www.buymeacoffee.com/zhiyuanliu"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-bold text-base transition-opacity hover:opacity-90"
-              style={{ backgroundColor: "#FFDD00", color: "#000000" }}
-            >
-              <img
-                src="https://cdn.buymeacoffee.com/buttons/bmc-new-btn-logo.svg"
-                alt="Buy Me a Coffee"
-                className="h-5 w-5"
-              />
-              Kahvi
-            </a>
-            <a
-              href="https://qr.mobilepay.fi/box/446331ce-7196-49a7-8850-c0234677a0d2/pay-in"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-3 py-2 rounded-lg font-bold text-base text-white transition-opacity hover:opacity-90"
-              style={{ backgroundColor: "#5A78FF" }}
-            >
-              <img
-                src="/mobilepayicon.jpeg"
-                alt="MobilePay"
-                className="h-8 rounded"
-              />
-              Bussilippu
-            </a>
+          {/* Support */}
+          <div className="flex flex-col items-center gap-3">
+            <p className="text-white/50 text-sm">
+              Tue sovellusta
+            </p>
+            <div className="flex gap-3">
+              <a
+                href="https://www.buymeacoffee.com/zhiyuanliu"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-opacity hover:opacity-90"
+                style={{ backgroundColor: "#FFDD00", color: "#000000" }}
+              >
+                <img
+                  src="https://cdn.buymeacoffee.com/buttons/bmc-new-btn-logo.svg"
+                  alt="Buy Me a Coffee"
+                  className="h-4 w-4"
+                />
+                Kahvi
+              </a>
+              <a
+                href="https://qr.mobilepay.fi/box/446331ce-7196-49a7-8850-c0234677a0d2/pay-in"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-3 py-2 rounded-lg font-medium text-sm text-white transition-opacity hover:opacity-90"
+                style={{ backgroundColor: "#5A78FF" }}
+              >
+                <img
+                  src="/mobilepayicon.jpeg"
+                  alt="MobilePay"
+                  className="h-6 rounded"
+                />
+                Bussilippu
+              </a>
+            </div>
           </div>
         </div>
       )}

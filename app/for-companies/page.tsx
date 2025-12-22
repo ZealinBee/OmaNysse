@@ -1,7 +1,29 @@
-"use client";
-
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Hallintapaneeli yrityksille | SeuraavaBussi.fi",
+  description:
+    "Joukkoliikenteen aikataulunäyttö yrityksille. Koko näytön tila, oma logo, kulkuvälineiden valinta ja kävelyaika pysäkille. 20 €/kk/näyttö.",
+  keywords: [
+    "joukkoliikenne",
+    "aikataulunäyttö",
+    "yritys",
+    "bussiaikataulu",
+    "infotaulu",
+    "digitaalinen näyttö",
+  ],
+  openGraph: {
+    title: "Hallintapaneeli yrityksille | SeuraavaBussi.fi",
+    description:
+      "Joukkoliikenteen aikataulunäyttö yrityksille. Koko näytön tila, oma logo ja muokattavat asetukset.",
+    url: "https://seuraavabussi.fi/for-companies",
+    siteName: "SeuraavaBussi.fi",
+    locale: "fi_FI",
+    type: "website",
+  },
+};
 
 export default function ForCompanies() {
   return (

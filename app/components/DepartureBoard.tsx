@@ -304,14 +304,14 @@ export default function DepartureBoard({ onThemeColorChange }: DepartureBoardPro
                 fetchNearbyStops(location.coords.lat, location.coords.lng);
                 setRefreshCountdown(30);
               }}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg font-bold text-sm transition-all"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg font-bold text-sm text-white transition-all"
             >
               <RefreshCw className="w-4 h-4" />
               Päivitä
             </button>
             <button
               onClick={requestLocation}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg font-bold text-sm transition-all"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg font-bold text-sm text-white transition-all"
             >
               <LocateFixed className="w-4 h-4" />
               Päivitä sijainti

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Navigation, Search, X, MapPin } from "lucide-react";
+import { Navigation, Search, X, MapPin, RefreshCw, LocateFixed } from "lucide-react";
 
 interface StopTime {
   scheduledDeparture: number;
@@ -543,14 +543,16 @@ export default function Home() {
                   fetchNearbyStops(location.coords.lat, location.coords.lng);
                   setRefreshCountdown(30);
                 }}
-                className="text-white/70 hover:text-white font-bold transition-colors text-base sm:text-xl"
+                className="text-white/70 hover:text-white font-bold transition-colors text-base sm:text-xl flex items-center gap-2"
               >
+                <RefreshCw className="w-4 h-4 sm:w-5 sm:h-5" />
                 Päivitä
               </button>
               <button
                 onClick={requestLocation}
-                className="text-white/70 hover:text-white font-bold transition-colors text-base sm:text-xl"
+                className="text-white/70 hover:text-white font-bold transition-colors text-base sm:text-xl flex items-center gap-2"
               >
+                <LocateFixed className="w-4 h-4 sm:w-5 sm:h-5" />
                 Päivitä sijainti
               </button>
             </div>

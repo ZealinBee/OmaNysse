@@ -28,7 +28,7 @@ export default function DepartureRow({ departure, userCoords }: DepartureRowProp
       <div className="flex flex-col items-end">
         <span className="text-white font-extrabold text-base sm:text-3xl whitespace-nowrap">
           {departure.minutesUntil === 0
-            ? "Now"
+            ? "Nyt"
             : departure.minutesUntil === 1
               ? "1 min"
               : `${departure.minutesUntil} min`}

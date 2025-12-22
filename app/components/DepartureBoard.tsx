@@ -208,14 +208,14 @@ export default function DepartureBoard({ onThemeColorChange }: DepartureBoardPro
       {location.status === "idle" && (
         <div className="flex flex-col items-center gap-8 py-16">
           <p className="text-white/80 text-center font-bold text-2xl sm:text-3xl">
-            To show nearby departures, the app need your location
+            Lähistön lähtöjen näyttämiseen sovellus tarvitsee sijaintisi
           </p>
           <button
             onClick={requestLocation}
             className="rounded-full bg-white px-10 py-5 font-extrabold text-xl sm:text-2xl transition-all hover:opacity-90"
             style={{ color: themeColor }}
           >
-            Share My Location
+            Jaa sijaintini
           </button>
           <div className="w-full max-w-md mt-4">
             <p className="text-white/60 text-center text-sm mb-3">
@@ -228,7 +228,7 @@ export default function DepartureBoard({ onThemeColorChange }: DepartureBoardPro
 
       {location.status === "requesting" && (
         <p className="py-16 text-white/80 text-center font-bold text-2xl sm:text-3xl">
-          Requesting location...
+          Haetaan sijaintia...
         </p>
       )}
 
@@ -262,7 +262,7 @@ export default function DepartureBoard({ onThemeColorChange }: DepartureBoardPro
 
       {location.status === "success" && departures.length === 0 && !error && (
         <p className="py-12 text-white/80 text-center font-bold text-2xl sm:text-3xl">
-          No departures found nearby
+          Lähistöltä ei löytynyt lähtöjä
         </p>
       )}
 

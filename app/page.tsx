@@ -145,6 +145,13 @@ export default function Home() {
             </p>
             <p className="text-white/50 text-xs mt-2">
               © {new Date().getFullYear()} SeuraavaBussi.fi
+              {" · "}
+              <a
+                href="/tietosuoja"
+                className="underline hover:text-white/70"
+              >
+                Tietosuojaseloste
+              </a>
             </p>
           </section>
         </div>

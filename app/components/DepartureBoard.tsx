@@ -217,6 +217,12 @@ export default function DepartureBoard({ onThemeColorChange }: DepartureBoardPro
           >
             Jaa sijaintini
           </button>
+          <a
+            href="/tietosuoja"
+            className="text-white/60 text-sm underline hover:text-white/80 transition-colors"
+          >
+            Tietosuojaseloste
+          </a>
           <div className="w-full max-w-md mt-4">
             <p className="text-white/60 text-center text-sm mb-3">
               tai hae paikan nimellä
@@ -390,6 +396,14 @@ export default function DepartureBoard({ onThemeColorChange }: DepartureBoardPro
               </a>
             </div>
           </div>
+
+          {/* Privacy Policy */}
+          <a
+            href="/tietosuoja"
+            className="text-white/50 text-sm hover:text-white/70 transition-colors"
+          >
+            Tietosuojaseloste
+          </a>
         </div>
       )}
     </>

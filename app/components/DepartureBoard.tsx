@@ -246,36 +246,50 @@ export default function DepartureBoard({ onThemeColorChange }: DepartureBoardPro
       )}
 
       {location.status === "idle" && (
-        <div className="flex flex-col items-center gap-8 py-16">
-          <p className="text-white/80 text-center font-bold text-2xl sm:text-3xl">
-            Lähistön lähtöjen näyttämiseen sovellus tarvitsee sijaintisi
+        <div className="flex flex-col items-center gap-6 py-12">
+          <p className="text-white/80 text-center font-bold text-xl sm:text-2xl">
+            Näytä lähistön bussit ja ratikat
           </p>
+
+          {/* Search - primary option */}
+          <div className="w-full max-w-md">
+            <SearchInput onLocationSelect={handleLocationSelect} />
+          </div>
+
+          <div className="flex items-center gap-4 text-white/50 text-sm">
+            <span className="h-px w-12 bg-white/30" />
+            <span>tai</span>
+            <span className="h-px w-12 bg-white/30" />
+          </div>
+
+          {/* Location - secondary option */}
           <button
             onClick={requestLocation}
-            className="rounded-full bg-white px-10 py-5 font-extrabold text-xl sm:text-2xl transition-all hover:opacity-90"
-            style={{ color: themeColor }}
+            className="inline-flex items-center gap-2 rounded-full bg-white/20 px-6 py-3 font-bold text-base text-white transition-all hover:bg-white/30"
           >
-            Jaa sijaintini
+            <LocateFixed className="w-4 h-4" />
+            Käytä sijaintia
           </button>
+
           <a
             href="/tietosuoja"
-            className="text-white/60 text-sm underline hover:text-white/80 transition-colors"
+            className="text-white/50 text-xs underline hover:text-white/70 transition-colors mt-4"
           >
             Tietosuojaseloste
           </a>
-          <div className="w-full max-w-md mt-4">
-            <p className="text-white/60 text-center text-sm mb-3">
-              tai hae paikan nimellä
-            </p>
-            <SearchInput onLocationSelect={handleLocationSelect} />
-          </div>
         </div>
       )}
 
       {location.status === "requesting" && (
-        <p className="py-16 text-white/80 text-center font-bold text-2xl sm:text-3xl">
-          Haetaan sijaintia...
-        </p>
+        <div className="flex flex-col items-center gap-4 py-16">
+          <div className="relative">
+            <LocateFixed className="w-8 h-8 text-white/80 animate-pulse" />
+            <div className="absolute inset-0 w-8 h-8 border-2 border-white/30 border-t-white/80 rounded-full animate-spin" />
+          </div>
+          <p className="text-white/60 text-center font-medium text-base">
+            Haetaan sijaintia...
+          </p>
+        </div>
       )}
 
       {location.status === "denied" && (
@@ -321,8 +335,9 @@ export default function DepartureBoard({ onThemeColorChange }: DepartureBoardPro
                 <span>Sijaintisi</span>
               </div>
             ) : (
-              <div className="inline-flex items-center gap-1.5 text-white/60 text-xs max-w-[60%]">
-                <span className="truncate">{searchedLocationName}</span>
+              <div className="flex flex-col gap-0.5 max-w-[60%]">
+                <span className="text-white/60 text-xs truncate">{searchedLocationName}</span>
+                <span className="text-white/40 text-[10px]">Sijainti ei päivity</span>
               </div>
             )}
             <button

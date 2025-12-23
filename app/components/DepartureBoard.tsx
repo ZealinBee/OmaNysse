@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { RefreshCw, LocateFixed } from "lucide-react";
+import { LocateFixed } from "lucide-react";
 import {
   Departure,
   StopNode,
@@ -109,18 +109,58 @@ export default function DepartureBoard({ onThemeColorChange }: DepartureBoardPro
     [radius]
   );
 
-  // Load saved location on mount
+  // Load location on mount - try fresh GPS if permission granted, otherwise use saved
   useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      try {
-        const coords = JSON.parse(saved) as { lat: number; lng: number };
-        setLocation({ status: "success", coords });
-        fetchNearbyStops(coords.lat, coords.lng);
-      } catch {
-        localStorage.removeItem(STORAGE_KEY);
+    const loadLocation = async () => {
+      // Check if geolocation permission is already granted
+      if (navigator.permissions && navigator.geolocation) {
+        try {
+          const permission = await navigator.permissions.query({ name: 'geolocation' });
+
+          if (permission.state === 'granted') {
+            // Permission already granted - get fresh location
+            setLocation({ status: "requesting" });
+            navigator.geolocation.getCurrentPosition(
+              (position) => {
+                const coords = {
+                  lat: position.coords.latitude,
+                  lng: position.coords.longitude,
+                };
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(coords));
+                setLocation({ status: "success", coords });
+                setSearchedLocationName(null);
+                fetchNearbyStops(coords.lat, coords.lng);
+              },
+              () => {
+                // GPS failed, fall back to saved location
+                loadSavedLocation();
+              }
+            );
+            return;
+          }
+        } catch {
+          // Permissions API not supported, fall back to saved
+        }
       }
-    }
+
+      // Fall back to saved location
+      loadSavedLocation();
+    };
+
+    const loadSavedLocation = () => {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        try {
+          const coords = JSON.parse(saved) as { lat: number; lng: number };
+          setLocation({ status: "success", coords });
+          fetchNearbyStops(coords.lat, coords.lng);
+        } catch {
+          localStorage.removeItem(STORAGE_KEY);
+        }
+      }
+    };
+
+    loadLocation();
   }, []);
 
   const requestLocation = () => {
@@ -274,6 +314,25 @@ export default function DepartureBoard({ onThemeColorChange }: DepartureBoardPro
 
       {departures.length > 0 && location.status === "success" && (
         <div className="flex flex-col">
+          <div className="flex justify-between items-center mb-4">
+            {!searchedLocationName ? (
+              <div className="inline-flex items-center gap-1.5 text-white/60 text-xs">
+                <LocateFixed className="w-3.5 h-3.5" />
+                <span>Sijaintisi</span>
+              </div>
+            ) : (
+              <div className="inline-flex items-center gap-1.5 text-white/60 text-xs max-w-[60%]">
+                <span className="truncate">{searchedLocationName}</span>
+              </div>
+            )}
+            <button
+              onClick={requestLocation}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/10 hover:bg-white/20 active:bg-white/30 rounded-full font-medium text-xs text-white/80 hover:text-white transition-all cursor-pointer"
+            >
+              <LocateFixed className="w-3.5 h-3.5" />
+              Päivitä sijainti
+            </button>
+          </div>
           {departures.slice(0, MAX_DEPARTURES).map((dep) => (
             <DepartureRow
               key={dep.key}
@@ -287,37 +346,6 @@ export default function DepartureBoard({ onThemeColorChange }: DepartureBoardPro
       {/* Controls Section */}
       {location.status === "success" && (
         <div className="mt-10 pt-8 border-t border-white/10">
-          {/* Current Location Info */}
-          {searchedLocationName && (
-            <p className="text-white/60 text-sm text-center mb-6">
-              Näytetään lähdöt lähellä:{" "}
-              <span className="font-semibold text-white/80">
-                {searchedLocationName}
-              </span>
-            </p>
-          )}
-
-          {/* Primary Actions */}
-          <div className="flex justify-center gap-3 mb-6">
-            <button
-              onClick={() => {
-                fetchNearbyStops(location.coords.lat, location.coords.lng);
-                setRefreshCountdown(30);
-              }}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg font-bold text-sm text-white transition-all"
-            >
-              <RefreshCw className="w-4 h-4" />
-              Päivitä
-            </button>
-            <button
-              onClick={requestLocation}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg font-bold text-sm text-white transition-all"
-            >
-              <LocateFixed className="w-4 h-4" />
-              Päivitä sijainti
-            </button>
-          </div>
-
           {/* Radius Slider */}
           <div className="flex flex-col items-center gap-2 w-full max-w-xs mx-auto mb-8">
             <label className="text-white/60 text-sm">

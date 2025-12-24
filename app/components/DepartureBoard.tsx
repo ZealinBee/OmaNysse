@@ -8,6 +8,7 @@ import {
   LocationState,
   GeocodedLocation,
   REGION_COLORS,
+  HSL_MODE_COLORS,
 } from "@/app/lib/types";
 import {
   STORAGE_KEY,
@@ -91,9 +92,15 @@ export default function DepartureBoard({ onThemeColorChange }: DepartureBoardPro
           node.stop.stoptimesWithoutPatterns.forEach((st, idx) => {
             const minutes = getMinutesUntil(st.serviceDay, st.realtimeDeparture);
             if (minutes >= 0 && minutes <= 120) {
+              // Determine route color: use route color if available, otherwise use mode-based colors for HSL
+              const routeColor = st.trip.route.color
+                ? `#${st.trip.route.color}`
+                : region === "hsl"
+                  ? HSL_MODE_COLORS[st.trip.route.mode] || HSL_MODE_COLORS.BUS
+                  : "#1e40af";
               allDepartures.push({
                 routeNumber: st.trip.route.shortName,
-                color: st.trip.route.color ? `#${st.trip.route.color}` : "#1e40af",
+                color: routeColor,
                 headsign: st.headsign,
                 minutesUntil: minutes,
                 departureTime: formatDepartureTime(st.serviceDay, st.realtimeDeparture),

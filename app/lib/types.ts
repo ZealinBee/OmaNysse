@@ -85,3 +85,12 @@ export const REGION_COLORS: Record<string, string> = {
   pori: "#00ADEF", // Pori blue
   default: "#1b57cf", // Fallback to Nysse blue
 };
+
+// HSL official transportation mode colors
+export const HSL_MODE_COLORS: Record<string, string> = {
+  TRAM: "#00985F", // HSL tram green
+  SUBWAY: "#FF6319", // HSL metro orange
+  RAIL: "#8C4799", // HSL commuter train purple
+  BUS: "#007AC9", // HSL bus blue
+  FERRY: "#00B9E4", // HSL ferry light blue
+};

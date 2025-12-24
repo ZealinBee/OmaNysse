@@ -80,6 +80,7 @@ export default function SearchInput({
   };
 
   const handleRecentSelect = (location: GeocodedLocation) => {
+    saveToRecentSearches(location);
     onLocationSelect(location);
   };
 

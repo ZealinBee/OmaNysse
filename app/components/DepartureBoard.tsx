@@ -11,6 +11,7 @@ import {
 } from "@/app/lib/types";
 import {
   STORAGE_KEY,
+  RADIUS_STORAGE_KEY,
   getMinutesUntil,
   formatDepartureTime,
   getRegion,
@@ -29,8 +30,30 @@ export default function DepartureBoard({ onThemeColorChange }: DepartureBoardPro
   const [location, setLocation] = useState<LocationState>({ status: "idle" });
   const [departures, setDepartures] = useState<Departure[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [radius, setRadius] = useState(500);
-  const [debouncedRadius, setDebouncedRadius] = useState(500);
+  const [radius, setRadius] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem(RADIUS_STORAGE_KEY);
+      if (saved) {
+        const parsed = parseInt(saved, 10);
+        if (!isNaN(parsed) && parsed >= 100 && parsed <= 2000) {
+          return parsed;
+        }
+      }
+    }
+    return 500;
+  });
+  const [debouncedRadius, setDebouncedRadius] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem(RADIUS_STORAGE_KEY);
+      if (saved) {
+        const parsed = parseInt(saved, 10);
+        if (!isNaN(parsed) && parsed >= 100 && parsed <= 2000) {
+          return parsed;
+        }
+      }
+    }
+    return 500;
+  });
   const [refreshCountdown, setRefreshCountdown] = useState(30);
   const [searchedLocationName, setSearchedLocationName] = useState<string | null>(null);
 
@@ -202,6 +225,8 @@ export default function DepartureBoard({ onThemeColorChange }: DepartureBoardPro
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedRadius(radius);
+      // Save radius to localStorage when debounced
+      localStorage.setItem(RADIUS_STORAGE_KEY, radius.toString());
     }, 1000);
 
     return () => clearTimeout(timer);

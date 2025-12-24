@@ -1,6 +1,7 @@
 import { REGION_BOUNDS, REGION_COLORS } from "./types";
 
 export const STORAGE_KEY = "nysse-saved-location";
+export const RADIUS_STORAGE_KEY = "nysse-saved-radius";
 
 export function getMinutesUntil(serviceDay: number, departureSeconds: number): number {
   const departureTime = (serviceDay + departureSeconds) * 1000;

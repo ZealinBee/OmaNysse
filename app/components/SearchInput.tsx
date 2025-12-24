@@ -1,8 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Search, X, MapPin } from "lucide-react";
+import { Search, X, MapPin, History } from "lucide-react";
 import { GeocodedLocation } from "@/app/lib/types";
+
+const RECENT_SEARCHES_KEY = "nysse-recent-searches";
+const MAX_RECENT_SEARCHES = 5;
 
 interface SearchInputProps {
   onLocationSelect: (location: GeocodedLocation) => void;
@@ -17,6 +20,19 @@ export default function SearchInput({
   const [searchResults, setSearchResults] = useState<GeocodedLocation[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [showSearchResults, setShowSearchResults] = useState(false);
+  const [recentSearches, setRecentSearches] = useState<GeocodedLocation[]>([]);
+
+  // Load recent searches from localStorage on mount
+  useEffect(() => {
+    const saved = localStorage.getItem(RECENT_SEARCHES_KEY);
+    if (saved) {
+      try {
+        setRecentSearches(JSON.parse(saved));
+      } catch {
+        // Invalid data, ignore
+      }
+    }
+  }, []);
 
   const searchLocations = async (query: string) => {
     if (query.trim().length < 2) {
@@ -44,11 +60,27 @@ export default function SearchInput({
     }
   };
 
+  const saveToRecentSearches = (location: GeocodedLocation) => {
+    const updated = [
+      location,
+      ...recentSearches.filter(
+        (s) => s.properties.id !== location.properties.id
+      ),
+    ].slice(0, MAX_RECENT_SEARCHES);
+    setRecentSearches(updated);
+    localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(updated));
+  };
+
   const handleSelect = (location: GeocodedLocation) => {
+    saveToRecentSearches(location);
     onLocationSelect(location);
     setSearchQuery("");
     setShowSearchResults(false);
     setSearchResults([]);
+  };
+
+  const handleRecentSelect = (location: GeocodedLocation) => {
+    onLocationSelect(location);
   };
 
   // Debounced search
@@ -105,6 +137,22 @@ export default function SearchInput({
       {isSearching && (
         <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-lg p-4 text-center text-gray-500 text-sm">
           Haetaan...
+        </div>
+      )}
+      {recentSearches.length > 0 && !showSearchResults && !isSearching && (
+        <div className="mt-3 flex flex-wrap gap-2">
+          {recentSearches.map((location) => (
+            <button
+              key={location.properties.id}
+              onClick={() => handleRecentSelect(location)}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-white/15 hover:bg-white/25 rounded-lg text-white/90 text-sm transition-colors"
+            >
+              <History className="w-3.5 h-3.5 text-white/60" />
+              <span className="truncate max-w-[150px]">
+                {location.properties.name || location.properties.label.split(",")[0]}
+              </span>
+            </button>
+          ))}
         </div>
       )}
     </div>

@@ -446,7 +446,7 @@ export default function DepartureBoard({ onThemeColorChange }: DepartureBoardPro
                   alt="Buy Me a Coffee"
                   className="h-4 w-4"
                 />
-                Kahvi
+                Buy me a Coffee
               </a>
               <a
                 href="https://qr.mobilepay.fi/box/446331ce-7196-49a7-8850-c0234677a0d2/pay-in"
@@ -460,7 +460,7 @@ export default function DepartureBoard({ onThemeColorChange }: DepartureBoardPro
                   alt="MobilePay"
                   className="h-6 rounded"
                 />
-                Bussilippu
+                Tue MobilePaylla
               </a>
             </div>
           </div>

@@ -97,9 +97,10 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(data);
   } catch (error) {
     console.error("Fetch error:", error);
+    // Network error - couldn't reach external API
     return NextResponse.json(
-      { error: "Failed to fetch stops" },
-      { status: 500 }
+      { error: "network_error" },
+      { status: 503 }
     );
   }
 }

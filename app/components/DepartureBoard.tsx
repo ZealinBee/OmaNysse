@@ -73,12 +73,26 @@ export default function DepartureBoard({ onThemeColorChange }: DepartureBoardPro
     async (lat: number, lng: number, searchRadius: number = radius) => {
       setError(null);
       const region = getRegion(lat, lng);
+      let response: Response;
       try {
-        const response = await fetch(
+        response = await fetch(
           `/api/stops?lat=${lat}&lon=${lng}&radius=${searchRadius}&region=${region}`
         );
+      } catch {
+        // Network error - fetch itself failed (no internet, DNS failure, etc.)
+        setError("Pysäkkien haku epäonnistui. Tarkista verkkoyhteytesi.");
+        return;
+      }
+
+      try {
         if (!response.ok) {
-          throw new Error("Failed to fetch stops");
+          // Check if it's a network error (503 from our API)
+          if (response.status === 503) {
+            setError("Pysäkkien haku epäonnistui. Tarkista verkkoyhteytesi.");
+          } else {
+            setError("Pysäkkien haku epäonnistui. Yritä myöhemmin uudelleen.");
+          }
+          return;
         }
         const data = await response.json();
         const stopNodes: StopNode[] =
@@ -132,8 +146,8 @@ export default function DepartureBoard({ onThemeColorChange }: DepartureBoardPro
         // Sort by time
         dedupedDepartures.sort((a, b) => a.minutesUntil - b.minutesUntil);
         setDepartures(dedupedDepartures);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to fetch stops");
+      } catch {
+        setError("Pysäkkien haku epäonnistui. Yritä myöhemmin uudelleen.");
       }
     },
     [radius]
@@ -347,7 +361,7 @@ export default function DepartureBoard({ onThemeColorChange }: DepartureBoardPro
       )}
 
       {error && (
-        <div className="w-full p-6 rounded-xl bg-red-500/20 text-white font-bold text-base sm:text-xl mb-6">
+        <div className="w-full p-6 rounded-xl bg-black/80 text-white font-bold text-base sm:text-xl mb-6">
           {error}
         </div>
       )}

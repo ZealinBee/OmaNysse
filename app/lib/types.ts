@@ -75,8 +75,13 @@ export const REGION_BOUNDS = {
 export const REGION_COLORS: Record<string, string> = {
   uusimaa: "#007AC9", // HSL blue
   tampere: "#1b57cf", // Nysse blue
-  jyvaskyla: "#009640", // Linkki green
-  turku: "#00A651", // Föli green
-  oulu: "#E4032E", // Oulu red
+  turku: "#00A19C", // Föli teal
+  oulu: "#E30A69", // OSL pink
+  jyvaskyla: "#109D2C", // Linkki green
+  lahti: "#1570B8", // LSL blue
+  kuopio: "#554096", // Vilkku purple
+  lappeenranta: "#DD3189", // Jouko pink
+  hameenlinna: "#C3291E", // HML red
+  pori: "#00ADEF", // Pori blue
   default: "#1b57cf", // Fallback to Nysse blue
 };

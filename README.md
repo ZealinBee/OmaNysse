@@ -8,9 +8,14 @@ A real-time public transit departure board for Finland. Shows upcoming buses, tr
 
 - Helsinki (HSL)
 - Tampere (Nysse)
-- Turku (Foli)
-- Jyvaskyla (Linkki)
-- Oulu
+- Turku (Föli)
+- Oulu (OSL)
+- Jyväskylä (Linkki)
+- Lahti (LSL)
+- Kuopio (Vilkku)
+- Lappeenranta (Jouko)
+- Hämeenlinna
+- Pori
 
 ## Features
 

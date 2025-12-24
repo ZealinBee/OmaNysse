@@ -31,7 +31,7 @@ export default function Home() {
                   className="w-3 h-3 rounded-full"
                   style={{ backgroundColor: "#007AC9" }}
                 />
-                <span>Helsinki ja HSL-alue</span>
+                <span>Helsinki (HSL)</span>
               </li>
               <li className="flex items-center gap-2">
                 <span
@@ -43,23 +43,58 @@ export default function Home() {
               <li className="flex items-center gap-2">
                 <span
                   className="w-3 h-3 rounded-full"
-                  style={{ backgroundColor: "#00A651" }}
+                  style={{ backgroundColor: "#00A19C" }}
                 />
                 <span>Turku (Föli)</span>
               </li>
               <li className="flex items-center gap-2">
                 <span
                   className="w-3 h-3 rounded-full"
-                  style={{ backgroundColor: "#009640" }}
+                  style={{ backgroundColor: "#E30A69" }}
+                />
+                <span>Oulu (OSL)</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <span
+                  className="w-3 h-3 rounded-full"
+                  style={{ backgroundColor: "#109D2C" }}
                 />
                 <span>Jyväskylä (Linkki)</span>
               </li>
               <li className="flex items-center gap-2">
                 <span
                   className="w-3 h-3 rounded-full"
-                  style={{ backgroundColor: "#E4032E" }}
+                  style={{ backgroundColor: "#1570B8" }}
                 />
-                <span>Oulu</span>
+                <span>Lahti (LSL)</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <span
+                  className="w-3 h-3 rounded-full"
+                  style={{ backgroundColor: "#554096" }}
+                />
+                <span>Kuopio (Vilkku)</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <span
+                  className="w-3 h-3 rounded-full"
+                  style={{ backgroundColor: "#DD3189" }}
+                />
+                <span>Lappeenranta (Jouko)</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <span
+                  className="w-3 h-3 rounded-full"
+                  style={{ backgroundColor: "#C3291E" }}
+                />
+                <span>Hämeenlinna</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <span
+                  className="w-3 h-3 rounded-full"
+                  style={{ backgroundColor: "#00ADEF" }}
+                />
+                <span>Pori</span>
               </li>
             </ul>
           </section>

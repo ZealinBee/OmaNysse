@@ -17,6 +17,26 @@ interface DepartureRowProps {
   region: "hsl" | "waltti";
 }
 
+export function DepartureRowSkeleton() {
+  return (
+    <div className="flex items-center gap-2 sm:gap-5 py-3 sm:py-5 border-b-2 border-white/20 animate-pulse">
+      <div className="min-w-[2.5rem] sm:min-w-[5rem] h-8 sm:h-12 bg-white/20 rounded-lg" />
+      <div className="flex-1 min-w-0 space-y-2">
+        <div className="h-5 sm:h-7 bg-white/20 rounded w-3/4" />
+        <div className="h-3 sm:h-4 bg-white/10 rounded w-1/3" />
+      </div>
+      <div className="flex flex-col items-end space-y-1">
+        <div className="h-5 sm:h-8 bg-white/20 rounded w-16 sm:w-20" />
+        <div className="h-3 sm:h-4 bg-white/10 rounded w-12" />
+      </div>
+      <div className="flex items-center gap-1.5 sm:gap-2">
+        <div className="w-8 h-8 sm:w-10 sm:h-10 bg-white/20 rounded-lg" />
+        <div className="w-8 h-8 sm:w-20 sm:h-10 bg-white/20 rounded-lg" />
+      </div>
+    </div>
+  );
+}
+
 export default function DepartureRow({ departure, userCoords, region }: DepartureRowProps) {
   const [isMapOpen, setIsMapOpen] = useState(false);
 
@@ -67,7 +87,7 @@ export default function DepartureRow({ departure, userCoords, region }: Departur
             title="Get directions to stop"
           >
             <Navigation className="w-4 h-4" />
-            <span>Pysäkille</span>
+            <span className="hidden sm:inline">Pysäkille</span>
           </a>
         </div>
       </div>

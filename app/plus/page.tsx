@@ -44,39 +44,6 @@ export default function PlusPage() {
           </p>
         </div>
 
-        {/* Features */}
-        <section className="mb-10">
-          <div className="space-y-3">
-            <div className="flex items-start gap-3">
-              <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0">
-                <Map className="w-4 h-4 text-white" />
-              </div>
-              <div>
-                <p className="text-white font-semibold">Reaaliaikainen kartta</p>
-                <p className="text-white/60 text-sm">Näe missä bussi on juuri nyt (Waltti-alueet)</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-3">
-              <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0">
-                <Zap className="w-4 h-4 text-white" />
-              </div>
-              <div>
-                <p className="text-white font-semibold">Rajaton käyttö</p>
-                <p className="text-white/60 text-sm">Ei kokeilurajoituksia</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-3">
-              <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0">
-                <Shield className="w-4 h-4 text-white" />
-              </div>
-              <div>
-                <p className="text-white font-semibold">Tulevat ominaisuudet</p>
-                <p className="text-white/60 text-sm">Pääsy kaikkiin uusiin Plus-ominaisuuksiin</p>
-              </div>
-            </div>
-          </div>
-        </section>
-
         {/* Pricing Cards */}
         <PricingCards />
 

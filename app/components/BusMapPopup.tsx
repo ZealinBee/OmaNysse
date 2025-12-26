@@ -1,11 +1,14 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { X, Bus, MapPin, Navigation, Lock } from "lucide-react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { useSubscription } from "@/app/lib/hooks/useSubscription";
+
+const FREE_TRIAL_LIMIT = 3;
+const TRIAL_STORAGE_KEY = "seuraavabussi_map_trial_count";
 
 interface VehiclePosition {
   lat: number;
@@ -100,9 +103,51 @@ export default function BusMapPopup({
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const busIcon = useRef(createBusIcon(routeColor));
+  const [trialCount, setTrialCount] = useState<number | null>(null);
+  const hasUsedTrial = useRef(false);
 
   const { hasPlusAccess, isLoading: subLoading } = useSubscription();
-  const isPaywalled = !hasPlusAccess && !subLoading;
+
+  // Get trial count from localStorage
+  const getTrialCount = useCallback(() => {
+    if (typeof window === "undefined") return 0;
+    const stored = localStorage.getItem(TRIAL_STORAGE_KEY);
+    return stored ? parseInt(stored, 10) : 0;
+  }, []);
+
+  // Increment trial count
+  const incrementTrialCount = useCallback(() => {
+    if (typeof window === "undefined") return;
+    const current = getTrialCount();
+    const newCount = current + 1;
+    localStorage.setItem(TRIAL_STORAGE_KEY, newCount.toString());
+    setTrialCount(newCount);
+  }, [getTrialCount]);
+
+  // Load trial count on mount
+  useEffect(() => {
+    setTrialCount(getTrialCount());
+  }, [getTrialCount]);
+
+  // Track trial usage when map opens (only once per open)
+  useEffect(() => {
+    if (isOpen && !hasPlusAccess && !subLoading && trialCount !== null && trialCount < FREE_TRIAL_LIMIT && !hasUsedTrial.current) {
+      hasUsedTrial.current = true;
+      incrementTrialCount();
+    }
+  }, [isOpen, hasPlusAccess, subLoading, trialCount, incrementTrialCount]);
+
+  // Reset trial tracking when popup closes
+  useEffect(() => {
+    if (!isOpen) {
+      hasUsedTrial.current = false;
+    }
+  }, [isOpen]);
+
+  const trialLoading = trialCount === null;
+  const remainingTrials = trialCount !== null ? Math.max(0, FREE_TRIAL_LIMIT - trialCount) : FREE_TRIAL_LIMIT;
+  const hasTrialsLeft = trialCount !== null && trialCount < FREE_TRIAL_LIMIT;
+  const isPaywalled = !hasPlusAccess && !subLoading && !trialLoading && !hasTrialsLeft;
 
   useEffect(() => {
     if (!isOpen || isPaywalled) return;
@@ -152,8 +197,8 @@ export default function BusMapPopup({
     ...vehiclePositions.map((v) => [v.lat, v.lon] as [number, number]),
   ];
 
-  // Paywall UI - show when subscription is loading or user doesn't have access
-  if (subLoading) {
+  // Loading state - show while checking subscription or trial status
+  if (subLoading || trialLoading) {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-md">
         <div className="relative w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden bg-white">
@@ -217,7 +262,7 @@ export default function BusMapPopup({
                   SeuraavaBussi Plus
                 </h3>
                 <p className="text-white/60 text-sm mb-6 max-w-xs">
-                  Näe bussien sijainnit kartalla rajattomasti SeuraavaBussi Plus -tilauksella
+                  Olet käyttänyt kaikki {FREE_TRIAL_LIMIT} ilmaista kokeilukertaasi. Hanki SeuraavaBussi Plus nähdäksesi bussien sijainnit kartalla rajattomasti.
                 </p>
                 <a
                   href="/plus"
@@ -320,6 +365,23 @@ export default function BusMapPopup({
             <FitBoundsOnce positions={allPositions} />
           </MapContainer>
         </div>
+
+        {/* Trial Banner - show when using free trial */}
+        {!hasPlusAccess && hasTrialsLeft && (
+          <div className="px-4 py-2 bg-amber-50 border-t border-amber-200">
+            <div className="flex items-center justify-between">
+              <p className="text-amber-800 text-xs">
+                Ilmainen kokeilu: {remainingTrials} {remainingTrials === 1 ? "kerta" : "kertaa"} jäljellä
+              </p>
+              <a
+                href="/plus"
+                className="text-xs font-semibold text-amber-700 hover:text-amber-900 underline"
+              >
+                Hanki Plus
+              </a>
+            </div>
+          </div>
+        )}
 
         {/* Legend / Info */}
         <div className="px-4 py-3 bg-gray-50 border-t border-gray-200">

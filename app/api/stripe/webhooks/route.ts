@@ -194,19 +194,37 @@ async function handleSubscriptionChange(subscription: SubscriptionData) {
     return;
   }
 
+  // Get period dates - check subscription level first, then fall back to items level
+  const subscriptionItem = subscription.items?.data?.[0];
+  const periodStart =
+    subscription.current_period_start ??
+    (subscriptionItem as unknown as { current_period_start?: number })
+      ?.current_period_start;
+  const periodEnd =
+    subscription.current_period_end ??
+    (subscriptionItem as unknown as { current_period_end?: number })
+      ?.current_period_end;
+
+  if (!periodStart || !periodEnd) {
+    console.error("Missing period dates in subscription:", {
+      subscriptionId: subscription.id,
+      topLevelStart: subscription.current_period_start,
+      topLevelEnd: subscription.current_period_end,
+      itemLevelStart: (subscriptionItem as unknown as { current_period_start?: number })?.current_period_start,
+      itemLevelEnd: (subscriptionItem as unknown as { current_period_end?: number })?.current_period_end,
+    });
+    throw new Error("Missing period dates in subscription");
+  }
+
   const subscriptionData = {
     user_id: userId,
     stripe_customer_id: customerId,
     stripe_subscription_id: subscription.id,
-    stripe_price_id: subscription.items.data[0].price.id,
+    stripe_price_id: subscriptionItem?.price?.id ?? null,
     subscription_type: "monthly" as const,
     status: mapStripeStatus(subscription.status),
-    current_period_start: new Date(
-      subscription.current_period_start * 1000
-    ).toISOString(),
-    current_period_end: new Date(
-      subscription.current_period_end * 1000
-    ).toISOString(),
+    current_period_start: new Date(periodStart * 1000).toISOString(),
+    current_period_end: new Date(periodEnd * 1000).toISOString(),
     cancel_at_period_end: subscription.cancel_at_period_end,
     canceled_at: subscription.canceled_at
       ? new Date(subscription.canceled_at * 1000).toISOString()

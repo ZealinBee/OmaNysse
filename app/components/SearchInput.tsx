@@ -77,11 +77,15 @@ export default function SearchInput({
     setSearchQuery("");
     setShowSearchResults(false);
     setSearchResults([]);
+    // Smooth scroll to top so users can see the departures
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleRecentSelect = (location: GeocodedLocation) => {
     saveToRecentSearches(location);
     onLocationSelect(location);
+    // Smooth scroll to top so users can see the departures
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   // Debounced search

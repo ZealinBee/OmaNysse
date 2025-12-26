@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
 import Script from "next/script";
+import { AuthProvider } from "./lib/supabase/auth-context";
 import "./globals.css";
 
 const inter = Inter({
@@ -92,7 +93,9 @@ export default function RootLayout({
         />
       </head>
       <body className={`${inter.variable} antialiased`}>
-        {children}
+        <AuthProvider>
+          {children}
+        </AuthProvider>
         <Analytics />
         <Script
           src="https://scripts.simpleanalyticscdn.com/latest.js"

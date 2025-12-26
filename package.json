@@ -9,6 +9,8 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@supabase/ssr": "^0.8.0",
+    "@supabase/supabase-js": "^2.89.0",
     "@types/leaflet": "^1.9.21",
     "@vercel/analytics": "^1.6.1",
     "leaflet": "^1.9.4",

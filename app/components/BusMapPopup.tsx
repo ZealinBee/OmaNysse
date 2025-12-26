@@ -1,10 +1,14 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { X, Bus, MapPin, Navigation } from "lucide-react";
+import { X, Bus, MapPin, Navigation, Lock } from "lucide-react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+
+// Configuration
+const FREE_TRIAL_COUNT = 3;
+const STORAGE_KEY = "busmap-trial-count";
 
 interface VehiclePosition {
   lat: number;
@@ -24,6 +28,24 @@ interface BusMapPopupProps {
   userLat: number;
   userLon: number;
   region: "hsl" | "waltti";
+}
+
+// Helper functions for trial tracking
+function getTrialCount(): number {
+  if (typeof window === "undefined") return 0;
+  const stored = localStorage.getItem(STORAGE_KEY);
+  return stored ? parseInt(stored, 10) : 0;
+}
+
+function incrementTrialCount(): number {
+  const current = getTrialCount();
+  const newCount = current + 1;
+  localStorage.setItem(STORAGE_KEY, newCount.toString());
+  return newCount;
+}
+
+function getRemainingTrials(): number {
+  return Math.max(0, FREE_TRIAL_COUNT - getTrialCount());
 }
 
 // Custom hook to fit bounds only on initial load
@@ -98,10 +120,35 @@ export default function BusMapPopup({
   const [vehiclePositions, setVehiclePositions] = useState<VehiclePosition[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isPaywalled, setIsPaywalled] = useState(false);
+  const [remainingTrials, setRemainingTrials] = useState(FREE_TRIAL_COUNT);
   const busIcon = useRef(createBusIcon(routeColor));
+  const hasCountedThisOpen = useRef(false);
+
+  // Check trial status and increment counter when popup opens
+  useEffect(() => {
+    if (!isOpen) {
+      hasCountedThisOpen.current = false;
+      return;
+    }
+
+    // Only count once per open
+    if (hasCountedThisOpen.current) return;
+    hasCountedThisOpen.current = true;
+
+    const remaining = getRemainingTrials();
+    if (remaining <= 0) {
+      setIsPaywalled(true);
+      setRemainingTrials(0);
+    } else {
+      setIsPaywalled(false);
+      incrementTrialCount();
+      setRemainingTrials(remaining - 1);
+    }
+  }, [isOpen]);
 
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen || isPaywalled) return;
 
     const fetchVehiclePositions = async () => {
       setIsLoading(true);
@@ -132,7 +179,7 @@ export default function BusMapPopup({
     // Refresh every 10 seconds
     const interval = setInterval(fetchVehiclePositions, 10000);
     return () => clearInterval(interval);
-  }, [isOpen, routeNumber, region]);
+  }, [isOpen, isPaywalled, routeNumber, region]);
 
   // Update bus icon when color changes
   useEffect(() => {
@@ -147,6 +194,83 @@ export default function BusMapPopup({
     [userLat, userLon],
     ...vehiclePositions.map((v) => [v.lat, v.lon] as [number, number]),
   ];
+
+  // Paywall UI
+  if (isPaywalled) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-md">
+        <div className="relative w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden">
+          {/* Glass background layer */}
+          <div
+            className="absolute inset-0 opacity-80"
+            style={{ backgroundColor: routeColor }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent" />
+
+          {/* Content */}
+          <div className="relative">
+            {/* Header */}
+            <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
+              <div className="flex items-center gap-3">
+                <span className="font-black text-white text-xl drop-shadow-sm">{routeNumber}</span>
+                <span className="text-white/80 font-medium truncate">{headsign}</span>
+              </div>
+              <button
+                onClick={onClose}
+                className="p-2 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/10 transition-all"
+              >
+                <X className="w-5 h-5 text-white" />
+              </button>
+            </div>
+
+            {/* Paywall Content */}
+            <div className="h-80 relative flex flex-col items-center justify-center p-6">
+              {/* Blurred map preview background */}
+              <div className="absolute inset-0 opacity-15 blur-md">
+                <MapContainer
+                  center={[stopLat, stopLon]}
+                  zoom={14}
+                  className="h-full w-full"
+                  zoomControl={false}
+                  dragging={false}
+                  scrollWheelZoom={false}
+                >
+                  <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                </MapContainer>
+              </div>
+
+              {/* Paywall overlay */}
+              <div className="relative z-10 flex flex-col items-center text-center">
+                <div className="w-16 h-16 rounded-2xl bg-white/15 backdrop-blur-sm border border-white/20 flex items-center justify-center mb-5 shadow-lg">
+                  <Lock className="w-7 h-7 text-white drop-shadow-sm" />
+                </div>
+                <h3 className="text-xl font-bold text-white mb-2 drop-shadow-sm">
+                  Haluatko nähdä lisää?
+                </h3>
+                <p className="text-white/60 text-sm mb-6 max-w-xs">
+                  Näe bussien sijainnit kartalla rajattomasti SeuraavaBussi Plus -tilauksella
+                </p>
+                <a
+                  href="/plus"
+                  className="px-6 py-3 bg-white/95 hover:bg-white backdrop-blur-sm rounded-xl font-bold text-sm transition-all hover:scale-105 active:scale-95 shadow-lg border border-white/50 inline-block"
+                  style={{ color: routeColor }}
+                >
+                  Osta SeuraavaBussi Plus
+                </a>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="px-5 py-3 border-t border-white/10 bg-black/10">
+              <p className="text-center text-white/40 text-xs">
+                Plus: Rajaton karttakäyttö ja tulevat ominaisuudet
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
@@ -167,6 +291,17 @@ export default function BusMapPopup({
             <X className="w-5 h-5 text-white" />
           </button>
         </div>
+
+        {/* Remaining trials banner */}
+        {remainingTrials > 0 && remainingTrials <= 2 && (
+          <div className="px-4 py-2 bg-amber-50 border-b border-amber-200">
+            <p className="text-center text-amber-800 text-xs font-medium">
+              {remainingTrials === 1
+                ? "Viimeinen ilmainen kokeilu"
+                : `${remainingTrials} ilmaista kokeilua jäljellä`}
+            </p>
+          </div>
+        )}
 
         {/* Map Container */}
         <div className="h-80 relative">

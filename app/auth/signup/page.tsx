@@ -51,7 +51,7 @@ function SignupForm() {
 
   const handleGoogleLogin = async () => {
     setGoogleLoading(true);
-    await signInWithGoogle();
+    await signInWithGoogle(next);
   };
 
   if (success) {

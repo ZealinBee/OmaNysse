@@ -30,6 +30,7 @@ interface DepartureBoardProps {
 export default function DepartureBoard({ onThemeColorChange }: DepartureBoardProps) {
   const [location, setLocation] = useState<LocationState>({ status: "idle" });
   const [departures, setDepartures] = useState<Departure[]>([]);
+  const [isLoadingDepartures, setIsLoadingDepartures] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [radius, setRadius] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -72,6 +73,7 @@ export default function DepartureBoard({ onThemeColorChange }: DepartureBoardPro
   const fetchNearbyStops = useCallback(
     async (lat: number, lng: number, searchRadius: number = radius) => {
       setError(null);
+      setIsLoadingDepartures(true);
       const region = getRegion(lat, lng);
       let response: Response;
       try {
@@ -81,6 +83,7 @@ export default function DepartureBoard({ onThemeColorChange }: DepartureBoardPro
       } catch {
         // Network error - fetch itself failed (no internet, DNS failure, etc.)
         setError("Pysäkkien haku epäonnistui. Tarkista verkkoyhteytesi.");
+        setIsLoadingDepartures(false);
         return;
       }
 
@@ -92,6 +95,7 @@ export default function DepartureBoard({ onThemeColorChange }: DepartureBoardPro
           } else {
             setError("Pysäkkien haku epäonnistui. Yritä myöhemmin uudelleen.");
           }
+          setIsLoadingDepartures(false);
           return;
         }
         const data = await response.json();
@@ -146,8 +150,10 @@ export default function DepartureBoard({ onThemeColorChange }: DepartureBoardPro
         // Sort by time
         dedupedDepartures.sort((a, b) => a.minutesUntil - b.minutesUntil);
         setDepartures(dedupedDepartures);
+        setIsLoadingDepartures(false);
       } catch {
         setError("Pysäkkien haku epäonnistui. Yritä myöhemmin uudelleen.");
+        setIsLoadingDepartures(false);
       }
     },
     [radius]
@@ -366,7 +372,7 @@ export default function DepartureBoard({ onThemeColorChange }: DepartureBoardPro
         </div>
       )}
 
-      {location.status === "success" && departures.length === 0 && !error && (
+      {location.status === "success" && departures.length === 0 && !error && !isLoadingDepartures && (
         <p className="py-12 text-white/80 text-center font-bold text-2xl sm:text-3xl">
           Lähistöltä ei löytynyt lähtöjä
         </p>

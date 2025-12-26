@@ -1,4 +1,4 @@
-import { ArrowLeft, Map, Zap, Shield } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { Metadata } from "next";
 import { PricingCards } from "./PricingCards";

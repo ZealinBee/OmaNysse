@@ -85,7 +85,7 @@ function SignupForm() {
     <main className="min-h-screen bg-[#1b57cf] p-6 sm:p-10">
       <div className="max-w-md mx-auto">
         <Link
-          href="/"
+          href="/plus"
           className="inline-flex items-center gap-2 text-white/70 hover:text-white font-bold text-sm transition-colors mb-8"
         >
           <ArrowLeft className="w-4 h-4" />

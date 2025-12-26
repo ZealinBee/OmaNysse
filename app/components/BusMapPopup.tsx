@@ -5,10 +5,7 @@ import { X, Bus, MapPin, Navigation, Lock } from "lucide-react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-
-// Configuration
-const FREE_TRIAL_COUNT = 3;
-const STORAGE_KEY = "busmap-trial-count";
+import { useSubscription } from "@/app/lib/hooks/useSubscription";
 
 interface VehiclePosition {
   lat: number;
@@ -28,24 +25,6 @@ interface BusMapPopupProps {
   userLat: number;
   userLon: number;
   region: "hsl" | "waltti";
-}
-
-// Helper functions for trial tracking
-function getTrialCount(): number {
-  if (typeof window === "undefined") return 0;
-  const stored = localStorage.getItem(STORAGE_KEY);
-  return stored ? parseInt(stored, 10) : 0;
-}
-
-function incrementTrialCount(): number {
-  const current = getTrialCount();
-  const newCount = current + 1;
-  localStorage.setItem(STORAGE_KEY, newCount.toString());
-  return newCount;
-}
-
-function getRemainingTrials(): number {
-  return Math.max(0, FREE_TRIAL_COUNT - getTrialCount());
 }
 
 // Custom hook to fit bounds only on initial load
@@ -120,32 +99,10 @@ export default function BusMapPopup({
   const [vehiclePositions, setVehiclePositions] = useState<VehiclePosition[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isPaywalled, setIsPaywalled] = useState(false);
-  const [remainingTrials, setRemainingTrials] = useState(FREE_TRIAL_COUNT);
   const busIcon = useRef(createBusIcon(routeColor));
-  const hasCountedThisOpen = useRef(false);
 
-  // Check trial status and increment counter when popup opens
-  useEffect(() => {
-    if (!isOpen) {
-      hasCountedThisOpen.current = false;
-      return;
-    }
-
-    // Only count once per open
-    if (hasCountedThisOpen.current) return;
-    hasCountedThisOpen.current = true;
-
-    const remaining = getRemainingTrials();
-    if (remaining <= 0) {
-      setIsPaywalled(true);
-      setRemainingTrials(0);
-    } else {
-      setIsPaywalled(false);
-      incrementTrialCount();
-      setRemainingTrials(remaining - 1);
-    }
-  }, [isOpen]);
+  const { hasPlusAccess, isLoading: subLoading } = useSubscription();
+  const isPaywalled = !hasPlusAccess && !subLoading;
 
   useEffect(() => {
     if (!isOpen || isPaywalled) return;
@@ -195,7 +152,19 @@ export default function BusMapPopup({
     ...vehiclePositions.map((v) => [v.lat, v.lon] as [number, number]),
   ];
 
-  // Paywall UI
+  // Paywall UI - show when subscription is loading or user doesn't have access
+  if (subLoading) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-md">
+        <div className="relative w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden bg-white">
+          <div className="flex items-center justify-center py-20">
+            <div className="w-8 h-8 border-4 border-gray-300 border-t-blue-500 rounded-full animate-spin" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (isPaywalled) {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-md">
@@ -245,7 +214,7 @@ export default function BusMapPopup({
                   <Lock className="w-7 h-7 text-white drop-shadow-sm" />
                 </div>
                 <h3 className="text-xl font-bold text-white mb-2 drop-shadow-sm">
-                  Haluatko nähdä lisää?
+                  SeuraavaBussi Plus
                 </h3>
                 <p className="text-white/60 text-sm mb-6 max-w-xs">
                   Näe bussien sijainnit kartalla rajattomasti SeuraavaBussi Plus -tilauksella
@@ -291,17 +260,6 @@ export default function BusMapPopup({
             <X className="w-5 h-5 text-white" />
           </button>
         </div>
-
-        {/* Remaining trials banner */}
-        {remainingTrials > 0 && remainingTrials <= 2 && (
-          <div className="px-4 py-2 bg-amber-50 border-b border-amber-200">
-            <p className="text-center text-amber-800 text-xs font-medium">
-              {remainingTrials === 1
-                ? "Viimeinen ilmainen kokeilu"
-                : `${remainingTrials} ilmaista kokeilua jäljellä`}
-            </p>
-          </div>
-        )}
 
         {/* Map Container */}
         <div className="h-80 relative">

@@ -405,6 +405,7 @@ export default function DepartureBoard({ onThemeColorChange }: DepartureBoardPro
               key={dep.key}
               departure={dep}
               userCoords={location.coords}
+              region={getRegion(location.coords.lat, location.coords.lng)}
             />
           ))}
         </div>

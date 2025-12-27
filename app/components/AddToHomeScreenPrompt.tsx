@@ -5,7 +5,7 @@ import { X, Plus, Share } from "lucide-react";
 
 const VISIT_COUNT_KEY = "seuraavabussi_visit_count";
 const PROMPT_DISMISSED_KEY = "seuraavabussi_a2hs_dismissed";
-const VISITS_TO_TRIGGER = 5;
+const VISITS_TO_TRIGGER = 3;
 
 export default function AddToHomeScreenPrompt() {
   const [showPrompt, setShowPrompt] = useState(false);

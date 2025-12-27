@@ -323,7 +323,7 @@ export default function BusMapPopup({
   // Loading state - show while checking subscription or trial status
   if (subLoading || trialLoading) {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-md">
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-md" style={{ touchAction: 'none' }}>
         <div className="relative w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden bg-white">
           <div className="flex items-center justify-center py-20">
             <div className="w-8 h-8 border-4 border-gray-300 border-t-blue-500 rounded-full animate-spin" />
@@ -335,7 +335,7 @@ export default function BusMapPopup({
 
   if (isPaywalled) {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-md">
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-md" style={{ touchAction: 'none' }}>
         <div className="relative w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden">
           {/* Glass background layer */}
           <div
@@ -410,12 +410,12 @@ export default function BusMapPopup({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" style={{ touchAction: 'none' }}>
       <div className="relative w-full max-w-lg bg-white rounded-2xl shadow-2xl overflow-hidden">
         {/* Header */}
         <div
           className="flex items-center justify-between px-4 py-3"
-          style={{ backgroundColor: routeColor }}
+          style={{ backgroundColor: routeColor, touchAction: 'none' }}
         >
           <div className="flex items-center gap-3">
             <span className="font-black text-white text-xl">{routeNumber}</span>
@@ -430,7 +430,7 @@ export default function BusMapPopup({
         </div>
 
         {/* Map Container */}
-        <div className="h-80 relative">
+        <div className="h-80 relative" style={{ touchAction: 'manipulation' }}>
           {isLoading && (
             <div className="absolute inset-0 z-10 flex items-center justify-center bg-gray-100">
               <div className="flex flex-col items-center gap-2">
@@ -507,7 +507,7 @@ export default function BusMapPopup({
 
         {/* Trial Banner - show when using free trial */}
         {!hasPlusAccess && hasTrialsLeft && (
-          <div className="px-4 py-2 bg-amber-50 border-t border-amber-200">
+          <div className="px-4 py-2 bg-amber-50 border-t border-amber-200" style={{ touchAction: 'none' }}>
             <div className="flex items-center justify-between">
               <p className="text-amber-800 text-xs">
                 Ilmainen kokeilu: {remainingTrials} {remainingTrials === 1 ? "kerta" : "kertaa"} jäljellä
@@ -523,7 +523,7 @@ export default function BusMapPopup({
         )}
 
         {/* Legend / Info */}
-        <div className="px-4 py-3 bg-gray-50 border-t border-gray-200">
+        <div className="px-4 py-3 bg-gray-50 border-t border-gray-200" style={{ touchAction: 'none' }}>
           {error ? (
             <div className="text-center text-gray-600 text-sm">{error}</div>
           ) : (

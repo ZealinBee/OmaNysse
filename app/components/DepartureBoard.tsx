@@ -20,7 +20,7 @@ import {
   getRegionColor,
 } from "@/app/lib/utils";
 import SearchInput from "./SearchInput";
-import DepartureRow from "./DepartureRow";
+import DepartureRow, { DepartureRowSkeleton } from "./DepartureRow";
 
 // Dynamic import to avoid SSR issues with Leaflet
 const BusMapPopup = dynamic(() => import("./BusMapPopup"), {
@@ -420,6 +420,18 @@ export default function DepartureBoard({ onThemeColorChange }: DepartureBoardPro
       {error && (
         <div className="w-full p-6 rounded-xl bg-black/80 text-white font-bold text-base sm:text-xl mb-6">
           {error}
+        </div>
+      )}
+
+      {/* Skeleton loading state */}
+      {location.status === "success" && isLoadingDepartures && departures.length === 0 && !error && (
+        <div className="flex flex-col">
+          <div className="flex justify-end mb-4">
+            <div className="h-8 w-40 bg-white/10 rounded-full animate-pulse" />
+          </div>
+          {[...Array(5)].map((_, i) => (
+            <DepartureRowSkeleton key={i} />
+          ))}
         </div>
       )}
 

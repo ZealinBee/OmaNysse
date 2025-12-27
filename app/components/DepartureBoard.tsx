@@ -443,20 +443,37 @@ export default function DepartureBoard({ onThemeColorChange }: DepartureBoardPro
 
       {departures.length > 0 && location.status === "success" && (
         <div className="flex flex-col">
-          <div className="flex justify-end mb-4">
-            <button
-              onClick={requestLocation}
-              className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/10 hover:bg-white/20 active:bg-white/30 rounded-full text-white/70 hover:text-white transition-all cursor-pointer"
-              title="Päivitä sijainti"
-            >
-              <LocateFixed className="w-3.5 h-3.5" />
-              <span className="text-xs font-medium truncate max-w-[180px]">
-                {searchedLocationName
-                  ? searchedLocationName.split(",")[0]
-                  : gpsLocationName || "Sijaintisi"}
-              </span>
-              <RefreshCw className="w-3.5 h-3.5" />
-            </button>
+          <div className="flex justify-end mb-4 gap-2">
+            {searchedLocationName ? (
+              <>
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/10 rounded-full text-white/70">
+                  <LocateFixed className="w-3.5 h-3.5" />
+                  <span className="text-xs font-medium truncate max-w-[180px]">
+                    {searchedLocationName.split(",")[0]}
+                  </span>
+                </div>
+                <button
+                  onClick={requestLocation}
+                  className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/10 hover:bg-white/20 active:bg-white/30 rounded-full text-white/70 hover:text-white transition-all cursor-pointer"
+                  title="Käytä sijaintiasi"
+                >
+                  <LocateFixed className="w-3.5 h-3.5" />
+                  <span className="text-xs font-medium">Käytä sijaintia</span>
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={requestLocation}
+                className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/10 hover:bg-white/20 active:bg-white/30 rounded-full text-white/70 hover:text-white transition-all cursor-pointer"
+                title="Päivitä sijainti"
+              >
+                <LocateFixed className="w-3.5 h-3.5" />
+                <span className="text-xs font-medium truncate max-w-[180px]">
+                  {gpsLocationName || "Sijaintisi"}
+                </span>
+                <RefreshCw className="w-3.5 h-3.5" />
+              </button>
+            )}
           </div>
           {departures.slice(0, MAX_DEPARTURES).map((dep) => (
             <DepartureRow

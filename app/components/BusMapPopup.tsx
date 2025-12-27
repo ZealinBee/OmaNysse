@@ -30,18 +30,66 @@ interface BusMapPopupProps {
   region: "hsl" | "waltti";
 }
 
-// Custom hook to fit bounds only on initial load
-function FitBoundsOnce({ positions }: { positions: Array<[number, number]> }) {
+// Helper to calculate distance between two coordinates (Haversine formula)
+function getDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const R = 6371e3; // Earth's radius in meters
+  const φ1 = (lat1 * Math.PI) / 180;
+  const φ2 = (lat2 * Math.PI) / 180;
+  const Δφ = ((lat2 - lat1) * Math.PI) / 180;
+  const Δλ = ((lon2 - lon1) * Math.PI) / 180;
+
+  const a =
+    Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+    Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+  return R * c;
+}
+
+// Custom hook to fit bounds only on initial load - focuses on closest bus, user, and stop
+function FitBoundsOnce({
+  stopLat,
+  stopLon,
+  userLat,
+  userLon,
+  vehiclePositions,
+}: {
+  stopLat: number;
+  stopLon: number;
+  userLat: number;
+  userLon: number;
+  vehiclePositions: VehiclePosition[];
+}) {
   const map = useMap();
   const hasFitted = useRef(false);
 
   useEffect(() => {
-    if (positions.length > 0 && !hasFitted.current) {
-      const bounds = L.latLngBounds(positions.map(([lat, lon]) => [lat, lon]));
+    // Wait until we have vehicle positions to fit bounds properly
+    if (vehiclePositions.length > 0 && !hasFitted.current) {
+      // Find the closest bus to the stop
+      let closestBus = vehiclePositions[0];
+      let minDistance = getDistance(stopLat, stopLon, closestBus.lat, closestBus.lon);
+
+      for (const vehicle of vehiclePositions) {
+        const distance = getDistance(stopLat, stopLon, vehicle.lat, vehicle.lon);
+        if (distance < minDistance) {
+          minDistance = distance;
+          closestBus = vehicle;
+        }
+      }
+
+      // Fit bounds to show: closest bus, user location, and bus stop
+      const positions: Array<[number, number]> = [
+        [stopLat, stopLon],
+        [userLat, userLon],
+        [closestBus.lat, closestBus.lon],
+      ];
+
+      const bounds = L.latLngBounds(positions);
       map.fitBounds(bounds, { padding: [50, 50], maxZoom: 16 });
       hasFitted.current = true;
     }
-  }, [map, positions]);
+  }, [map, stopLat, stopLon, userLat, userLon, vehiclePositions]);
 
   return null;
 }
@@ -189,13 +237,6 @@ export default function BusMapPopup({
   }, [routeColor]);
 
   if (!isOpen) return null;
-
-  // Compute bounds for all markers
-  const allPositions: Array<[number, number]> = [
-    [stopLat, stopLon],
-    [userLat, userLon],
-    ...vehiclePositions.map((v) => [v.lat, v.lon] as [number, number]),
-  ];
 
   // Loading state - show while checking subscription or trial status
   if (subLoading || trialLoading) {
@@ -362,7 +403,13 @@ export default function BusMapPopup({
               </Marker>
             ))}
 
-            <FitBoundsOnce positions={allPositions} />
+            <FitBoundsOnce
+              stopLat={stopLat}
+              stopLon={stopLon}
+              userLat={userLat}
+              userLon={userLon}
+              vehiclePositions={vehiclePositions}
+            />
           </MapContainer>
         </div>
 

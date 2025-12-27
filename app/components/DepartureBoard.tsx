@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import dynamic from "next/dynamic";
 import { LocateFixed, RefreshCw } from "lucide-react";
 import {
   Departure,
@@ -20,6 +21,21 @@ import {
 } from "@/app/lib/utils";
 import SearchInput from "./SearchInput";
 import DepartureRow from "./DepartureRow";
+
+// Dynamic import to avoid SSR issues with Leaflet
+const BusMapPopup = dynamic(() => import("./BusMapPopup"), {
+  ssr: false,
+  loading: () => null,
+});
+
+// Data needed to show the bus map popup
+interface PopupData {
+  routeNumber: string;
+  headsign: string;
+  routeColor: string;
+  stopLat: number;
+  stopLon: number;
+}
 
 const MAX_DEPARTURES = 20;
 
@@ -59,6 +75,16 @@ export default function DepartureBoard({ onThemeColorChange }: DepartureBoardPro
   const [refreshCountdown, setRefreshCountdown] = useState(30);
   const [searchedLocationName, setSearchedLocationName] = useState<string | null>(null);
   const [gpsLocationName, setGpsLocationName] = useState<string | null>(null);
+  const [popupData, setPopupData] = useState<PopupData | null>(null);
+
+  // Handler for opening the bus map popup - stores data so popup persists even if bus disappears
+  const handleOpenMap = useCallback((data: PopupData) => {
+    setPopupData(data);
+  }, []);
+
+  const handleCloseMap = useCallback(() => {
+    setPopupData(null);
+  }, []);
 
   // Get the theme color based on current location
   const themeColor =
@@ -426,6 +452,7 @@ export default function DepartureBoard({ onThemeColorChange }: DepartureBoardPro
               departure={dep}
               userCoords={location.coords}
               region={getRegion(location.coords.lat, location.coords.lng)}
+              onOpenMap={handleOpenMap}
             />
           ))}
         </div>
@@ -521,6 +548,22 @@ export default function DepartureBoard({ onThemeColorChange }: DepartureBoardPro
             Tietosuojaseloste
           </a>
         </div>
+      )}
+
+      {/* Bus Map Popup - rendered at board level so it persists when bus disappears */}
+      {location.status === "success" && popupData && (
+        <BusMapPopup
+          isOpen={true}
+          onClose={handleCloseMap}
+          routeNumber={popupData.routeNumber}
+          headsign={popupData.headsign}
+          routeColor={popupData.routeColor}
+          stopLat={popupData.stopLat}
+          stopLon={popupData.stopLon}
+          userLat={location.coords.lat}
+          userLon={location.coords.lng}
+          region={getRegion(location.coords.lat, location.coords.lng)}
+        />
       )}
     </>
   );

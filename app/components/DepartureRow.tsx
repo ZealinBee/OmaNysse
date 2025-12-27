@@ -1,20 +1,21 @@
 "use client";
 
-import { useState } from "react";
-import dynamic from "next/dynamic";
 import { Navigation, Map } from "lucide-react";
 import { Departure } from "@/app/lib/types";
 
-// Dynamic import to avoid SSR issues with Leaflet
-const BusMapPopup = dynamic(() => import("./BusMapPopup"), {
-  ssr: false,
-  loading: () => null,
-});
+interface PopupData {
+  routeNumber: string;
+  headsign: string;
+  routeColor: string;
+  stopLat: number;
+  stopLon: number;
+}
 
 interface DepartureRowProps {
   departure: Departure;
   userCoords: { lat: number; lng: number };
   region: "hsl" | "waltti";
+  onOpenMap: (data: PopupData) => void;
 }
 
 export function DepartureRowSkeleton() {
@@ -37,12 +38,19 @@ export function DepartureRowSkeleton() {
   );
 }
 
-export default function DepartureRow({ departure, userCoords, region }: DepartureRowProps) {
-  const [isMapOpen, setIsMapOpen] = useState(false);
+export default function DepartureRow({ departure, userCoords, region, onOpenMap }: DepartureRowProps) {
+  const handleMapClick = () => {
+    onOpenMap({
+      routeNumber: departure.routeNumber,
+      headsign: departure.headsign,
+      routeColor: departure.color,
+      stopLat: departure.stopLat,
+      stopLon: departure.stopLon,
+    });
+  };
 
   return (
-    <>
-      <div className="flex items-center gap-2 sm:gap-5 py-3 sm:py-5 border-b-2 border-white/20">
+    <div className="flex items-center gap-2 sm:gap-5 py-3 sm:py-5 border-b-2 border-white/20">
         <span
           className="font-black min-w-[2.5rem] sm:min-w-[5rem] px-2 sm:px-4 py-1 sm:py-2 rounded-lg text-center text-white text-sm sm:text-2xl"
           style={{ backgroundColor: departure.color }}
@@ -72,7 +80,7 @@ export default function DepartureRow({ departure, userCoords, region }: Departur
         <div className="flex items-center gap-1.5 sm:gap-2">
           {region !== "hsl" && (
             <button
-              onClick={() => setIsMapOpen(true)}
+              onClick={handleMapClick}
               className="flex items-center justify-center p-1.5 sm:p-2 bg-white/20 hover:bg-white/30 rounded-lg text-white transition-all hover:scale-105 active:scale-95"
               title="Näytä bussin sijainti kartalla"
             >
@@ -91,19 +99,5 @@ export default function DepartureRow({ departure, userCoords, region }: Departur
           </a>
         </div>
       </div>
-
-      <BusMapPopup
-        isOpen={isMapOpen}
-        onClose={() => setIsMapOpen(false)}
-        routeNumber={departure.routeNumber}
-        headsign={departure.headsign}
-        routeColor={departure.color}
-        stopLat={departure.stopLat}
-        stopLon={departure.stopLon}
-        userLat={userCoords.lat}
-        userLon={userCoords.lng}
-        region={region}
-      />
-    </>
   );
 }

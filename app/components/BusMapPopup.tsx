@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef, useCallback } from "react";
-import { X, Bus, MapPin, Navigation, Lock } from "lucide-react";
+import { X, Bus, Lock } from "lucide-react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -46,7 +46,71 @@ function getDistance(lat1: number, lon1: number, lat2: number, lon2: number): nu
   return R * c;
 }
 
-// Custom hook to fit bounds only on initial load - focuses on closest bus, user, and stop
+// Calculate bearing from point 1 to point 2 (in degrees, 0 = North)
+function getBearing(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const φ1 = (lat1 * Math.PI) / 180;
+  const φ2 = (lat2 * Math.PI) / 180;
+  const Δλ = ((lon2 - lon1) * Math.PI) / 180;
+
+  const y = Math.sin(Δλ) * Math.cos(φ2);
+  const x = Math.cos(φ1) * Math.sin(φ2) - Math.sin(φ1) * Math.cos(φ2) * Math.cos(Δλ);
+  const θ = Math.atan2(y, x);
+
+  return ((θ * 180) / Math.PI + 360) % 360;
+}
+
+// Check if bus is heading towards the stop (within 90 degree tolerance)
+function isHeadingTowardsStop(
+  busLat: number,
+  busLon: number,
+  busBearing: number | undefined,
+  stopLat: number,
+  stopLon: number
+): boolean {
+  if (busBearing === undefined) return true; // If no bearing, assume it could be heading towards
+
+  const bearingToStop = getBearing(busLat, busLon, stopLat, stopLon);
+  let diff = Math.abs(bearingToStop - busBearing);
+  if (diff > 180) diff = 360 - diff;
+
+  return diff <= 90; // Within 90 degrees means roughly heading towards
+}
+
+// Find the index of the next bus (closest one heading towards the stop)
+function findNextBusIndex(
+  vehicles: VehiclePosition[],
+  stopLat: number,
+  stopLon: number
+): number {
+  let nextBusIndex = -1;
+  let minDistance = Infinity;
+
+  for (let i = 0; i < vehicles.length; i++) {
+    const vehicle = vehicles[i];
+    if (isHeadingTowardsStop(vehicle.lat, vehicle.lon, vehicle.bearing, stopLat, stopLon)) {
+      const distance = getDistance(stopLat, stopLon, vehicle.lat, vehicle.lon);
+      if (distance < minDistance) {
+        minDistance = distance;
+        nextBusIndex = i;
+      }
+    }
+  }
+
+  // If no bus is heading towards, fall back to closest
+  if (nextBusIndex === -1 && vehicles.length > 0) {
+    for (let i = 0; i < vehicles.length; i++) {
+      const distance = getDistance(stopLat, stopLon, vehicles[i].lat, vehicles[i].lon);
+      if (distance < minDistance) {
+        minDistance = distance;
+        nextBusIndex = i;
+      }
+    }
+  }
+
+  return nextBusIndex;
+}
+
+// Custom hook to fit bounds only on initial load - focuses on next bus, user, and stop
 function FitBoundsOnce({
   stopLat,
   stopLon,
@@ -66,23 +130,15 @@ function FitBoundsOnce({
   useEffect(() => {
     // Wait until we have vehicle positions to fit bounds properly
     if (vehiclePositions.length > 0 && !hasFitted.current) {
-      // Find the closest bus to the stop
-      let closestBus = vehiclePositions[0];
-      let minDistance = getDistance(stopLat, stopLon, closestBus.lat, closestBus.lon);
+      // Find the next bus (closest one heading towards the stop)
+      const nextBusIndex = findNextBusIndex(vehiclePositions, stopLat, stopLon);
+      const nextBus = nextBusIndex >= 0 ? vehiclePositions[nextBusIndex] : vehiclePositions[0];
 
-      for (const vehicle of vehiclePositions) {
-        const distance = getDistance(stopLat, stopLon, vehicle.lat, vehicle.lon);
-        if (distance < minDistance) {
-          minDistance = distance;
-          closestBus = vehicle;
-        }
-      }
-
-      // Fit bounds to show: closest bus, user location, and bus stop
+      // Fit bounds to show: next bus, user location, and bus stop
       const positions: Array<[number, number]> = [
         [stopLat, stopLon],
         [userLat, userLon],
-        [closestBus.lat, closestBus.lon],
+        [nextBus.lat, nextBus.lon],
       ];
 
       const bounds = L.latLngBounds(positions);
@@ -132,25 +188,39 @@ function createBusIcon(color: string, bearing?: number, isNextBus?: boolean) {
   });
 }
 
+// Bus stop icon - sign post style
 const stopIcon = L.divIcon({
-  html: `<div style="background-color: #ef4444; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 3px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.3);">
-    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="white" stroke="white" stroke-width="2">
-      <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
-      <circle cx="12" cy="10" r="3" fill="#ef4444"/>
-    </svg>
+  html: `<div style="position: relative; width: 24px; height: 36px; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.3));">
+    <!-- Sign -->
+    <div style="position: absolute; top: 0; left: 0; width: 24px; height: 24px; background: #fbbf24; border: 2px solid #a16207; border-radius: 4px; display: flex; align-items: center; justify-content: center;">
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#a16207" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M8 6v6"/><path d="M15 6v6"/><path d="M2 12h19.6"/>
+        <path d="M18 18h3s.5-1.7.8-2.8c.1-.4.2-.8.2-1.2 0-.4-.1-.8-.2-1.2l-1.4-5C20.1 6.8 19.1 6 18 6H4a2 2 0 0 0-2 2v10h3"/>
+        <circle cx="7" cy="18" r="2"/><path d="M9 18h5"/><circle cx="16" cy="18" r="2"/>
+      </svg>
+    </div>
+    <!-- Pole -->
+    <div style="position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 4px; height: 14px; background: #6b7280; border-radius: 0 0 2px 2px;"></div>
   </div>`,
   className: "",
-  iconSize: [28, 28],
-  iconAnchor: [14, 14],
+  iconSize: [24, 36],
+  iconAnchor: [12, 36],
 });
 
+// User location icon - Google Maps style blue dot with pulse
 const userIcon = L.divIcon({
-  html: `<div style="background-color: #3b82f6; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 3px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.3);">
-    <div style="width: 8px; height: 8px; background: white; border-radius: 50%;"></div>
+  html: `<style>@keyframes user-pulse { 0% { transform: translate(-50%, -50%) scale(1); opacity: 0.6; } 100% { transform: translate(-50%, -50%) scale(2.5); opacity: 0; } }</style>
+  <div style="position: relative; width: 40px; height: 40px;">
+    <!-- Pulsing ring -->
+    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 20px; height: 20px; background: rgba(59, 130, 246, 0.3); border-radius: 50%; animation: user-pulse 2s ease-out infinite;"></div>
+    <!-- Outer ring -->
+    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 22px; height: 22px; background: white; border-radius: 50%; box-shadow: 0 2px 6px rgba(0,0,0,0.3);"></div>
+    <!-- Inner blue dot -->
+    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 14px; height: 14px; background: #3b82f6; border-radius: 50%;"></div>
   </div>`,
   className: "",
-  iconSize: [24, 24],
-  iconAnchor: [12, 12],
+  iconSize: [40, 40],
+  iconAnchor: [20, 20],
 });
 
 export default function BusMapPopup({
@@ -397,30 +467,20 @@ export default function BusMapPopup({
 
             {/* Bus markers */}
             {(() => {
-              // Find the closest bus to the stop
-              let closestIndex = 0;
-              if (vehiclePositions.length > 1) {
-                let minDistance = getDistance(stopLat, stopLon, vehiclePositions[0].lat, vehiclePositions[0].lon);
-                for (let i = 1; i < vehiclePositions.length; i++) {
-                  const distance = getDistance(stopLat, stopLon, vehiclePositions[i].lat, vehiclePositions[i].lon);
-                  if (distance < minDistance) {
-                    minDistance = distance;
-                    closestIndex = i;
-                  }
-                }
-              }
+              // Find the next bus (closest one heading towards the stop)
+              const nextBusIndex = findNextBusIndex(vehiclePositions, stopLat, stopLon);
 
               return vehiclePositions.map((vehicle, index) => (
                 <Marker
                   key={vehicle.vehicleRef || index}
                   position={[vehicle.lat, vehicle.lon]}
-                  icon={createBusIcon(routeColor, vehicle.bearing, index === closestIndex)}
+                  icon={createBusIcon(routeColor, vehicle.bearing, index === nextBusIndex)}
                 >
                   <Popup>
                     <div className="font-semibold">
                       {routeNumber} {headsign}
                     </div>
-                    {index === closestIndex && (
+                    {index === nextBusIndex && (
                       <div className="text-xs text-green-600 font-medium">
                         Seuraava bussi
                       </div>
@@ -478,14 +538,18 @@ export default function BusMapPopup({
                 <span>Bussi ({vehiclePositions.length})</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <div className="w-4 h-4 rounded-full bg-red-500 flex items-center justify-center">
-                  <MapPin className="w-2.5 h-2.5 text-white" />
+                <div className="w-4 h-5 relative">
+                  <div className="absolute inset-x-0 top-0 h-4 bg-amber-400 border border-amber-600 rounded-sm flex items-center justify-center">
+                    <Bus className="w-2.5 h-2.5 text-amber-700" />
+                  </div>
+                  <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1.5 bg-gray-500 rounded-b-sm"></div>
                 </div>
                 <span>Pysäkki</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <div className="w-4 h-4 rounded-full bg-blue-500 flex items-center justify-center">
-                  <Navigation className="w-2.5 h-2.5 text-white" />
+                <div className="w-4 h-4 relative">
+                  <div className="absolute inset-0 bg-white rounded-full border-2 border-blue-500"></div>
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-blue-500 rounded-full"></div>
                 </div>
                 <span>Sinä</span>
               </div>

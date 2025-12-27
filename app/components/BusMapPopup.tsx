@@ -94,23 +94,41 @@ function FitBoundsOnce({
   return null;
 }
 
-// Create custom icons
-function createBusIcon(color: string) {
+// Create custom icons - bearing: 0 = North, 90 = East, 180 = South, 270 = West
+function createBusIcon(color: string, bearing?: number, isNextBus?: boolean) {
+  const rotation = bearing ?? 0;
+  const counterRotation = -rotation; // Counter-rotate to keep bus upright
+
+  // Next bus gets a pulsing ring around it
+  const pulseRing = isNextBus
+    ? `<div style="position: absolute; top: 6px; left: 50%; transform: translateX(-50%); width: 28px; height: 28px; border-radius: 50%; border: 2px solid ${color}; animation: pulse-ring 1.5s ease-out infinite;"></div>`
+    : '';
+  const pulseKeyframes = isNextBus
+    ? `<style>@keyframes pulse-ring { 0% { transform: translateX(-50%) scale(1); opacity: 1; } 100% { transform: translateX(-50%) scale(1.8); opacity: 0; } }</style>`
+    : '';
+
   return L.divIcon({
-    html: `<div style="background-color: ${color}; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 3px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.3);">
-      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M8 6v6"/>
-        <path d="M15 6v6"/>
-        <path d="M2 12h19.6"/>
-        <path d="M18 18h3s.5-1.7.8-2.8c.1-.4.2-.8.2-1.2 0-.4-.1-.8-.2-1.2l-1.4-5C20.1 6.8 19.1 6 18 6H4a2 2 0 0 0-2 2v10h3"/>
-        <circle cx="7" cy="18" r="2"/>
-        <path d="M9 18h5"/>
-        <circle cx="16" cy="18" r="2"/>
-      </svg>
+    html: `${pulseKeyframes}<div style="position: relative; width: 40px; height: 40px; transform: rotate(${rotation}deg);">
+      <!-- Pulsing ring for next bus -->
+      ${pulseRing}
+      <!-- Direction arrow at top -->
+      <div style="position: absolute; top: -2px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-bottom: 10px solid ${color}; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));"></div>
+      <!-- Bus icon circle - counter-rotated to stay upright -->
+      <div style="position: absolute; top: 6px; left: 50%; transform: translateX(-50%) rotate(${counterRotation}deg); background-color: ${color}; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.3);">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M8 6v6"/>
+          <path d="M15 6v6"/>
+          <path d="M2 12h19.6"/>
+          <path d="M18 18h3s.5-1.7.8-2.8c.1-.4.2-.8.2-1.2 0-.4-.1-.8-.2-1.2l-1.4-5C20.1 6.8 19.1 6 18 6H4a2 2 0 0 0-2 2v10h3"/>
+          <circle cx="7" cy="18" r="2"/>
+          <path d="M9 18h5"/>
+          <circle cx="16" cy="18" r="2"/>
+        </svg>
+      </div>
     </div>`,
     className: "",
-    iconSize: [32, 32],
-    iconAnchor: [16, 16],
+    iconSize: [40, 40],
+    iconAnchor: [20, 20],
   });
 }
 
@@ -150,7 +168,6 @@ export default function BusMapPopup({
   const [vehiclePositions, setVehiclePositions] = useState<VehiclePosition[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const busIcon = useRef(createBusIcon(routeColor));
   const [trialCount, setTrialCount] = useState<number | null>(null);
   const hasUsedTrial = useRef(false);
 
@@ -230,11 +247,6 @@ export default function BusMapPopup({
     const interval = setInterval(fetchVehiclePositions, 10000);
     return () => clearInterval(interval);
   }, [isOpen, isPaywalled, routeNumber, region]);
-
-  // Update bus icon when color changes
-  useEffect(() => {
-    busIcon.current = createBusIcon(routeColor);
-  }, [routeColor]);
 
   if (!isOpen) return null;
 
@@ -384,24 +396,44 @@ export default function BusMapPopup({
             </Marker>
 
             {/* Bus markers */}
-            {vehiclePositions.map((vehicle, index) => (
-              <Marker
-                key={vehicle.vehicleRef || index}
-                position={[vehicle.lat, vehicle.lon]}
-                icon={busIcon.current}
-              >
-                <Popup>
-                  <div className="font-semibold">
-                    {routeNumber} {headsign}
-                  </div>
-                  {vehicle.vehicleRef && (
-                    <div className="text-xs text-gray-500">
-                      Ajoneuvo: {vehicle.vehicleRef}
+            {(() => {
+              // Find the closest bus to the stop
+              let closestIndex = 0;
+              if (vehiclePositions.length > 1) {
+                let minDistance = getDistance(stopLat, stopLon, vehiclePositions[0].lat, vehiclePositions[0].lon);
+                for (let i = 1; i < vehiclePositions.length; i++) {
+                  const distance = getDistance(stopLat, stopLon, vehiclePositions[i].lat, vehiclePositions[i].lon);
+                  if (distance < minDistance) {
+                    minDistance = distance;
+                    closestIndex = i;
+                  }
+                }
+              }
+
+              return vehiclePositions.map((vehicle, index) => (
+                <Marker
+                  key={vehicle.vehicleRef || index}
+                  position={[vehicle.lat, vehicle.lon]}
+                  icon={createBusIcon(routeColor, vehicle.bearing, index === closestIndex)}
+                >
+                  <Popup>
+                    <div className="font-semibold">
+                      {routeNumber} {headsign}
                     </div>
-                  )}
-                </Popup>
-              </Marker>
-            ))}
+                    {index === closestIndex && (
+                      <div className="text-xs text-green-600 font-medium">
+                        Seuraava bussi
+                      </div>
+                    )}
+                    {vehicle.vehicleRef && (
+                      <div className="text-xs text-gray-500">
+                        Ajoneuvo: {vehicle.vehicleRef}
+                      </div>
+                    )}
+                  </Popup>
+                </Marker>
+              ));
+            })()}
 
             <FitBoundsOnce
               stopLat={stopLat}

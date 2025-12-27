@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { LocateFixed } from "lucide-react";
+import { LocateFixed, RefreshCw } from "lucide-react";
 import {
   Departure,
   StopNode,
@@ -383,7 +383,7 @@ export default function DepartureBoard({ onThemeColorChange }: DepartureBoardPro
           <div className="flex justify-between items-center mb-4">
             {!searchedLocationName ? (
               <div className="inline-flex items-center gap-1.5 text-white/60 text-xs">
-                <LocateFixed className="w-3.5 h-3.5" />
+                <LocateFixed className="w-4 h-4" />
                 <span>Sijaintisi</span>
               </div>
             ) : (
@@ -394,10 +394,10 @@ export default function DepartureBoard({ onThemeColorChange }: DepartureBoardPro
             )}
             <button
               onClick={requestLocation}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/10 hover:bg-white/20 active:bg-white/30 rounded-full font-medium text-xs text-white/80 hover:text-white transition-all cursor-pointer"
+              className="p-2 bg-white/10 hover:bg-white/20 active:bg-white/30 rounded-full text-white/80 hover:text-white transition-all cursor-pointer"
+              title="Päivitä sijainti"
             >
-              <LocateFixed className="w-3.5 h-3.5" />
-              Päivitä sijainti
+              <RefreshCw className="w-4 h-4" />
             </button>
           </div>
           {departures.slice(0, MAX_DEPARTURES).map((dep) => (

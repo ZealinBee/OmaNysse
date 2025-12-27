@@ -429,7 +429,7 @@ export default function DepartureBoard({ onThemeColorChange }: DepartureBoardPro
           <div className="flex justify-end mb-4">
             <div className="h-8 w-40 bg-white/10 rounded-full animate-pulse" />
           </div>
-          {[...Array(5)].map((_, i) => (
+          {[...Array(12)].map((_, i) => (
             <DepartureRowSkeleton key={i} />
           ))}
         </div>

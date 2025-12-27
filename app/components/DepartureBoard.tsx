@@ -380,24 +380,23 @@ export default function DepartureBoard({ onThemeColorChange }: DepartureBoardPro
 
       {departures.length > 0 && location.status === "success" && (
         <div className="flex flex-col">
-          <div className="flex justify-between items-center mb-4">
-            {!searchedLocationName ? (
-              <div className="inline-flex items-center gap-1.5 text-white/60 text-xs">
-                <LocateFixed className="w-4 h-4" />
-                <span>Sijaintisi</span>
-              </div>
-            ) : (
-              <div className="flex flex-col gap-0.5 max-w-[60%]">
-                <span className="text-white/60 text-xs truncate">{searchedLocationName}</span>
-                <span className="text-white/40 text-[10px]">Sijainti ei päivity</span>
-              </div>
-            )}
+          <div className="flex justify-end mb-4">
             <button
               onClick={requestLocation}
-              className="p-2 bg-white/10 hover:bg-white/20 active:bg-white/30 rounded-full text-white/80 hover:text-white transition-all cursor-pointer"
+              className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/10 hover:bg-white/20 active:bg-white/30 rounded-full text-white/70 hover:text-white transition-all cursor-pointer"
               title="Päivitä sijainti"
             >
-              <RefreshCw className="w-4 h-4" />
+              {!searchedLocationName ? (
+                <>
+                  <LocateFixed className="w-3.5 h-3.5" />
+                  <span className="text-xs font-medium">Sijaintisi</span>
+                </>
+              ) : (
+                <>
+                  <span className="text-xs truncate max-w-[150px]">{searchedLocationName}</span>
+                </>
+              )}
+              <RefreshCw className="w-3.5 h-3.5" />
             </button>
           </div>
           {departures.slice(0, MAX_DEPARTURES).map((dep) => (

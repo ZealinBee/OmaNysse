@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useAuth } from "@/app/lib/supabase/auth-context";
 
 const CACHE_KEY = "seuraavabussi_subscription_cache";
@@ -26,6 +26,24 @@ interface UseSubscriptionReturn {
   isLoading: boolean;
   error: string | null;
   refetch: () => Promise<void>;
+}
+
+// Get initial state from cache synchronously - this runs before any useEffect
+// For subscribed users with valid cache, this allows instant rendering without waiting for auth
+function getInitialStateFromCache(): { hasPlusAccess: boolean; subscription: Subscription | null; initialized: boolean } {
+  if (typeof window === "undefined") return { hasPlusAccess: false, subscription: null, initialized: false };
+  try {
+    const cached = localStorage.getItem(CACHE_KEY);
+    if (!cached) return { hasPlusAccess: false, subscription: null, initialized: false };
+    const parsed: CachedSubscription = JSON.parse(cached);
+    // Only use cache if not expired (don't check userId yet - we just want fast initial render)
+    if (Date.now() - parsed.timestamp < CACHE_TTL) {
+      return { hasPlusAccess: parsed.hasPlusAccess, subscription: parsed.subscription, initialized: true };
+    }
+  } catch {
+    // Ignore errors
+  }
+  return { hasPlusAccess: false, subscription: null, initialized: false };
 }
 
 function getCache(userId: string): CachedSubscription | null {
@@ -70,27 +88,36 @@ function clearCache(): void {
 
 export function useSubscription(): UseSubscriptionReturn {
   const { user, loading: authLoading } = useAuth();
-  const [subscription, setSubscription] = useState<Subscription | null>(null);
-  const [hasPlusAccess, setHasPlusAccess] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const initializedFromCache = useRef(false);
 
-  // Initialize from cache immediately
+  // Initialize from cache SYNCHRONOUSLY - no waiting for auth
+  // This is critical for instant radar opening for subscribed users
+  const initialState = useMemo(() => getInitialStateFromCache(), []);
+
+  const [subscription, setSubscription] = useState<Subscription | null>(initialState.subscription);
+  const [hasPlusAccess, setHasPlusAccess] = useState(initialState.hasPlusAccess);
+  // If we have valid cache with hasPlusAccess, start with isLoading=false for instant render
+  const [isLoading, setIsLoading] = useState(!initialState.initialized || !initialState.hasPlusAccess);
+  const [error, setError] = useState<string | null>(null);
+  const initializedFromCache = useRef(initialState.initialized);
+
+  // Re-validate cache with user ID once auth loads (in case different user)
   useEffect(() => {
-    if (user && !initializedFromCache.current) {
+    if (user && initializedFromCache.current) {
+      // Check if cached data matches current user
       const cached = getCache(user.id);
-      if (cached) {
-        setSubscription(cached.subscription);
-        setHasPlusAccess(cached.hasPlusAccess);
-        setIsLoading(false);
-        initializedFromCache.current = true;
+      if (!cached) {
+        // Cache was for different user, reset and refetch
+        initializedFromCache.current = false;
+        setIsLoading(true);
       }
     }
-    if (!user) {
+    if (!user && !authLoading) {
+      // User logged out
       initializedFromCache.current = false;
+      setSubscription(null);
+      setHasPlusAccess(false);
     }
-  }, [user]);
+  }, [user, authLoading]);
 
   const fetchSubscription = useCallback(async (background = false) => {
     if (!user) {
@@ -141,7 +168,8 @@ export function useSubscription(): UseSubscriptionReturn {
   return {
     subscription,
     hasPlusAccess,
-    isLoading: authLoading || isLoading,
+    // For subscribed users with valid cache, don't wait for auth - render instantly
+    isLoading: initializedFromCache.current && hasPlusAccess ? isLoading : authLoading || isLoading,
     error,
     refetch: () => fetchSubscription(false),
   };

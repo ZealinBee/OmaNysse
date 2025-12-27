@@ -3,6 +3,7 @@
 import { useState, useCallback, ReactNode } from "react";
 import { REGION_COLORS } from "@/app/lib/types";
 import DepartureBoard from "./DepartureBoard";
+import AddToHomeScreenPrompt from "./AddToHomeScreenPrompt";
 
 interface PageWrapperProps {
   children?: ReactNode;
@@ -38,6 +39,9 @@ export default function PageWrapper({ children }: PageWrapperProps) {
         {/* Server-rendered children (footer) */}
         {children}
       </div>
+
+      {/* Add to Home Screen prompt */}
+      <AddToHomeScreenPrompt />
     </main>
   );
 }

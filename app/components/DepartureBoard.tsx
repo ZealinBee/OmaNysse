@@ -58,6 +58,7 @@ export default function DepartureBoard({ onThemeColorChange }: DepartureBoardPro
   });
   const [refreshCountdown, setRefreshCountdown] = useState(30);
   const [searchedLocationName, setSearchedLocationName] = useState<string | null>(null);
+  const [gpsLocationName, setGpsLocationName] = useState<string | null>(null);
 
   // Get the theme color based on current location
   const themeColor =
@@ -69,6 +70,24 @@ export default function DepartureBoard({ onThemeColorChange }: DepartureBoardPro
   useEffect(() => {
     onThemeColorChange?.(themeColor);
   }, [themeColor, onThemeColorChange]);
+
+  // Fetch reverse geocode to get location name from coordinates
+  const fetchLocationName = useCallback(async (lat: number, lng: number) => {
+    try {
+      const response = await fetch(`/api/reverse-geocode?lat=${lat}&lon=${lng}`);
+      if (response.ok) {
+        const data = await response.json();
+        if (data.name) {
+          setGpsLocationName(data.name);
+        } else if (data.label) {
+          // Use first part of label if name not available
+          setGpsLocationName(data.label.split(",")[0]);
+        }
+      }
+    } catch {
+      // Silently fail - showing coordinates is fine as fallback
+    }
+  }, []);
 
   const fetchNearbyStops = useCallback(
     async (lat: number, lng: number, searchRadius: number = radius) => {
@@ -180,6 +199,7 @@ export default function DepartureBoard({ onThemeColorChange }: DepartureBoardPro
                 setLocation({ status: "success", coords });
                 setSearchedLocationName(null);
                 fetchNearbyStops(coords.lat, coords.lng);
+                fetchLocationName(coords.lat, coords.lng);
               },
               () => {
                 // GPS failed, fall back to saved location
@@ -204,6 +224,7 @@ export default function DepartureBoard({ onThemeColorChange }: DepartureBoardPro
           const coords = JSON.parse(saved) as { lat: number; lng: number };
           setLocation({ status: "success", coords });
           fetchNearbyStops(coords.lat, coords.lng);
+          fetchLocationName(coords.lat, coords.lng);
         } catch {
           localStorage.removeItem(STORAGE_KEY);
         }
@@ -211,6 +232,7 @@ export default function DepartureBoard({ onThemeColorChange }: DepartureBoardPro
     };
 
     loadLocation();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const requestLocation = () => {
@@ -231,6 +253,7 @@ export default function DepartureBoard({ onThemeColorChange }: DepartureBoardPro
         setLocation({ status: "success", coords });
         setSearchedLocationName(null);
         fetchNearbyStops(coords.lat, coords.lng);
+        fetchLocationName(coords.lat, coords.lng);
       },
       () => {
         setLocation({ status: "denied" });
@@ -245,6 +268,7 @@ export default function DepartureBoard({ onThemeColorChange }: DepartureBoardPro
     localStorage.setItem(STORAGE_KEY, JSON.stringify(coords));
     setLocation({ status: "success", coords });
     setSearchedLocationName(geocodedLocation.properties.label);
+    setGpsLocationName(null);
     fetchNearbyStops(lat, lon);
   };
 
@@ -386,16 +410,12 @@ export default function DepartureBoard({ onThemeColorChange }: DepartureBoardPro
               className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/10 hover:bg-white/20 active:bg-white/30 rounded-full text-white/70 hover:text-white transition-all cursor-pointer"
               title="Päivitä sijainti"
             >
-              {!searchedLocationName ? (
-                <>
-                  <LocateFixed className="w-3.5 h-3.5" />
-                  <span className="text-xs font-medium">Sijaintisi</span>
-                </>
-              ) : (
-                <>
-                  <span className="text-xs truncate max-w-[150px]">{searchedLocationName}</span>
-                </>
-              )}
+              <LocateFixed className="w-3.5 h-3.5" />
+              <span className="text-xs font-medium truncate max-w-[180px]">
+                {searchedLocationName
+                  ? searchedLocationName.split(",")[0]
+                  : gpsLocationName || "Sijaintisi"}
+              </span>
               <RefreshCw className="w-3.5 h-3.5" />
             </button>
           </div>

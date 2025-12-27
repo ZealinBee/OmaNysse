@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import dynamic from "next/dynamic";
-import { LocateFixed, RefreshCw } from "lucide-react";
+import { LocateFixed, RefreshCw, MapPin } from "lucide-react";
 import {
   Departure,
   StopNode,
@@ -447,14 +447,14 @@ export default function DepartureBoard({ onThemeColorChange }: DepartureBoardPro
             {searchedLocationName ? (
               <>
                 <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/10 rounded-full text-white/70">
-                  <LocateFixed className="w-3.5 h-3.5" />
+                  <MapPin className="w-3.5 h-3.5" />
                   <span className="text-xs font-medium truncate max-w-[180px]">
                     {searchedLocationName.split(",")[0]}
                   </span>
                 </div>
                 <button
                   onClick={requestLocation}
-                  className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/10 hover:bg-white/20 active:bg-white/30 rounded-full text-white/70 hover:text-white transition-all cursor-pointer"
+                  className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/20 hover:bg-white/30 active:bg-white/40 rounded-full text-white/80 hover:text-white transition-all cursor-pointer"
                   title="Käytä sijaintiasi"
                 >
                   <LocateFixed className="w-3.5 h-3.5" />

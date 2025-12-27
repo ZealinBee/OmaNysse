@@ -53,8 +53,8 @@ export default function DepartureRow({ departure, userCoords, region }: Departur
           <span className="text-white font-bold text-base sm:text-2xl truncate block">
             {departure.headsign}
           </span>
-          <span className="text-white/50 text-[10px] sm:text-sm">
-            {departure.distance}m päässä
+          <span className="text-white/50 text-[10px] sm:text-sm truncate block">
+            {departure.distance}m · {departure.stopName}
           </span>
         </div>
         <div className="flex flex-col items-end">

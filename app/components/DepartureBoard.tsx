@@ -144,6 +144,7 @@ export default function DepartureBoard({ onThemeColorChange }: DepartureBoardPro
                 distance: node.distance,
                 stopLat: node.stop.lat,
                 stopLon: node.stop.lon,
+                stopName: node.stop.name,
                 key: `${node.stop.gtfsId}-${st.trip.route.shortName}-${st.serviceDay}-${st.scheduledDeparture}-${idx}`,
               });
             }

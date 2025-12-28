@@ -28,6 +28,9 @@ export async function GET(request: NextRequest) {
     url.searchParams.set("point.lon", lon);
     url.searchParams.set("size", "1");
     url.searchParams.set("lang", "fi");
+    // Only return street addresses and street names, not venues/businesses
+    // This avoids nonsensical names like "campusravita" or "cityharvi"
+    url.searchParams.set("layers", "address,street");
 
     const response = await fetch(url.toString(), {
       headers: {

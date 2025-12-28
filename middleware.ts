@@ -29,8 +29,9 @@ export async function middleware(request: NextRequest) {
     }
   );
 
-  // Refresh session if expired
-  await supabase.auth.getUser();
+  // Refresh session if expired - uses getSession() to avoid unnecessary API calls
+  // getSession() reads from cookies and only refreshes when the token is actually expired
+  await supabase.auth.getSession();
 
   return supabaseResponse;
 }

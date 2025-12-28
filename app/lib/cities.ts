@@ -11,6 +11,7 @@ export interface CityConfig {
   metaDescription: string;
   lines: string; // Example popular lines
   features: string[];
+  walttiSlug?: string; // Waltti API slug for GTFS-RT vehicle positions (only cities with vehicle data)
 }
 
 export const CITIES: Record<string, CityConfig> = {
@@ -77,6 +78,7 @@ export const CITIES: Record<string, CityConfig> = {
       "Katso Oulun bussien aikataulut reaaliajassa. Näe lähimmät OSL-pysäkit ja seuraavat lähdöt Oulun seudulla.",
     lines: "Esim. linjat 1, 5, 19",
     features: ["Bussit"],
+    walttiSlug: "oulu",
   },
   jyvaskyla: {
     slug: "jyvaskyla",
@@ -93,6 +95,7 @@ export const CITIES: Record<string, CityConfig> = {
       "Katso Jyväskylän Linkki-bussien aikataulut reaaliajassa. Näe lähimmät pysäkit ja seuraavat lähdöt.",
     lines: "Esim. linjat 1, 12, 25",
     features: ["Bussit"],
+    walttiSlug: "jyvaskyla",
   },
   lahti: {
     slug: "lahti",
@@ -109,6 +112,7 @@ export const CITIES: Record<string, CityConfig> = {
       "Katso Lahden bussien aikataulut reaaliajassa. Näe lähimmät LSL-pysäkit ja seuraavat lähdöt Lahden seudulla.",
     lines: "Esim. linjat 1, 3, 12",
     features: ["Bussit"],
+    walttiSlug: "lahti",
   },
   kuopio: {
     slug: "kuopio",
@@ -180,4 +184,26 @@ export const CITY_SLUGS = Object.keys(CITIES);
 
 export function getCityBySlug(slug: string): CityConfig | undefined {
   return CITIES[slug];
+}
+
+// Cities that have real-time vehicle position tracking available
+// Helsinki (HSL), Tampere (ITS Factory), Turku (Föli), and Waltti cities with walttiSlug
+export function cityHasVehiclePositions(slug: string | null | undefined): boolean {
+  if (!slug) return false;
+
+  // HSL, Tampere, and Turku always have vehicle positions
+  if (slug === "helsinki" || slug === "tampere" || slug === "turku") {
+    return true;
+  }
+
+  // Check if it's a Waltti city with vehicle position data
+  const city = CITIES[slug];
+  return !!city?.walttiSlug;
+}
+
+// Get list of cities that support vehicle positions (for display purposes)
+export function getCitiesWithVehiclePositions(): string[] {
+  return Object.entries(CITIES)
+    .filter(([slug]) => cityHasVehiclePositions(slug))
+    .map(([, config]) => config.name);
 }

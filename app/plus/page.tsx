@@ -37,10 +37,13 @@ export default function PlusPage() {
           Näe bussien ja ratikoiden sijainnit kartalla reaaliajassa
         </p>
 
-        {/* HSL Notice */}
-        <div className="mb-6 p-4 bg-yellow-500/20 border border-yellow-500/40 rounded-xl">
-          <p className="text-yellow-200 text-sm">
-            <strong>Huom:</strong> Reaaliaikainen karttaominaisuus ei toimi HSL-alueella (Helsinki, Espoo, Vantaa) teknisistä rajoituksista johtuen. Kartta toimii Waltti-alueilla (Tampere, Turku, Oulu jne.).
+        {/* Supported Cities */}
+        <div className="mb-6 p-4 bg-green-500/20 border border-green-500/40 rounded-xl">
+          <p className="text-green-200 text-sm">
+            <strong>Tuetut kaupungit:</strong> Helsinki, Tampere, Turku, Oulu, Jyväskylä ja Lahti.
+          </p>
+          <p className="text-green-200/70 text-xs mt-2">
+            Muissa kaupungeissa (Kuopio, Lappeenranta, Hämeenlinna, Pori) reaaliaikaista sijaintitietoa ei ole vielä saatavilla.
           </p>
         </div>
 
@@ -136,8 +139,8 @@ export default function PlusPage() {
               <p>
                 Reaaliaikainen sijaintitieto on saatavilla vain alueilla, joilla
                 kolmannen osapuolen rajapinnat tarjoavat tätä tietoa. Tällä hetkellä
-                tuetut alueet ovat Waltti-alueet (mm. Tampere, Turku, Oulu). HSL-alueella
-                (Helsinki) reaaliaikainen sijaintitieto ei ole saatavilla teknisistä syistä.
+                tuetut kaupungit ovat Helsinki, Tampere, Turku, Oulu, Jyväskylä ja Lahti.
+                Muissa kaupungeissa sijaintitieto ei ole vielä saatavilla.
               </p>
             </div>
 

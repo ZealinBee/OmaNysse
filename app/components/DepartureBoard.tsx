@@ -20,6 +20,7 @@ import {
   getRegionColor,
   getCityFromCoords,
 } from "@/app/lib/utils";
+import { cityHasVehiclePositions } from "@/app/lib/cities";
 import SearchInput from "./SearchInput";
 import DepartureRow, { DepartureRowSkeleton } from "./DepartureRow";
 import { useRefreshInterval } from "@/app/lib/hooks/useRefreshInterval";
@@ -681,6 +682,7 @@ export default function DepartureBoard({
               userCoords={location.coords}
               region={getRegion(location.coords.lat, location.coords.lng)}
               onOpenMap={handleOpenMap}
+              showMapButton={cityHasVehiclePositions(getCityFromCoords(location.coords.lat, location.coords.lng))}
             />
           ))}
         </div>
@@ -720,8 +722,9 @@ export default function DepartureBoard({
       {/* Footer Section */}
       {location.status === "success" && (
         <div className="mt-12 pt-8 border-t border-white/10 flex flex-col items-center gap-8">
-          {/* Unlimited Busmap */}
-          <div className="flex flex-col items-center gap-4">
+          {/* Unlimited Busmap - only show if city supports vehicle positions */}
+          {cityHasVehiclePositions(getCityFromCoords(location.coords.lat, location.coords.lng)) && (
+            <div className="flex flex-col items-center gap-4">
               <div className="text-center">
                 <p className="text-white/80 text-sm font-medium">
                   Haluatko tukea kehittäjää ja saada lisäominaisuuksia?
@@ -737,6 +740,7 @@ export default function DepartureBoard({
                 Rajoittamaton bussikartta
               </a>
             </div>
+          )}
 
           {/* Add to Homescreen */}
           <AddToHomeScreenButton />

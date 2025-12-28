@@ -2,10 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { gunzipSync } from "zlib";
 import GtfsRealtimeBindings from "gtfs-realtime-bindings";
 
+import { CITIES } from "@/app/lib/cities";
+
 // API URLs for different transit operators
 const ITS_FACTORY_URL = "http://data.itsfactory.fi/journeys/api/1/vehicle-activity";
 const FOLI_SIRI_VM_URL = "http://data.foli.fi/siri/vm";
 const HSL_GTFSRT_URL = "https://realtime.hsl.fi/realtime/vehicle-positions/v2/hsl";
+const WALTTI_GTFSRT_BASE = "https://data.waltti.fi";
 
 export interface OnwardCall {
   stopCode: string;
@@ -253,6 +256,99 @@ async function fetchFromHSL(lineRef: string): Promise<NextResponse> {
   }
 }
 
+// Fetch from Waltti GTFS-RT API (multiple Finnish cities)
+async function fetchFromWaltti(lineRef: string, walttiSlug: string): Promise<NextResponse> {
+  try {
+    // Check for credentials
+    if (!process.env.WALTTI_CLIENT_ID || !process.env.WALTTI_CLIENT_SECRET) {
+      console.error("Waltti API credentials not configured");
+      return NextResponse.json(
+        { error: "Bussin sijainti ei ole saatavilla", positions: [] },
+        { status: 200 }
+      );
+    }
+
+    // Create Basic auth header
+    const auth = Buffer.from(
+      `${process.env.WALTTI_CLIENT_ID}:${process.env.WALTTI_CLIENT_SECRET}`
+    ).toString("base64");
+
+    const url = `${WALTTI_GTFSRT_BASE}/${walttiSlug}/api/gtfsrealtime/v1.0/feed/vehicleposition`;
+    const response = await fetch(url, {
+      headers: {
+        "Authorization": `Basic ${auth}`,
+      },
+    });
+
+    if (!response.ok) {
+      console.error("Waltti GTFS-RT API error:", response.status);
+      return NextResponse.json(
+        { error: "Bussin sijainnin haku epäonnistui", positions: [] },
+        { status: 200 }
+      );
+    }
+
+    const buffer = await response.arrayBuffer();
+    const feed = GtfsRealtimeBindings.transit_realtime.FeedMessage.decode(
+      new Uint8Array(buffer)
+    );
+
+    const positions: VehiclePosition[] = [];
+
+    // Waltti route matching - try exact match first, then flexible matching
+    const matchesRoute = (routeId: string | null | undefined): boolean => {
+      if (!routeId) return false;
+
+      // Exact match
+      if (routeId === lineRef) return true;
+
+      // Case-insensitive exact match
+      if (routeId.toLowerCase() === lineRef.toLowerCase()) return true;
+
+      // Check if route ends with lineRef (handles prefix patterns)
+      if (routeId.endsWith(lineRef)) return true;
+
+      // For numeric routes, check zero-padded version
+      const paddedLineRef = lineRef.padStart(3, "0");
+      if (routeId.endsWith(paddedLineRef)) return true;
+
+      return false;
+    };
+
+    for (const entity of feed.entity) {
+      if (entity.vehicle && entity.vehicle.position && entity.vehicle.trip) {
+        const routeId = entity.vehicle.trip.routeId;
+
+        if (matchesRoute(routeId)) {
+          const pos = entity.vehicle.position;
+          const vehicle = entity.vehicle.vehicle;
+          const trip = entity.vehicle.trip;
+
+          positions.push({
+            lat: pos.latitude,
+            lon: pos.longitude,
+            bearing: pos.bearing ?? undefined,
+            speed: pos.speed ?? undefined,
+            timestamp: entity.vehicle.timestamp
+              ? new Date(Number(entity.vehicle.timestamp) * 1000).toISOString()
+              : new Date().toISOString(),
+            vehicleRef: vehicle?.id || entity.id,
+            directionRef: trip.directionId?.toString(),
+          });
+        }
+      }
+    }
+
+    return NextResponse.json({ positions });
+  } catch (error) {
+    console.error("Waltti GTFS-RT fetch error:", error);
+    return NextResponse.json(
+      { error: "Verkkovirhe", positions: [] },
+      { status: 200 }
+    );
+  }
+}
+
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const lineRef = searchParams.get("lineRef");
@@ -277,11 +373,21 @@ export async function GET(request: NextRequest) {
         return fetchFromHSL(lineRef);
       case "oulu":
       case "jyvaskyla":
-      case "lahti":
+      case "lahti": {
+        const cityConfig = CITIES[city];
+        if (cityConfig?.walttiSlug) {
+          return fetchFromWaltti(lineRef, cityConfig.walttiSlug);
+        }
+        return NextResponse.json({
+          error: "Bussin sijainti ei ole saatavilla",
+          positions: []
+        });
+      }
       case "kuopio":
       case "lappeenranta":
       case "hameenlinna":
       case "pori":
+        // These cities don't have GTFS-RT vehicle position data available
         return NextResponse.json({
           error: "Bussin sijainti ei ole vielä saatavilla tässä kaupungissa",
           positions: []

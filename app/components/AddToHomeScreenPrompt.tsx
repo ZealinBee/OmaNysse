@@ -106,8 +106,8 @@ export default function AddToHomeScreenPrompt() {
 
           {/* Content */}
           <p className="text-gray-600 mb-5">
-            Lisää SeuraavaBussi kotinäytöllesi, niin pääset siihen helposti milloin vain!
-          </p>
+            Laita SeuraavaBussi kotinäytölle, niin se on aina yhdessä napautuksessa         
+           </p>
 
           {isIOS ? (
             // iOS instructions

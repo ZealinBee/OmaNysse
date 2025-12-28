@@ -86,15 +86,13 @@ export default function DepartureRow({ departure, userCoords, region, onOpenMap 
           </span>
         </div>
         <div className="flex items-center gap-1.5 sm:gap-2">
-          {region !== "hsl" && (
-            <button
-              onClick={handleMapClick}
-              className="flex items-center justify-center p-1.5 sm:p-2 bg-white/20 hover:bg-white/30 rounded-lg text-white transition-all hover:scale-105 active:scale-95"
-              title="Näytä bussin sijainti kartalla"
-            >
-              <Map className="w-4 h-4 sm:w-5 sm:h-5" />
-            </button>
-          )}
+          <button
+            onClick={handleMapClick}
+            className="flex items-center justify-center p-1.5 sm:p-2 bg-white/20 hover:bg-white/30 rounded-lg text-white transition-all hover:scale-105 active:scale-95"
+            title="Näytä bussin sijainti kartalla"
+          >
+            <Map className="w-4 h-4 sm:w-5 sm:h-5" />
+          </button>
           <a
             href={`https://www.google.com/maps/dir/?api=1&origin=${userCoords.lat},${userCoords.lng}&destination=${departure.stopLat},${departure.stopLon}&travelmode=walking`}
             target="_blank"

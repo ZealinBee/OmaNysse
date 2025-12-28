@@ -72,6 +72,7 @@ interface BusMapPopupProps {
   userLat: number;
   userLon: number;
   region: "hsl" | "waltti";
+  city?: string; // City slug for vehicle position API routing
 }
 
 interface RouteGeometry {
@@ -383,6 +384,7 @@ export default function BusMapPopup({
   userLat,
   userLon,
   region,
+  city,
 }: BusMapPopupProps) {
   const [vehiclePositions, setVehiclePositions] = useState<VehiclePosition[]>([]);
   const [routeGeometry, setRouteGeometry] = useState<RouteGeometry[]>([]);
@@ -446,14 +448,14 @@ export default function BusMapPopup({
 
       try {
         const response = await fetch(
-          `/api/vehicle-position?lineRef=${encodeURIComponent(routeNumber)}&region=${region}`
+          `/api/vehicle-position?lineRef=${encodeURIComponent(routeNumber)}&region=${region}${city ? `&city=${city}` : ""}`
         );
         const data = await response.json();
 
         if (data.positions && data.positions.length > 0) {
           setVehiclePositions(data.positions);
-        } else if (region === "hsl") {
-          setError("HSL-alueella bussin sijainti ei ole saatavilla");
+        } else if (data.error) {
+          setError(data.error);
         } else {
           setError("Bussin sijaintia ei löytynyt");
         }
@@ -469,7 +471,7 @@ export default function BusMapPopup({
     // Refresh every 10 seconds
     const interval = setInterval(fetchVehiclePositions, 10000);
     return () => clearInterval(interval);
-  }, [isOpen, isPaywalled, routeNumber, region]);
+  }, [isOpen, isPaywalled, routeNumber, region, city]);
 
   // Fetch route geometry and stops when popup opens
   useEffect(() => {

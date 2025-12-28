@@ -18,6 +18,7 @@ import {
   formatDepartureTime,
   getRegion,
   getRegionColor,
+  getCityFromCoords,
 } from "@/app/lib/utils";
 import SearchInput from "./SearchInput";
 import DepartureRow, { DepartureRowSkeleton } from "./DepartureRow";
@@ -719,9 +720,8 @@ export default function DepartureBoard({
       {/* Footer Section */}
       {location.status === "success" && (
         <div className="mt-12 pt-8 border-t border-white/10 flex flex-col items-center gap-8">
-          {/* Unlimited Busmap - only show outside HSL region */}
-          {getRegion(location.coords.lat, location.coords.lng) !== "hsl" && (
-            <div className="flex flex-col items-center gap-4">
+          {/* Unlimited Busmap */}
+          <div className="flex flex-col items-center gap-4">
               <div className="text-center">
                 <p className="text-white/80 text-sm font-medium">
                   Haluatko tukea kehittäjää ja saada lisäominaisuuksia?
@@ -737,7 +737,6 @@ export default function DepartureBoard({
                 Rajoittamaton bussikartta
               </a>
             </div>
-          )}
 
           {/* Add to Homescreen */}
           <AddToHomeScreenButton />
@@ -769,6 +768,7 @@ export default function DepartureBoard({
           userLat={location.coords.lat}
           userLon={location.coords.lng}
           region={getRegion(location.coords.lat, location.coords.lng)}
+          city={getCityFromCoords(location.coords.lat, location.coords.lng) ?? undefined}
         />
       )}
     </>

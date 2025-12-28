@@ -7,7 +7,7 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { useSubscription } from "@/app/lib/hooks/useSubscription";
 
-const FREE_TRIAL_LIMIT = 3;
+const FREE_TRIAL_LIMIT = 4;
 const TRIAL_STORAGE_KEY = "seuraavabussi_map_trial_count";
 
 interface OnwardCall {

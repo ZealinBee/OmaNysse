@@ -22,6 +22,7 @@ import {
 import SearchInput from "./SearchInput";
 import DepartureRow, { DepartureRowSkeleton } from "./DepartureRow";
 import { useRefreshInterval } from "@/app/lib/hooks/useRefreshInterval";
+import AddToHomeScreenButton from "./AddToHomeScreenButton";
 
 // Dynamic import to avoid SSR issues with Leaflet
 const BusMapPopup = dynamic(() => import("./BusMapPopup"), {
@@ -531,16 +532,26 @@ export default function DepartureBoard({ onThemeColorChange }: DepartureBoardPro
         <div className="mt-12 pt-8 border-t border-white/10 flex flex-col items-center gap-8">
           {/* Unlimited Busmap - only show outside HSL region */}
           {getRegion(location.coords.lat, location.coords.lng) !== "hsl" && (
-            <a
-              href="/plus"
-              className="inline-flex items-center gap-3 px-6 py-3 bg-white text-black hover:bg-white/90 rounded-xl font-bold text-base transition-all shadow-lg"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
-              </svg>
-              Rajoittamaton bussikartta
-            </a>
+            <div className="flex flex-col items-center gap-4">
+              <div className="text-center">
+                <p className="text-white/80 text-sm font-medium">
+                  Haluatko tukea kehittäjää ja saada lisäominaisuuksia?
+                </p>
+              </div>
+              <a
+                href="/plus"
+                className="inline-flex items-center gap-3 px-6 py-3 bg-white text-black hover:bg-white/90 rounded-xl font-bold text-base transition-all shadow-lg"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                </svg>
+                Rajoittamaton bussikartta
+              </a>
+            </div>
           )}
+
+          {/* Add to Homescreen */}
+          <AddToHomeScreenButton />
 
           {/* Privacy Policy */}
           <a

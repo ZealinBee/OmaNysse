@@ -94,6 +94,86 @@ export const CITIES: Record<string, CityConfig> = {
     lines: "Esim. linjat 1, 12, 25",
     features: ["Bussit"],
   },
+  lahti: {
+    slug: "lahti",
+    name: "Lahti",
+    operator: "LSL",
+    operatorName: "Lahden seudun liikenne",
+    coords: { lat: 60.9827, lng: 25.6556 },
+    locationName: "Matkakeskus, Lahti",
+    color: "#1570B8",
+    description:
+      "Lahden seudun liikenne (LSL) operoi bussiliikennettä Lahdessa ja lähikunnissa. Lahti on Suomen kahdeksanneksi suurin kaupunki ja tunnettu urheilukaupunkina. Matkakeskus yhdistää bussi- ja junaliikenteen.",
+    metaTitle: "Bussit Lahdessa - LSL aikataulut reaaliajassa",
+    metaDescription:
+      "Katso Lahden bussien aikataulut reaaliajassa. Näe lähimmät LSL-pysäkit ja seuraavat lähdöt Lahden seudulla.",
+    lines: "Esim. linjat 1, 3, 12",
+    features: ["Bussit"],
+  },
+  kuopio: {
+    slug: "kuopio",
+    name: "Kuopio",
+    operator: "Vilkku",
+    operatorName: "Kuopion seudun joukkoliikenne",
+    coords: { lat: 62.8925, lng: 27.6783 },
+    locationName: "Keskusta, Kuopio",
+    color: "#554096",
+    description:
+      "Vilkku on Kuopion seudun joukkoliikenteen brändi. Kuopio on Suomen yhdeksänneksi suurin kaupunki, tunnettu Puijon tornista ja kalakukosta. Bussit kulkevat keskustasta kaikkiin kaupunginosiin.",
+    metaTitle: "Bussit Kuopiossa - Vilkku aikataulut reaaliajassa",
+    metaDescription:
+      "Katso Kuopion Vilkku-bussien aikataulut reaaliajassa. Näe lähimmät pysäkit ja seuraavat lähdöt Kuopion seudulla.",
+    lines: "Esim. linjat 1, 4, 16",
+    features: ["Bussit"],
+  },
+  lappeenranta: {
+    slug: "lappeenranta",
+    name: "Lappeenranta",
+    operator: "Jouko",
+    operatorName: "Etelä-Karjalan joukkoliikenne",
+    coords: { lat: 61.0587, lng: 28.1887 },
+    locationName: "Keskusta, Lappeenranta",
+    color: "#DD3189",
+    description:
+      "Jouko on Etelä-Karjalan joukkoliikenteen brändi. Lappeenranta sijaitsee Saimaan rannalla lähellä Venäjän rajaa. Jouko operoi busseja Lappeenrannassa, Imatralla ja ympäristökunnissa.",
+    metaTitle: "Bussit Lappeenrannassa - Jouko aikataulut reaaliajassa",
+    metaDescription:
+      "Katso Lappeenrannan Jouko-bussien aikataulut reaaliajassa. Näe lähimmät pysäkit ja seuraavat lähdöt.",
+    lines: "Esim. linjat 1, 3, 5",
+    features: ["Bussit"],
+  },
+  hameenlinna: {
+    slug: "hameenlinna",
+    name: "Hämeenlinna",
+    operator: "HLi",
+    operatorName: "Hämeenlinnan joukkoliikenne",
+    coords: { lat: 60.9945, lng: 24.4642 },
+    locationName: "Keskusta, Hämeenlinna",
+    color: "#C3291E",
+    description:
+      "Hämeenlinnan joukkoliikenne operoi busseja Hämeenlinnassa ja lähialueilla. Hämeenlinna on historiallinen kaupunki, tunnettu linnastaan ja Sibeliuksen syntymäpaikkana. Keskustasta pääsee bussilla kaikkialle.",
+    metaTitle: "Bussit Hämeenlinnassa - Bussiaikataulut reaaliajassa",
+    metaDescription:
+      "Katso Hämeenlinnan bussien aikataulut reaaliajassa. Näe lähimmät pysäkit ja seuraavat lähdöt.",
+    lines: "Esim. linjat 1, 2, 4",
+    features: ["Bussit"],
+  },
+  pori: {
+    slug: "pori",
+    name: "Pori",
+    operator: "Pori",
+    operatorName: "Porin joukkoliikenne",
+    coords: { lat: 61.4851, lng: 21.7975 },
+    locationName: "Keskusta, Pori",
+    color: "#00ADEF",
+    description:
+      "Porin joukkoliikenne operoi busseja Porissa ja lähialueilla. Pori on Suomen kymmenenneksi suurin kaupunki, tunnettu Pori Jazz -festivaalista ja Yyterin hiekkarannasta. Keskustasta pääsee bussilla koko kaupunkiin.",
+    metaTitle: "Bussit Porissa - Bussiaikataulut reaaliajassa",
+    metaDescription:
+      "Katso Porin bussien aikataulut reaaliajassa. Näe lähimmät pysäkit ja seuraavat lähdöt Porin seudulla.",
+    lines: "Esim. linjat 1, 3, 40",
+    features: ["Bussit"],
+  },
 };
 
 export const CITY_SLUGS = Object.keys(CITIES);

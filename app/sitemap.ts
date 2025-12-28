@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { CITY_SLUGS } from "@/app/lib/cities";
+import { STOPS } from "@/app/lib/stops";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = "https://seuraavabussi.fi";
@@ -12,6 +13,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.8,
   }));
 
+  // Stop pages
+  const stopPages: MetadataRoute.Sitemap = STOPS.map((stop) => ({
+    url: `${baseUrl}/${stop.citySlug}/${stop.slug}`,
+    lastModified: new Date(),
+    changeFrequency: "weekly" as const,
+    priority: 0.6,
+  }));
+
   return [
     {
       url: baseUrl,
@@ -20,6 +29,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 1,
     },
     ...cityPages,
+    ...stopPages,
     {
       url: `${baseUrl}/plus`,
       lastModified: new Date(),

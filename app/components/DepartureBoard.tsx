@@ -46,9 +46,17 @@ const MAX_DEPARTURES = 20;
 
 interface DepartureBoardProps {
   onThemeColorChange?: (color: string) => void;
+  initialCoords?: { lat: number; lng: number };
+  initialLocationName?: string;
+  onRequestUserLocation?: () => void; // Called when user wants to use GPS on a city page
 }
 
-export default function DepartureBoard({ onThemeColorChange }: DepartureBoardProps) {
+export default function DepartureBoard({
+  onThemeColorChange,
+  initialCoords,
+  initialLocationName,
+  onRequestUserLocation,
+}: DepartureBoardProps) {
   const [location, setLocation] = useState<LocationState>({ status: "idle" });
   const [departures, setDepartures] = useState<Departure[]>([]);
   const [isLoadingDepartures, setIsLoadingDepartures] = useState(false);
@@ -235,8 +243,18 @@ export default function DepartureBoard({ onThemeColorChange }: DepartureBoardPro
     [radius]
   );
 
-  // Load location on mount - try fresh GPS if permission granted, otherwise use saved
+  // Load location on mount - use initialCoords if provided, otherwise try GPS or saved
   useEffect(() => {
+    // If initialCoords provided (city landing pages), use them directly
+    if (initialCoords) {
+      setLocation({ status: "success", coords: initialCoords });
+      if (initialLocationName) {
+        setSearchedLocationName(initialLocationName);
+      }
+      fetchNearbyStops(initialCoords.lat, initialCoords.lng);
+      return;
+    }
+
     const loadLocation = async () => {
       // Check if geolocation permission is already granted
       if (navigator.permissions && navigator.geolocation) {
@@ -293,6 +311,12 @@ export default function DepartureBoard({ onThemeColorChange }: DepartureBoardPro
   }, []);
 
   const requestLocation = async () => {
+    // If on a city page, redirect to main page for GPS-based location
+    if (onRequestUserLocation) {
+      onRequestUserLocation();
+      return;
+    }
+
     if (!navigator.geolocation) {
       setLocation({
         status: "blocked",

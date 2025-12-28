@@ -31,35 +31,45 @@ export default function Home() {
                   className="w-3 h-3 rounded-full"
                   style={{ backgroundColor: "#007AC9" }}
                 />
-                <span>Helsinki (HSL)</span>
+                <a href="/helsinki" className="hover:text-white transition-colors">
+                  Helsinki (HSL)
+                </a>
               </li>
               <li className="flex items-center gap-2">
                 <span
                   className="w-3 h-3 rounded-full"
                   style={{ backgroundColor: "#1b57cf" }}
                 />
-                <span>Tampere (Nysse)</span>
+                <a href="/tampere" className="hover:text-white transition-colors">
+                  Tampere (Nysse)
+                </a>
               </li>
               <li className="flex items-center gap-2">
                 <span
                   className="w-3 h-3 rounded-full"
                   style={{ backgroundColor: "#00A19C" }}
                 />
-                <span>Turku (Föli)</span>
+                <a href="/turku" className="hover:text-white transition-colors">
+                  Turku (Föli)
+                </a>
               </li>
               <li className="flex items-center gap-2">
                 <span
                   className="w-3 h-3 rounded-full"
                   style={{ backgroundColor: "#E30A69" }}
                 />
-                <span>Oulu (OSL)</span>
+                <a href="/oulu" className="hover:text-white transition-colors">
+                  Oulu (OSL)
+                </a>
               </li>
               <li className="flex items-center gap-2">
                 <span
                   className="w-3 h-3 rounded-full"
                   style={{ backgroundColor: "#109D2C" }}
                 />
-                <span>Jyväskylä (Linkki)</span>
+                <a href="/jyvaskyla" className="hover:text-white transition-colors">
+                  Jyväskylä (Linkki)
+                </a>
               </li>
               <li className="flex items-center gap-2">
                 <span

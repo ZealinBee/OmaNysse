@@ -10,11 +10,19 @@ import { useSubscription } from "@/app/lib/hooks/useSubscription";
 const FREE_TRIAL_LIMIT = 3;
 const TRIAL_STORAGE_KEY = "seuraavabussi_map_trial_count";
 
+interface OnwardCall {
+  stopCode: string;
+  expectedArrivalTime?: string;
+  expectedDepartureTime?: string;
+  order: number;
+}
+
 interface VehiclePosition {
   lat: number;
   lon: number;
   bearing?: number;
   vehicleRef?: string;
+  onwardCalls?: OnwardCall[];
 }
 
 interface BusMapPopupProps {
@@ -25,6 +33,8 @@ interface BusMapPopupProps {
   routeColor: string;
   stopLat: number;
   stopLon: number;
+  stopName: string;
+  stopCode?: string;
   userLat: number;
   userLon: number;
   region: "hsl" | "waltti";
@@ -223,6 +233,28 @@ const userIcon = L.divIcon({
   iconAnchor: [20, 20],
 });
 
+// Helper to calculate minutes until arrival from ISO timestamp
+function getMinutesUntilArrival(expectedArrivalTime: string | undefined): number | null {
+  if (!expectedArrivalTime) return null;
+  try {
+    const arrivalDate = new Date(expectedArrivalTime);
+    const now = new Date();
+    const diffMs = arrivalDate.getTime() - now.getTime();
+    const diffMins = Math.round(diffMs / 60000);
+    return diffMins >= 0 ? diffMins : null;
+  } catch {
+    return null;
+  }
+}
+
+// Find arrival time for a vehicle at a specific stop
+function findArrivalAtStop(vehicle: VehiclePosition, stopCode: string | undefined): number | null {
+  if (!stopCode || !vehicle.onwardCalls) return null;
+  const call = vehicle.onwardCalls.find(c => c.stopCode === stopCode);
+  if (!call) return null;
+  return getMinutesUntilArrival(call.expectedArrivalTime || call.expectedDepartureTime);
+}
+
 export default function BusMapPopup({
   isOpen,
   onClose,
@@ -231,6 +263,8 @@ export default function BusMapPopup({
   routeColor,
   stopLat,
   stopLon,
+  stopName,
+  stopCode,
   userLat,
   userLon,
   region,
@@ -454,7 +488,29 @@ export default function BusMapPopup({
             {/* Stop marker */}
             <Marker position={[stopLat, stopLon]} icon={stopIcon}>
               <Popup>
-                <div className="font-semibold">Pysäkki</div>
+                <div style={{ fontWeight: 600, color: '#111827', marginBottom: '8px' }}>{stopName}</div>
+                <a
+                  href={`https://www.google.com/maps/dir/?api=1&origin=${userLat},${userLon}&destination=${stopLat},${stopLon}&travelmode=walking`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    padding: '6px 12px',
+                    backgroundColor: '#3b82f6',
+                    borderRadius: '6px',
+                    color: 'white',
+                    fontSize: '13px',
+                    fontWeight: 600,
+                    textDecoration: 'none',
+                  }}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <polygon points="3 11 22 2 13 21 11 13 3 11"/>
+                  </svg>
+                  Pysäkille
+                </a>
               </Popup>
             </Marker>
 
@@ -470,29 +526,33 @@ export default function BusMapPopup({
               // Find the next bus (closest one heading towards the stop)
               const nextBusIndex = findNextBusIndex(vehiclePositions, stopLat, stopLon);
 
-              return vehiclePositions.map((vehicle, index) => (
-                <Marker
-                  key={vehicle.vehicleRef || index}
-                  position={[vehicle.lat, vehicle.lon]}
-                  icon={createBusIcon(routeColor, vehicle.bearing, index === nextBusIndex)}
-                >
-                  <Popup>
-                    <div className="font-semibold">
-                      {routeNumber} {headsign}
-                    </div>
-                    {index === nextBusIndex && (
-                      <div className="text-xs text-green-600 font-medium">
-                        Seuraava bussi
+              return vehiclePositions.map((vehicle, index) => {
+                const arrivalMins = findArrivalAtStop(vehicle, stopCode);
+                const isNextBus = index === nextBusIndex;
+
+                return (
+                  <Marker
+                    key={vehicle.vehicleRef || index}
+                    position={[vehicle.lat, vehicle.lon]}
+                    icon={createBusIcon(routeColor, vehicle.bearing, isNextBus)}
+                  >
+                    <Popup>
+                      <div style={{ fontWeight: 600, color: '#111827' }}>
+                        {routeNumber} {headsign}
                       </div>
-                    )}
-                    {vehicle.vehicleRef && (
-                      <div className="text-xs text-gray-500">
-                        Ajoneuvo: {vehicle.vehicleRef}
-                      </div>
-                    )}
-                  </Popup>
-                </Marker>
-              ));
+                      {arrivalMins !== null ? (
+                        <div style={{ fontSize: '13px', color: '#16a34a', fontWeight: 500, marginTop: '4px' }}>
+                          Saapuu {arrivalMins === 0 ? 'nyt' : arrivalMins === 1 ? '1 min' : `${arrivalMins} min`}
+                        </div>
+                      ) : isNextBus ? (
+                        <div style={{ fontSize: '13px', color: '#16a34a', fontWeight: 500, marginTop: '4px' }}>
+                          Seuraava bussi
+                        </div>
+                      ) : null}
+                    </Popup>
+                  </Marker>
+                );
+              });
             })()}
 
             <FitBoundsOnce

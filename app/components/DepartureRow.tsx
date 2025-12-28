@@ -9,6 +9,8 @@ interface PopupData {
   routeColor: string;
   stopLat: number;
   stopLon: number;
+  stopName: string;
+  stopCode?: string;
 }
 
 interface DepartureRowProps {
@@ -46,6 +48,8 @@ export default function DepartureRow({ departure, userCoords, region, onOpenMap 
       routeColor: departure.color,
       stopLat: departure.stopLat,
       stopLon: departure.stopLon,
+      stopName: departure.stopName,
+      stopCode: departure.stopCode,
     });
   };
 

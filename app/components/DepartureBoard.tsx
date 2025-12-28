@@ -35,6 +35,8 @@ interface PopupData {
   routeColor: string;
   stopLat: number;
   stopLon: number;
+  stopName: string;
+  stopCode?: string;
 }
 
 const MAX_DEPARTURES = 20;
@@ -171,6 +173,7 @@ export default function DepartureBoard({ onThemeColorChange }: DepartureBoardPro
                 stopLat: node.stop.lat,
                 stopLon: node.stop.lon,
                 stopName: node.stop.name,
+                stopCode: node.stop.code,
                 key: `${node.stop.gtfsId}-${st.trip.route.shortName}-${st.serviceDay}-${st.scheduledDeparture}-${idx}`,
               });
             }
@@ -589,6 +592,8 @@ export default function DepartureBoard({ onThemeColorChange }: DepartureBoardPro
           routeColor={popupData.routeColor}
           stopLat={popupData.stopLat}
           stopLon={popupData.stopLon}
+          stopName={popupData.stopName}
+          stopCode={popupData.stopCode}
           userLat={location.coords.lat}
           userLon={location.coords.lng}
           region={getRegion(location.coords.lat, location.coords.lng)}

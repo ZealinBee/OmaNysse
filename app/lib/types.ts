@@ -40,6 +40,7 @@ export interface Departure {
   stopLat: number;
   stopLon: number;
   stopName: string;
+  stopCode?: string;
   key: string;
 }
 

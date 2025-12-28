@@ -6,6 +6,13 @@ const ITS_FACTORY_URL = "http://data.itsfactory.fi/journeys/api/1/vehicle-activi
 // HSL uses MQTT which is more complex, so for now we'll focus on Waltti
 // HSL GTFS-RT feed could be added later
 
+export interface OnwardCall {
+  stopCode: string;
+  expectedArrivalTime?: string;
+  expectedDepartureTime?: string;
+  order: number;
+}
+
 export interface VehiclePosition {
   lat: number;
   lon: number;
@@ -14,6 +21,7 @@ export interface VehiclePosition {
   timestamp: string;
   vehicleRef?: string;
   delay?: number;
+  onwardCalls?: OnwardCall[];
 }
 
 export async function GET(request: NextRequest) {
@@ -61,6 +69,24 @@ export async function GET(request: NextRequest) {
       for (const activity of data.body) {
         const monitored = activity.monitoredVehicleJourney;
         if (monitored && monitored.vehicleLocation) {
+          // Parse onwardCalls to get expected arrival times at stops
+          const onwardCalls: OnwardCall[] = [];
+          if (monitored.onwardCalls && Array.isArray(monitored.onwardCalls)) {
+            for (const call of monitored.onwardCalls) {
+              // Extract stop code from URL like "https://data.itsfactory.fi/journeys/api/1/stop-points/0838"
+              const stopPointRef = call.stopPointRef || "";
+              const stopCode = stopPointRef.split("/").pop() || "";
+              if (stopCode) {
+                onwardCalls.push({
+                  stopCode,
+                  expectedArrivalTime: call.expectedArrivalTime,
+                  expectedDepartureTime: call.expectedDepartureTime,
+                  order: parseInt(call.order, 10) || 0,
+                });
+              }
+            }
+          }
+
           positions.push({
             lat: monitored.vehicleLocation.latitude,
             lon: monitored.vehicleLocation.longitude,
@@ -69,6 +95,7 @@ export async function GET(request: NextRequest) {
             timestamp: monitored.vehicleLocation.timestamp || activity.recordedAtTime,
             vehicleRef: monitored.vehicleRef,
             delay: monitored.delay,
+            onwardCalls: onwardCalls.length > 0 ? onwardCalls : undefined,
           });
         }
       }

@@ -22,6 +22,8 @@ export interface VehiclePosition {
   vehicleRef?: string;
   delay?: number;
   onwardCalls?: OnwardCall[];
+  destinationName?: string;
+  directionRef?: string;
 }
 
 export async function GET(request: NextRequest) {
@@ -96,6 +98,8 @@ export async function GET(request: NextRequest) {
             vehicleRef: monitored.vehicleRef,
             delay: monitored.delay,
             onwardCalls: onwardCalls.length > 0 ? onwardCalls : undefined,
+            destinationName: monitored.destinationName || monitored.destinationShortName,
+            directionRef: monitored.directionRef,
           });
         }
       }

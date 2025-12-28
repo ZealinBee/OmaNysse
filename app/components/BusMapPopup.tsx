@@ -2,10 +2,40 @@
 
 import { useEffect, useState, useRef, useCallback } from "react";
 import { X, Bus, Lock } from "lucide-react";
-import { MapContainer, TileLayer, Marker, Popup, Polyline, CircleMarker, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, Polyline, CircleMarker, useMap, Tooltip } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { useSubscription } from "@/app/lib/hooks/useSubscription";
+
+// Custom styles for compact Leaflet popups and tooltips
+const customMapStyles = `
+  .compact-popup .leaflet-popup-content-wrapper {
+    padding: 0;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+  .compact-popup .leaflet-popup-content {
+    margin: 8px 10px;
+    line-height: 1.3;
+  }
+  .compact-popup .leaflet-popup-tip {
+    box-shadow: none;
+  }
+  .minimal-tooltip {
+    background: rgba(17, 24, 39, 0.9) !important;
+    border: none !important;
+    border-radius: 4px !important;
+    color: white !important;
+    font-size: 11px !important;
+    font-weight: 500 !important;
+    padding: 4px 8px !important;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2) !important;
+    white-space: nowrap !important;
+  }
+  .minimal-tooltip::before {
+    border-top-color: rgba(17, 24, 39, 0.9) !important;
+  }
+`;
 
 const FREE_TRIAL_LIMIT = 4;
 const TRIAL_STORAGE_KEY = "seuraavabussi_map_trial_count";
@@ -23,6 +53,8 @@ interface VehiclePosition {
   bearing?: number;
   vehicleRef?: string;
   onwardCalls?: OnwardCall[];
+  destinationName?: string;
+  directionRef?: string;
 }
 
 interface BusMapPopupProps {
@@ -203,41 +235,31 @@ function createBusIcon(color: string, bearing?: number, isNextBus?: boolean) {
 
   // Selected bus: larger, prominent shadow, full color
   // Other buses: slightly smaller, subtle, but still clearly visible
-  const iconSize = isNextBus ? 30 : 24;
-  const svgSize = isNextBus ? 15 : 12;
-  const topOffset = isNextBus ? 5 : 8;
-  const arrowSize = isNextBus ? { left: 7, right: 7, bottom: 11 } : { left: 5, right: 5, bottom: 8 };
-  const arrowTop = isNextBus ? -3 : 1;
+  const iconSize = isNextBus ? 32 : 26;
+  const svgSize = isNextBus ? 16 : 13;
 
   // Selected gets white border + strong shadow, others get slightly lighter treatment
   const borderStyle = isNextBus
     ? 'border: 3px solid white; box-shadow: 0 3px 12px rgba(0,0,0,0.4);'
     : 'border: 2px solid rgba(255,255,255,0.85); box-shadow: 0 2px 4px rgba(0,0,0,0.25);';
 
-  // Circle opacity - others slightly faded but arrows stay fully visible
+  // Circle opacity - others slightly faded
   const circleOpacity = isNextBus ? 1 : 0.8;
-
-  // Arrow styling - always bold and visible with white outline for contrast
-  const arrowStyle = isNextBus
-    ? `border-left: ${arrowSize.left}px solid transparent; border-right: ${arrowSize.right}px solid transparent; border-bottom: ${arrowSize.bottom}px solid ${color}; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.4));`
-    : `border-left: ${arrowSize.left}px solid transparent; border-right: ${arrowSize.right}px solid transparent; border-bottom: ${arrowSize.bottom}px solid ${color}; filter: drop-shadow(0 0 3px white) drop-shadow(0 1px 2px rgba(0,0,0,0.5));`;
 
   // Next bus gets a pulsing ring around it
   const pulseRing = isNextBus
-    ? `<div style="position: absolute; top: ${topOffset}px; left: 50%; transform: translateX(-50%); width: ${iconSize}px; height: ${iconSize}px; border-radius: 50%; border: 3px solid ${color}; animation: pulse-ring 1.5s ease-out infinite;"></div>`
+    ? `<div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: ${iconSize}px; height: ${iconSize}px; border-radius: 50%; border: 3px solid ${color}; animation: pulse-ring 1.5s ease-out infinite;"></div>`
     : '';
   const pulseKeyframes = isNextBus
-    ? `<style>@keyframes pulse-ring { 0% { transform: translateX(-50%) scale(1); opacity: 1; } 100% { transform: translateX(-50%) scale(1.8); opacity: 0; } }</style>`
+    ? `<style>@keyframes pulse-ring { 0% { transform: translate(-50%, -50%) scale(1); opacity: 1; } 100% { transform: translate(-50%, -50%) scale(1.8); opacity: 0; } }</style>`
     : '';
 
   return L.divIcon({
-    html: `${pulseKeyframes}<div style="position: relative; width: 44px; height: 44px; transform: rotate(${rotation}deg);">
+    html: `${pulseKeyframes}<div style="position: relative; width: 44px; height: 44px;">
       <!-- Pulsing ring for next bus -->
       ${pulseRing}
-      <!-- Direction arrow at top - always fully visible -->
-      <div style="position: absolute; top: ${arrowTop}px; left: 50%; transform: translateX(-50%); width: 0; height: 0; ${arrowStyle}"></div>
-      <!-- Bus icon circle - counter-rotated to stay upright -->
-      <div style="position: absolute; top: ${topOffset}px; left: 50%; transform: translateX(-50%) rotate(${counterRotation}deg); background-color: ${color}; width: ${iconSize}px; height: ${iconSize}px; border-radius: 50%; display: flex; align-items: center; justify-content: center; opacity: ${circleOpacity}; ${borderStyle}">
+      <!-- Bus icon circle -->
+      <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: ${color}; width: ${iconSize}px; height: ${iconSize}px; border-radius: 50%; display: flex; align-items: center; justify-content: center; opacity: ${circleOpacity}; ${borderStyle}">
         <svg xmlns="http://www.w3.org/2000/svg" width="${svgSize}" height="${svgSize}" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <path d="M8 6v6"/>
           <path d="M15 6v6"/>
@@ -590,6 +612,9 @@ export default function BusMapPopup({
           </button>
         </div>
 
+        {/* Custom styles for Leaflet popups/tooltips */}
+        <style dangerouslySetInnerHTML={{ __html: customMapStyles }} />
+
         {/* Map Container */}
         <div className="h-80 relative" style={{ touchAction: 'manipulation' }}>
           {isLoading && (
@@ -639,46 +664,57 @@ export default function BusMapPopup({
                   weight: 2,
                 }}
               >
-                <Popup>
-                  <div style={{ fontWeight: 500, color: '#111827', fontSize: '13px' }}>{stop.name}</div>
-                </Popup>
+                <Tooltip
+                  direction="top"
+                  offset={[0, -5]}
+                  className="minimal-tooltip"
+                >
+                  {stop.name}
+                </Tooltip>
               </CircleMarker>
             ))}
 
             {/* Stop marker */}
             <Marker position={[stopLat, stopLon]} icon={stopIcon}>
-              <Popup>
-                <div style={{ fontWeight: 600, color: '#111827', marginBottom: '8px' }}>{stopName}</div>
-                <a
-                  href={`https://www.google.com/maps/dir/?api=1&origin=${userLat},${userLon}&destination=${stopLat},${stopLon}&travelmode=walking`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    padding: '6px 12px',
-                    backgroundColor: '#3b82f6',
-                    borderRadius: '6px',
-                    color: 'white',
-                    fontSize: '13px',
-                    fontWeight: 600,
-                    textDecoration: 'none',
-                  }}
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <polygon points="3 11 22 2 13 21 11 13 3 11"/>
-                  </svg>
-                  Pysäkille
-                </a>
+              <Popup className="compact-popup" closeButton={false}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ fontWeight: 600, color: '#111827', fontSize: '13px' }}>{stopName}</span>
+                  <a
+                    href={`https://www.google.com/maps/dir/?api=1&origin=${userLat},${userLon}&destination=${stopLat},${stopLon}&travelmode=walking`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      padding: '4px 8px',
+                      backgroundColor: '#3b82f6',
+                      borderRadius: '4px',
+                      color: 'white',
+                      fontSize: '11px',
+                      fontWeight: 600,
+                      textDecoration: 'none',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <polygon points="3 11 22 2 13 21 11 13 3 11"/>
+                    </svg>
+                    Reitti
+                  </a>
+                </div>
               </Popup>
             </Marker>
 
             {/* User location marker */}
             <Marker position={[userLat, userLon]} icon={userIcon}>
-              <Popup>
-                <div className="font-semibold">Sijaintisi</div>
-              </Popup>
+              <Tooltip
+                direction="top"
+                offset={[0, -15]}
+                className="minimal-tooltip"
+              >
+                Sijaintisi
+              </Tooltip>
             </Marker>
 
             {/* Bus markers */}
@@ -703,19 +739,37 @@ export default function BusMapPopup({
                       }
                     }}
                   >
-                    <Popup>
-                      <div style={{ fontWeight: 600, color: '#111827' }}>
-                        {routeNumber} {headsign}
+                    <Popup className="compact-popup" closeButton={false}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap' }}>
+                        <span style={{
+                          fontWeight: 700,
+                          color: 'white',
+                          fontSize: '12px',
+                          backgroundColor: routeColor,
+                          padding: '3px 8px',
+                          borderRadius: '4px',
+                        }}>{routeNumber}</span>
+                        {arrivalMins !== null ? (
+                          <span style={{
+                            fontSize: '12px',
+                            color: '#15803d',
+                            fontWeight: 600,
+                            backgroundColor: '#dcfce7',
+                            padding: '3px 8px',
+                            borderRadius: '4px',
+                          }}>
+                            {arrivalMins === 0 ? 'nyt' : `${arrivalMins} min`}
+                          </span>
+                        ) : (
+                          <span style={{
+                            fontSize: '12px',
+                            color: '#6b7280',
+                            fontWeight: 500,
+                          }}>
+                            matkalla
+                          </span>
+                        )}
                       </div>
-                      {arrivalMins !== null ? (
-                        <div style={{ fontSize: '13px', color: '#16a34a', fontWeight: 500, marginTop: '4px' }}>
-                          Saapuu {arrivalMins === 0 ? 'nyt' : arrivalMins === 1 ? '1 min' : `${arrivalMins} min`}
-                        </div>
-                      ) : isSelectedBus ? (
-                        <div style={{ fontSize: '13px', color: '#16a34a', fontWeight: 500, marginTop: '4px' }}>
-                          Valittu bussi
-                        </div>
-                      ) : null}
                     </Popup>
                   </Marker>
                 );

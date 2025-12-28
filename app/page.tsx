@@ -151,8 +151,9 @@ export default function Home() {
                   Onko sovellus ilmainen?
                 </dt>
                 <dd className="mt-1 text-white/60">
-                  Kyllä, SeuraavaBussi.fi on täysin ilmainen käyttää. Voit
-                  halutessasi tukea kehitystyötä kahvilahjoituksella.
+                  SeuraavaBussi.fi:n perustoiminnot ovat ilmaisia. Tarjoamme
+                  myös maksullisia lisäominaisuuksia, kuten live-kartta ja
+                  kotinäkymä-widget.
                 </dd>
               </div>
               <div>

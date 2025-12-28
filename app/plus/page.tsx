@@ -115,13 +115,16 @@ export default function PlusPage() {
               <p className="mb-2">
                 <strong>Kuukausitilaus (3€/kk):</strong> Veloitetaan kuukausittain.
                 Voit peruuttaa tilauksen milloin tahansa, jolloin tilaus päättyy
-                kuluvan laskutuskauden lopussa. Peruutuksen jälkeen maksuja ei palauteta
-                kuluvan kauden osalta.
+                kuluvan laskutuskauden lopussa. Kuukausimaksuja ei palauteta.
               </p>
               <p>
-                <strong>Kertamaksu (30€):</strong> Kertamaksu on lopullinen eikä palautettavissa,
-                ellei pakottava lainsäädäntö toisin edellytä. Kertamaksu antaa käyttöoikeuden
-                palveluun niin kauan kuin palvelu on toiminnassa.
+                <strong>Kertamaksu (30€):</strong> Kertamaksu antaa käyttöoikeuden
+                palveluun niin kauan kuin palvelu on toiminnassa. Jos et ole tyytyväinen,
+                voit pyytää täyden hyvityksen 7 päivän sisällä ostosta lähettämällä
+                sähköpostia osoitteeseen{" "}
+                <a href="mailto:zhiyuan.liu023@gmail.com" className="underline hover:text-white">
+                  zhiyuan.liu023@gmail.com
+                </a>.
               </p>
             </div>
 

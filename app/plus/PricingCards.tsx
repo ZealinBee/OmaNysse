@@ -221,6 +221,13 @@ export function PricingCards() {
           </div>
         </div>
 
+        {/* 7-day money-back guarantee for lifetime */}
+        <div className="mt-4 text-center">
+          <p className="text-white/70 text-sm">
+            Kertamaksulle 7 päivän rahat takaisin -takuu.
+          </p>
+        </div>
+
         {!loading && !user && (
           <div className="mt-6 text-center">
             <p className="text-white/60 text-sm mb-2">

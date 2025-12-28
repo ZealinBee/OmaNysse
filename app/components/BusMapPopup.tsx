@@ -585,6 +585,8 @@ export default function BusMapPopup({
             zoom={15}
             className="h-full w-full"
             zoomControl={false}
+            markerZoomAnimation={false}
+            preferCanvas={true}
           >
             <TileLayer
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'

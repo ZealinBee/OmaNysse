@@ -201,23 +201,44 @@ function createBusIcon(color: string, bearing?: number, isNextBus?: boolean) {
   const rotation = bearing ?? 0;
   const counterRotation = -rotation; // Counter-rotate to keep bus upright
 
+  // Selected bus: larger, prominent shadow, full color
+  // Other buses: slightly smaller, subtle, but still clearly visible
+  const iconSize = isNextBus ? 30 : 24;
+  const svgSize = isNextBus ? 15 : 12;
+  const topOffset = isNextBus ? 5 : 8;
+  const arrowSize = isNextBus ? { left: 7, right: 7, bottom: 11 } : { left: 5, right: 5, bottom: 8 };
+  const arrowTop = isNextBus ? -3 : 1;
+
+  // Selected gets white border + strong shadow, others get slightly lighter treatment
+  const borderStyle = isNextBus
+    ? 'border: 3px solid white; box-shadow: 0 3px 12px rgba(0,0,0,0.4);'
+    : 'border: 2px solid rgba(255,255,255,0.85); box-shadow: 0 2px 4px rgba(0,0,0,0.25);';
+
+  // Circle opacity - others slightly faded but arrows stay fully visible
+  const circleOpacity = isNextBus ? 1 : 0.8;
+
+  // Arrow styling - always bold and visible with white outline for contrast
+  const arrowStyle = isNextBus
+    ? `border-left: ${arrowSize.left}px solid transparent; border-right: ${arrowSize.right}px solid transparent; border-bottom: ${arrowSize.bottom}px solid ${color}; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.4));`
+    : `border-left: ${arrowSize.left}px solid transparent; border-right: ${arrowSize.right}px solid transparent; border-bottom: ${arrowSize.bottom}px solid ${color}; filter: drop-shadow(0 0 3px white) drop-shadow(0 1px 2px rgba(0,0,0,0.5));`;
+
   // Next bus gets a pulsing ring around it
   const pulseRing = isNextBus
-    ? `<div style="position: absolute; top: 6px; left: 50%; transform: translateX(-50%); width: 28px; height: 28px; border-radius: 50%; border: 2px solid ${color}; animation: pulse-ring 1.5s ease-out infinite;"></div>`
+    ? `<div style="position: absolute; top: ${topOffset}px; left: 50%; transform: translateX(-50%); width: ${iconSize}px; height: ${iconSize}px; border-radius: 50%; border: 3px solid ${color}; animation: pulse-ring 1.5s ease-out infinite;"></div>`
     : '';
   const pulseKeyframes = isNextBus
     ? `<style>@keyframes pulse-ring { 0% { transform: translateX(-50%) scale(1); opacity: 1; } 100% { transform: translateX(-50%) scale(1.8); opacity: 0; } }</style>`
     : '';
 
   return L.divIcon({
-    html: `${pulseKeyframes}<div style="position: relative; width: 40px; height: 40px; transform: rotate(${rotation}deg);">
+    html: `${pulseKeyframes}<div style="position: relative; width: 44px; height: 44px; transform: rotate(${rotation}deg);">
       <!-- Pulsing ring for next bus -->
       ${pulseRing}
-      <!-- Direction arrow at top -->
-      <div style="position: absolute; top: -2px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-bottom: 10px solid ${color}; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));"></div>
+      <!-- Direction arrow at top - always fully visible -->
+      <div style="position: absolute; top: ${arrowTop}px; left: 50%; transform: translateX(-50%); width: 0; height: 0; ${arrowStyle}"></div>
       <!-- Bus icon circle - counter-rotated to stay upright -->
-      <div style="position: absolute; top: 6px; left: 50%; transform: translateX(-50%) rotate(${counterRotation}deg); background-color: ${color}; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.3);">
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <div style="position: absolute; top: ${topOffset}px; left: 50%; transform: translateX(-50%) rotate(${counterRotation}deg); background-color: ${color}; width: ${iconSize}px; height: ${iconSize}px; border-radius: 50%; display: flex; align-items: center; justify-content: center; opacity: ${circleOpacity}; ${borderStyle}">
+        <svg xmlns="http://www.w3.org/2000/svg" width="${svgSize}" height="${svgSize}" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <path d="M8 6v6"/>
           <path d="M15 6v6"/>
           <path d="M2 12h19.6"/>
@@ -229,8 +250,8 @@ function createBusIcon(color: string, bearing?: number, isNextBus?: boolean) {
       </div>
     </div>`,
     className: "",
-    iconSize: [40, 40],
-    iconAnchor: [20, 20],
+    iconSize: [44, 44],
+    iconAnchor: [22, 22],
   });
 }
 

@@ -121,6 +121,24 @@ function findNextBusIndex(
   return nextBusIndex;
 }
 
+// Close popups when user starts dragging the map
+function ClosePopupOnDrag() {
+  const map = useMap();
+
+  useEffect(() => {
+    const handleDragStart = () => {
+      map.closePopup();
+    };
+
+    map.on('dragstart', handleDragStart);
+    return () => {
+      map.off('dragstart', handleDragStart);
+    };
+  }, [map]);
+
+  return null;
+}
+
 // Custom hook to fit bounds only on initial load - focuses on selected bus, user, and stop
 function FitBoundsOnce({
   stopLat,
@@ -613,6 +631,8 @@ export default function BusMapPopup({
               userLon={userLon}
               vehiclePositions={vehiclePositions}
             />
+
+            <ClosePopupOnDrag />
           </MapContainer>
         </div>
 

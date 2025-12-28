@@ -15,6 +15,12 @@ const TRIP_PATTERN_QUERY = `
           lat
           lon
         }
+        stops {
+          gtfsId
+          name
+          lat
+          lon
+        }
       }
     }
   }
@@ -68,17 +74,11 @@ export async function GET(request: NextRequest) {
 
     const data = await response.json();
 
-    // Extract geometry from the response
-    const geometry = data.data?.trip?.pattern?.geometry;
+    // Extract geometry and stops from the response
+    const geometry = data.data?.trip?.pattern?.geometry || [];
+    const stops = data.data?.trip?.pattern?.stops || [];
 
-    if (!geometry || geometry.length === 0) {
-      return NextResponse.json(
-        { geometry: [] },
-        { status: 200 }
-      );
-    }
-
-    return NextResponse.json({ geometry });
+    return NextResponse.json({ geometry, stops });
   } catch (error) {
     console.error("Fetch error:", error);
     return NextResponse.json(

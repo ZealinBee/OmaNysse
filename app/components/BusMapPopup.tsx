@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef, useCallback } from "react";
 import { X, Bus, Lock } from "lucide-react";
-import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, Polyline, CircleMarker, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { useSubscription } from "@/app/lib/hooks/useSubscription";
@@ -43,6 +43,13 @@ interface BusMapPopupProps {
 }
 
 interface RouteGeometry {
+  lat: number;
+  lon: number;
+}
+
+interface RouteStop {
+  gtfsId: string;
+  name: string;
   lat: number;
   lon: number;
 }
@@ -336,6 +343,7 @@ export default function BusMapPopup({
 }: BusMapPopupProps) {
   const [vehiclePositions, setVehiclePositions] = useState<VehiclePosition[]>([]);
   const [routeGeometry, setRouteGeometry] = useState<RouteGeometry[]>([]);
+  const [routeStops, setRouteStops] = useState<RouteStop[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [trialCount, setTrialCount] = useState<number | null>(null);
@@ -420,10 +428,11 @@ export default function BusMapPopup({
     return () => clearInterval(interval);
   }, [isOpen, isPaywalled, routeNumber, region]);
 
-  // Fetch route geometry when popup opens
+  // Fetch route geometry and stops when popup opens
   useEffect(() => {
     if (!isOpen || isPaywalled || !tripId) {
       setRouteGeometry([]);
+      setRouteStops([]);
       return;
     }
 
@@ -436,6 +445,9 @@ export default function BusMapPopup({
 
         if (data.geometry && data.geometry.length > 0) {
           setRouteGeometry(data.geometry);
+        }
+        if (data.stops && data.stops.length > 0) {
+          setRouteStops(data.stops);
         }
       } catch {
         // Silently fail - route line is optional
@@ -590,6 +602,25 @@ export default function BusMapPopup({
                 }}
               />
             )}
+
+            {/* Route stop dots */}
+            {routeStops.map((stop) => (
+              <CircleMarker
+                key={stop.gtfsId}
+                center={[stop.lat, stop.lon]}
+                radius={5}
+                pathOptions={{
+                  color: routeColor,
+                  fillColor: 'white',
+                  fillOpacity: 1,
+                  weight: 2,
+                }}
+              >
+                <Popup>
+                  <div style={{ fontWeight: 500, color: '#111827', fontSize: '13px' }}>{stop.name}</div>
+                </Popup>
+              </CircleMarker>
+            ))}
 
             {/* Stop marker */}
             <Marker position={[stopLat, stopLon]} icon={stopIcon}>

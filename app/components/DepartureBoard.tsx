@@ -21,6 +21,7 @@ import {
 } from "@/app/lib/utils";
 import SearchInput from "./SearchInput";
 import DepartureRow, { DepartureRowSkeleton } from "./DepartureRow";
+import { useRefreshInterval } from "@/app/lib/hooks/useRefreshInterval";
 
 // Dynamic import to avoid SSR issues with Leaflet
 const BusMapPopup = dynamic(() => import("./BusMapPopup"), {
@@ -77,6 +78,9 @@ export default function DepartureBoard({ onThemeColorChange }: DepartureBoardPro
   });
   const [refreshCountdown, setRefreshCountdown] = useState(30);
   const [searchedLocationName, setSearchedLocationName] = useState<string | null>(null);
+
+  // Premium users get faster refresh rate
+  const { refreshInterval, refreshSeconds } = useRefreshInterval();
   const [gpsLocationName, setGpsLocationName] = useState<string | null>(null);
   const [popupData, setPopupData] = useState<PopupData | null>(null);
 
@@ -318,31 +322,31 @@ export default function DepartureBoard({ onThemeColorChange }: DepartureBoardPro
   useEffect(() => {
     if (location.status !== "success") return;
     fetchNearbyStops(location.coords.lat, location.coords.lng, debouncedRadius);
-    setRefreshCountdown(30);
-  }, [debouncedRadius, location, fetchNearbyStops]);
+    setRefreshCountdown(refreshSeconds);
+  }, [debouncedRadius, location, fetchNearbyStops, refreshSeconds]);
 
-  // Auto-refresh departures every 30 seconds
+  // Auto-refresh departures (10s for premium, 30s for free users)
   useEffect(() => {
     if (location.status !== "success") return;
 
     const interval = setInterval(() => {
       fetchNearbyStops(location.coords.lat, location.coords.lng, debouncedRadius);
-      setRefreshCountdown(30);
-    }, 30000);
+      setRefreshCountdown(refreshSeconds);
+    }, refreshInterval);
 
     return () => clearInterval(interval);
-  }, [location, debouncedRadius, fetchNearbyStops]);
+  }, [location, debouncedRadius, fetchNearbyStops, refreshInterval, refreshSeconds]);
 
   // Countdown timer
   useEffect(() => {
     if (location.status !== "success") return;
 
     const countdownInterval = setInterval(() => {
-      setRefreshCountdown((prev) => (prev > 0 ? prev - 1 : 30));
+      setRefreshCountdown((prev) => (prev > 0 ? prev - 1 : refreshSeconds));
     }, 1000);
 
     return () => clearInterval(countdownInterval);
-  }, [location]);
+  }, [location, refreshSeconds]);
 
   return (
     <>

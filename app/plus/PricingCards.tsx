@@ -176,6 +176,10 @@ export function PricingCards() {
               </li>
               <li className="flex items-center gap-2 text-white/80 text-sm">
                 <Check className="w-4 h-4 text-white/60" />
+                Nopeampi päivitysväli (10 s)
+              </li>
+              <li className="flex items-center gap-2 text-white/80 text-sm">
+                <Check className="w-4 h-4 text-white/60" />
                 Tulevat ominaisuudet
               </li>
             </ul>
@@ -196,6 +200,10 @@ export function PricingCards() {
               <li className="flex items-center gap-2 text-gray-700 text-sm">
                 <Check className="w-4 h-4 text-green-500" />
                 Rajaton karttakäyttö
+              </li>
+              <li className="flex items-center gap-2 text-gray-700 text-sm">
+                <Check className="w-4 h-4 text-green-500" />
+                Nopeampi päivitysväli (10 s)
               </li>
               <li className="flex items-center gap-2 text-gray-700 text-sm">
                 <Check className="w-4 h-4 text-green-500" />

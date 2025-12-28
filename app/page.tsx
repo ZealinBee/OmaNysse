@@ -167,6 +167,65 @@ export default function Home() {
             </dl>
           </section>
 
+          {/* Top Stops */}
+          <section>
+            <h3 className="text-white font-bold text-base mb-3">
+              Suosituimmat pysäkit
+            </h3>
+            <ul className="grid grid-cols-2 gap-2">
+              <li>
+                <a href="/helsinki/rautatientori" className="hover:text-white transition-colors">
+                  Rautatientori, Helsinki
+                </a>
+              </li>
+              <li>
+                <a href="/tampere/keskustori" className="hover:text-white transition-colors">
+                  Keskustori, Tampere
+                </a>
+              </li>
+              <li>
+                <a href="/turku/kauppatori" className="hover:text-white transition-colors">
+                  Kauppatori, Turku
+                </a>
+              </li>
+              <li>
+                <a href="/oulu/keskusta" className="hover:text-white transition-colors">
+                  Keskusta, Oulu
+                </a>
+              </li>
+              <li>
+                <a href="/jyvaskyla/matkakeskus" className="hover:text-white transition-colors">
+                  Matkakeskus, Jyväskylä
+                </a>
+              </li>
+              <li>
+                <a href="/lahti/matkakeskus" className="hover:text-white transition-colors">
+                  Matkakeskus, Lahti
+                </a>
+              </li>
+              <li>
+                <a href="/kuopio/keskusta" className="hover:text-white transition-colors">
+                  Keskusta, Kuopio
+                </a>
+              </li>
+              <li>
+                <a href="/lappeenranta/keskusta" className="hover:text-white transition-colors">
+                  Keskusta, Lappeenranta
+                </a>
+              </li>
+              <li>
+                <a href="/hameenlinna/keskusta" className="hover:text-white transition-colors">
+                  Keskusta, Hämeenlinna
+                </a>
+              </li>
+              <li>
+                <a href="/pori/keskusta" className="hover:text-white transition-colors">
+                  Keskusta, Pori
+                </a>
+              </li>
+            </ul>
+          </section>
+
           {/* Data Sources */}
           <section className="pt-4 border-t border-white/10">
             <p className="text-white/50 text-xs">

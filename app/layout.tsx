@@ -62,12 +62,22 @@ const jsonLd = {
   operatingSystem: "Web",
   browserRequirements: "Requires JavaScript and Geolocation API",
   inLanguage: "fi",
-  isAccessibleForFree: true,
-  offers: {
-    "@type": "Offer",
-    price: "0",
-    priceCurrency: "EUR",
-  },
+  isAccessibleForFree: false,
+  offers: [
+    {
+      "@type": "Offer",
+      name: "Ilmainen",
+      price: "0",
+      priceCurrency: "EUR",
+    },
+    {
+      "@type": "Offer",
+      name: "Plus",
+      price: "2.99",
+      priceCurrency: "EUR",
+      priceValidUntil: "2025-12-31",
+    },
+  ],
   author: {
     "@type": "Person",
     name: "Zhiyuan Liu",

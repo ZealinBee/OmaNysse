@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef, useCallback } from "react";
 import { X, Bus, Lock } from "lucide-react";
-import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { useSubscription } from "@/app/lib/hooks/useSubscription";
@@ -36,9 +36,15 @@ interface BusMapPopupProps {
   stopName: string;
   stopCode?: string;
   expectedArrivalMins?: number; // Minutes until the selected bus arrives at the stop
+  tripId?: string;
   userLat: number;
   userLon: number;
   region: "hsl" | "waltti";
+}
+
+interface RouteGeometry {
+  lat: number;
+  lon: number;
 }
 
 // Helper to calculate distance between two coordinates (Haversine formula)
@@ -323,11 +329,13 @@ export default function BusMapPopup({
   stopName,
   stopCode,
   expectedArrivalMins,
+  tripId,
   userLat,
   userLon,
   region,
 }: BusMapPopupProps) {
   const [vehiclePositions, setVehiclePositions] = useState<VehiclePosition[]>([]);
+  const [routeGeometry, setRouteGeometry] = useState<RouteGeometry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [trialCount, setTrialCount] = useState<number | null>(null);
@@ -411,6 +419,32 @@ export default function BusMapPopup({
     const interval = setInterval(fetchVehiclePositions, 10000);
     return () => clearInterval(interval);
   }, [isOpen, isPaywalled, routeNumber, region]);
+
+  // Fetch route geometry when popup opens
+  useEffect(() => {
+    if (!isOpen || isPaywalled || !tripId) {
+      setRouteGeometry([]);
+      return;
+    }
+
+    const fetchRouteGeometry = async () => {
+      try {
+        const response = await fetch(
+          `/api/trip-pattern?tripId=${encodeURIComponent(tripId)}&region=${region}`
+        );
+        const data = await response.json();
+
+        if (data.geometry && data.geometry.length > 0) {
+          setRouteGeometry(data.geometry);
+        }
+      } catch {
+        // Silently fail - route line is optional
+        console.error("Failed to fetch route geometry");
+      }
+    };
+
+    fetchRouteGeometry();
+  }, [isOpen, isPaywalled, tripId, region]);
 
   if (!isOpen) return null;
 
@@ -544,6 +578,18 @@ export default function BusMapPopup({
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
+
+            {/* Route polyline - drawn first so it appears behind markers */}
+            {routeGeometry.length > 0 && (
+              <Polyline
+                positions={routeGeometry.map(point => [point.lat, point.lon] as [number, number])}
+                pathOptions={{
+                  color: routeColor,
+                  weight: 4,
+                  opacity: 0.7,
+                }}
+              />
+            )}
 
             {/* Stop marker */}
             <Marker position={[stopLat, stopLon]} icon={stopIcon}>

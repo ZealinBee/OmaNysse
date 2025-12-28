@@ -40,6 +40,7 @@ interface PopupData {
   stopName: string;
   stopCode?: string;
   expectedArrivalMins?: number; // Minutes until the selected bus arrives
+  tripId?: string;
 }
 
 const MAX_DEPARTURES = 20;
@@ -209,6 +210,7 @@ export default function DepartureBoard({
                 stopLon: node.stop.lon,
                 stopName: node.stop.name,
                 stopCode: node.stop.code,
+                tripId: st.trip.gtfsId,
                 key: `${node.stop.gtfsId}-${st.trip.route.shortName}-${st.serviceDay}-${st.scheduledDeparture}-${idx}`,
               });
             }
@@ -763,6 +765,7 @@ export default function DepartureBoard({
           stopName={popupData.stopName}
           stopCode={popupData.stopCode}
           expectedArrivalMins={popupData.expectedArrivalMins}
+          tripId={popupData.tripId}
           userLat={location.coords.lat}
           userLon={location.coords.lng}
           region={getRegion(location.coords.lat, location.coords.lng)}

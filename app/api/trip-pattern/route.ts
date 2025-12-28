@@ -7,37 +7,13 @@ const API_URLS = {
 
 type Region = keyof typeof API_URLS;
 
-const NEARBY_STOPS_QUERY = `
-  query NearbyStops($lat: Float!, $lon: Float!, $radius: Int!) {
-    stopsByRadius(lat: $lat, lon: $lon, radius: $radius) {
-      edges {
-        node {
-          stop {
-            gtfsId
-            name
-            code
-            platformCode
-            lat
-            lon
-            stoptimesWithoutPatterns(numberOfDepartures: 5) {
-              scheduledDeparture
-              realtimeDeparture
-              departureDelay
-              realtime
-              realtimeState
-              serviceDay
-              headsign
-              trip {
-                gtfsId
-                route {
-                  shortName
-                  mode
-                  color
-                }
-              }
-            }
-          }
-          distance
+const TRIP_PATTERN_QUERY = `
+  query TripPattern($tripId: String!) {
+    trip(id: $tripId) {
+      pattern {
+        geometry {
+          lat
+          lon
         }
       }
     }
@@ -46,14 +22,12 @@ const NEARBY_STOPS_QUERY = `
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
-  const lat = searchParams.get("lat");
-  const lon = searchParams.get("lon");
-  const radius = searchParams.get("radius") || "500";
+  const tripId = searchParams.get("tripId");
   const region = (searchParams.get("region") || "waltti") as Region;
 
-  if (!lat || !lon) {
+  if (!tripId) {
     return NextResponse.json(
-      { error: "Missing lat or lon parameters" },
+      { error: "Missing tripId parameter" },
       { status: 400 }
     );
   }
@@ -76,11 +50,9 @@ export async function GET(request: NextRequest) {
         "digitransit-subscription-key": apiKey,
       },
       body: JSON.stringify({
-        query: NEARBY_STOPS_QUERY,
+        query: TRIP_PATTERN_QUERY,
         variables: {
-          lat: parseFloat(lat),
-          lon: parseFloat(lon),
-          radius: parseInt(radius),
+          tripId,
         },
       }),
     });
@@ -89,16 +61,26 @@ export async function GET(request: NextRequest) {
       const text = await response.text();
       console.error("API error:", text);
       return NextResponse.json(
-        { error: "Failed to fetch stops" },
+        { error: "Failed to fetch trip pattern" },
         { status: response.status }
       );
     }
 
     const data = await response.json();
-    return NextResponse.json(data);
+
+    // Extract geometry from the response
+    const geometry = data.data?.trip?.pattern?.geometry;
+
+    if (!geometry || geometry.length === 0) {
+      return NextResponse.json(
+        { geometry: [] },
+        { status: 200 }
+      );
+    }
+
+    return NextResponse.json({ geometry });
   } catch (error) {
     console.error("Fetch error:", error);
-    // Network error - couldn't reach external API
     return NextResponse.json(
       { error: "network_error" },
       { status: 503 }

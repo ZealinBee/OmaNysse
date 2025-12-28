@@ -12,6 +12,7 @@ interface PopupData {
   stopName: string;
   stopCode?: string;
   expectedArrivalMins?: number;
+  tripId?: string;
 }
 
 interface DepartureRowProps {
@@ -52,6 +53,7 @@ export default function DepartureRow({ departure, userCoords, region, onOpenMap 
       stopName: departure.stopName,
       stopCode: departure.stopCode,
       expectedArrivalMins: departure.minutesUntil,
+      tripId: departure.tripId,
     });
   };
 

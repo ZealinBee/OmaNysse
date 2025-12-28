@@ -7,6 +7,7 @@ export interface StopTime {
   serviceDay: number;
   headsign: string;
   trip: {
+    gtfsId?: string;
     route: {
       shortName: string;
       mode: string;
@@ -41,6 +42,7 @@ export interface Departure {
   stopLon: number;
   stopName: string;
   stopCode?: string;
+  tripId?: string;
   key: string;
 }
 

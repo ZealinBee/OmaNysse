@@ -49,10 +49,10 @@ export default function PrivacyPolicy() {
             <p>
               Sähköposti:{" "}
               <a
-                href="mailto:meeting@tutorswap.app"
+                href="mailto:zhiyuan.liu023@gmail.com"
                 className="underline hover:text-white"
               >
-                meeting@tutorswap.app
+                zhiyuan.liu023@gmail.com
               </a>
             </p>
           </div>
@@ -221,10 +221,10 @@ export default function PrivacyPolicy() {
             </p>
             <p>
               <a
-                href="mailto:meeting@tutorswap.app"
+                href="mailto:zhiyuan.liu023@gmail.com"
                 className="underline hover:text-white"
               >
-                meeting@tutorswap.app
+                zhiyuan.liu023@gmail.com
               </a>
             </p>
             <p className="text-white/60 text-sm mt-4">

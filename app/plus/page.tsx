@@ -159,10 +159,10 @@ export default function PlusPage() {
                 <p>
                   Sähköposti:{" "}
                   <a
-                    href="mailto:meeting@tutorswap.app"
+                    href="mailto:zhiyuan.liu023@gmail.com"
                     className="underline hover:text-white"
                   >
-                    meeting@tutorswap.app
+                    zhiyuan.liu023@gmail.com
                   </a>
                 </p>
               </div>

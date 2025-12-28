@@ -48,7 +48,8 @@ export type LocationState =
   | { status: "idle" }
   | { status: "requesting" }
   | { status: "success"; coords: { lat: number; lng: number } }
-  | { status: "denied" };
+  | { status: "denied" }
+  | { status: "blocked"; message: string };
 
 export interface GeocodedLocation {
   type: "Feature";

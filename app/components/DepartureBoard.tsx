@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import dynamic from "next/dynamic";
-import { LocateFixed, RefreshCw, MapPin } from "lucide-react";
+import { LocateFixed, RefreshCw, MapPin, ChevronDown, ChevronUp } from "lucide-react";
 import {
   Departure,
   StopNode,
@@ -84,6 +84,27 @@ export default function DepartureBoard({ onThemeColorChange }: DepartureBoardPro
   const { refreshInterval, refreshSeconds } = useRefreshInterval();
   const [gpsLocationName, setGpsLocationName] = useState<string | null>(null);
   const [popupData, setPopupData] = useState<PopupData | null>(null);
+  const [showLocationHelp, setShowLocationHelp] = useState(false);
+
+  // Detect device type for showing relevant location help
+  const getDeviceType = useCallback((): "ios-safari" | "ios-chrome" | "android" | "desktop" => {
+    if (typeof window === "undefined") return "desktop";
+
+    const ua = navigator.userAgent;
+    const isIOS = /iPhone|iPad|iPod/.test(ua);
+    const isAndroid = /Android/.test(ua);
+
+    if (isIOS) {
+      // CriOS = Chrome on iOS, FxiOS = Firefox on iOS
+      if (/CriOS/.test(ua)) return "ios-chrome";
+      // Default to Safari for iOS (most common)
+      return "ios-safari";
+    }
+
+    if (isAndroid) return "android";
+
+    return "desktop";
+  }, []);
 
   // Handler for opening the bus map popup - stores data so popup persists even if bus disappears
   const handleOpenMap = useCallback((data: PopupData) => {
@@ -271,10 +292,29 @@ export default function DepartureBoard({ onThemeColorChange }: DepartureBoardPro
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const requestLocation = () => {
+  const requestLocation = async () => {
     if (!navigator.geolocation) {
-      setLocation({ status: "denied" });
+      setLocation({
+        status: "blocked",
+        message: "Selaimesi ei tue sijaintipalveluja. Kokeile toista selainta."
+      });
       return;
+    }
+
+    // On iOS Safari, check permission state first to give better feedback
+    if (navigator.permissions) {
+      try {
+        const permission = await navigator.permissions.query({ name: 'geolocation' });
+        if (permission.state === 'denied') {
+          setLocation({
+            status: "blocked",
+            message: "Sijainti on estetty. Salli sijainti selaimen tai laitteen asetuksista ja yritä uudelleen."
+          });
+          return;
+        }
+      } catch {
+        // Permissions API not fully supported, continue with geolocation request
+      }
     }
 
     setLocation({ status: "requesting" });
@@ -291,9 +331,28 @@ export default function DepartureBoard({ onThemeColorChange }: DepartureBoardPro
         fetchNearbyStops(coords.lat, coords.lng);
         fetchLocationName(coords.lat, coords.lng);
       },
-      () => {
-        setLocation({ status: "denied" });
-      }
+      (error) => {
+        // Provide specific error messages based on error code
+        if (error.code === error.PERMISSION_DENIED) {
+          setLocation({
+            status: "blocked",
+            message: "Sijainti on estetty. Salli sijainti selaimen tai laitteen asetuksista ja yritä uudelleen."
+          });
+        } else if (error.code === error.POSITION_UNAVAILABLE) {
+          setLocation({
+            status: "blocked",
+            message: "Sijaintia ei voitu määrittää. Tarkista että sijaintipalvelut ovat päällä laitteessasi."
+          });
+        } else if (error.code === error.TIMEOUT) {
+          setLocation({
+            status: "blocked",
+            message: "Sijainnin haku aikakatkaistiin. Yritä uudelleen."
+          });
+        } else {
+          setLocation({ status: "denied" });
+        }
+      },
+      { timeout: 10000 } // 10 second timeout
     );
   };
 
@@ -422,6 +481,110 @@ export default function DepartureBoard({ onThemeColorChange }: DepartureBoardPro
             className="rounded-full bg-white/20 px-8 py-4 font-bold text-lg text-white transition-all hover:bg-white/30"
           >
             Käytä sijaintia
+          </button>
+        </div>
+      )}
+
+      {location.status === "blocked" && (
+        <div className="flex flex-col items-center gap-6 py-12">
+          {/* Error message box with help button */}
+          <div className="w-full max-w-md">
+            <div className="p-4 rounded-xl bg-red-500/20 border border-red-400/30">
+              <p className="text-white text-center font-medium text-sm sm:text-base">
+                {location.message}
+              </p>
+              <button
+                onClick={() => setShowLocationHelp(!showLocationHelp)}
+                className="mt-3 mx-auto flex items-center gap-1.5 text-white/80 hover:text-white text-sm font-medium transition-colors"
+              >
+                Miten sallin sijainnin?
+                {showLocationHelp ? (
+                  <ChevronUp className="w-4 h-4" />
+                ) : (
+                  <ChevronDown className="w-4 h-4" />
+                )}
+              </button>
+            </div>
+
+            {/* Expandable help instructions - device-specific */}
+            {showLocationHelp && (
+              <div className="mt-3 p-4 rounded-xl bg-white/10 border border-white/20 text-white/90 text-sm">
+                {/* iPhone Safari */}
+                {getDeviceType() === "ios-safari" && (
+                  <div>
+                    <p className="font-bold text-white mb-2">Näin sallit sijainnin iPhonella:</p>
+                    <ol className="list-decimal list-inside space-y-1.5 text-white/80">
+                      <li>Avaa puhelimen <span className="font-medium">Asetukset</span></li>
+                      <li>Valitse <span className="font-medium">Yksityisyys ja turvallisuus</span></li>
+                      <li>Valitse <span className="font-medium">Sijaintipalvelut</span></li>
+                      <li>Varmista että sijaintipalvelut on <span className="font-medium text-green-400">päällä</span></li>
+                      <li>Selaa alas ja valitse <span className="font-medium">Safari-sivustot</span></li>
+                      <li>Valitse <span className="font-medium">&quot;Kysy&quot;</span> tai <span className="font-medium">&quot;Salli&quot;</span></li>
+                    </ol>
+                  </div>
+                )}
+
+                {/* iPhone Chrome */}
+                {getDeviceType() === "ios-chrome" && (
+                  <div>
+                    <p className="font-bold text-white mb-2">Näin sallit sijainnin iPhonella (Chrome):</p>
+                    <ol className="list-decimal list-inside space-y-1.5 text-white/80">
+                      <li>Avaa puhelimen <span className="font-medium">Asetukset</span></li>
+                      <li>Selaa alas ja valitse <span className="font-medium">Chrome</span></li>
+                      <li>Valitse <span className="font-medium">Sijainti</span></li>
+                      <li>Valitse <span className="font-medium">&quot;Kysy&quot;</span> tai <span className="font-medium">&quot;Salli&quot;</span></li>
+                    </ol>
+                  </div>
+                )}
+
+                {/* Android */}
+                {getDeviceType() === "android" && (
+                  <div>
+                    <p className="font-bold text-white mb-2">Näin sallit sijainnin Androidilla:</p>
+                    <ol className="list-decimal list-inside space-y-1.5 text-white/80">
+                      <li>Avaa puhelimen <span className="font-medium">Asetukset</span></li>
+                      <li>Valitse <span className="font-medium">Sijainti</span></li>
+                      <li>Varmista että sijainti on <span className="font-medium text-green-400">päällä</span></li>
+                      <li>Palaa selaimeen ja paina osoitepalkin lukkokuvaketta</li>
+                      <li>Valitse <span className="font-medium">&quot;Sivuston asetukset&quot;</span></li>
+                      <li>Salli <span className="font-medium">Sijainti</span></li>
+                    </ol>
+                  </div>
+                )}
+
+                {/* Desktop */}
+                {getDeviceType() === "desktop" && (
+                  <div>
+                    <p className="font-bold text-white mb-2">Näin sallit sijainnin selaimessa:</p>
+                    <ol className="list-decimal list-inside space-y-1.5 text-white/80">
+                      <li>Paina osoitepalkin vasemmalla puolella olevaa lukkokuvaketta</li>
+                      <li>Etsi <span className="font-medium">&quot;Sijainti&quot;</span> tai <span className="font-medium">&quot;Location&quot;</span></li>
+                      <li>Vaihda asetukseksi <span className="font-medium">&quot;Salli&quot;</span></li>
+                      <li>Päivitä sivu</li>
+                    </ol>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          <p className="text-white/80 text-center font-bold text-xl sm:text-2xl">
+            Hae lähtöjä paikan nimellä
+          </p>
+          <div className="w-full max-w-md">
+            <SearchInput onLocationSelect={handleLocationSelect} />
+          </div>
+          <div className="flex items-center gap-4 text-white/50 text-sm">
+            <span className="h-px w-12 bg-white/30" />
+            <span>tai</span>
+            <span className="h-px w-12 bg-white/30" />
+          </div>
+          <button
+            onClick={requestLocation}
+            className="inline-flex items-center gap-2 rounded-full bg-white/20 px-6 py-3 font-bold text-base text-white transition-all hover:bg-white/30"
+          >
+            <LocateFixed className="w-4 h-4" />
+            Yritä uudelleen
           </button>
         </div>
       )}

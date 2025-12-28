@@ -37,6 +37,7 @@ interface PopupData {
   stopLon: number;
   stopName: string;
   stopCode?: string;
+  expectedArrivalMins?: number; // Minutes until the selected bus arrives
 }
 
 const MAX_DEPARTURES = 20;
@@ -559,6 +560,7 @@ export default function DepartureBoard({ onThemeColorChange }: DepartureBoardPro
           stopLon={popupData.stopLon}
           stopName={popupData.stopName}
           stopCode={popupData.stopCode}
+          expectedArrivalMins={popupData.expectedArrivalMins}
           userLat={location.coords.lat}
           userLon={location.coords.lng}
           region={getRegion(location.coords.lat, location.coords.lng)}

@@ -35,6 +35,7 @@ interface BusMapPopupProps {
   stopLon: number;
   stopName: string;
   stopCode?: string;
+  expectedArrivalMins?: number; // Minutes until the selected bus arrives at the stop
   userLat: number;
   userLon: number;
   region: "hsl" | "waltti";
@@ -120,16 +121,20 @@ function findNextBusIndex(
   return nextBusIndex;
 }
 
-// Custom hook to fit bounds only on initial load - focuses on next bus, user, and stop
+// Custom hook to fit bounds only on initial load - focuses on selected bus, user, and stop
 function FitBoundsOnce({
   stopLat,
   stopLon,
+  stopCode,
+  expectedArrivalMins,
   userLat,
   userLon,
   vehiclePositions,
 }: {
   stopLat: number;
   stopLon: number;
+  stopCode?: string;
+  expectedArrivalMins?: number;
   userLat: number;
   userLon: number;
   vehiclePositions: VehiclePosition[];
@@ -140,22 +145,22 @@ function FitBoundsOnce({
   useEffect(() => {
     // Wait until we have vehicle positions to fit bounds properly
     if (vehiclePositions.length > 0 && !hasFitted.current) {
-      // Find the next bus (closest one heading towards the stop)
-      const nextBusIndex = findNextBusIndex(vehiclePositions, stopLat, stopLon);
-      const nextBus = nextBusIndex >= 0 ? vehiclePositions[nextBusIndex] : vehiclePositions[0];
+      // Find the selected bus (matches arrival time) or fall back to next bus
+      const selectedBusIndex = findSelectedBusIndex(vehiclePositions, stopCode, expectedArrivalMins, stopLat, stopLon);
+      const selectedBus = selectedBusIndex >= 0 ? vehiclePositions[selectedBusIndex] : vehiclePositions[0];
 
-      // Fit bounds to show: next bus, user location, and bus stop
+      // Fit bounds to show: selected bus, user location, and bus stop
       const positions: Array<[number, number]> = [
         [stopLat, stopLon],
         [userLat, userLon],
-        [nextBus.lat, nextBus.lon],
+        [selectedBus.lat, selectedBus.lon],
       ];
 
       const bounds = L.latLngBounds(positions);
       map.fitBounds(bounds, { padding: [50, 50], maxZoom: 16 });
       hasFitted.current = true;
     }
-  }, [map, stopLat, stopLon, userLat, userLon, vehiclePositions]);
+  }, [map, stopLat, stopLon, stopCode, expectedArrivalMins, userLat, userLon, vehiclePositions]);
 
   return null;
 }
@@ -255,6 +260,40 @@ function findArrivalAtStop(vehicle: VehiclePosition, stopCode: string | undefine
   return getMinutesUntilArrival(call.expectedArrivalTime || call.expectedDepartureTime);
 }
 
+// Find the index of the bus that matches the selected arrival time
+function findSelectedBusIndex(
+  vehicles: VehiclePosition[],
+  stopCode: string | undefined,
+  expectedArrivalMins: number | undefined,
+  stopLat: number,
+  stopLon: number
+): number {
+  // If we have an expected arrival time, find the bus that matches it
+  if (expectedArrivalMins !== undefined && stopCode) {
+    let bestMatchIndex = -1;
+    let bestMatchDiff = Infinity;
+
+    for (let i = 0; i < vehicles.length; i++) {
+      const arrivalMins = findArrivalAtStop(vehicles[i], stopCode);
+      if (arrivalMins !== null) {
+        const diff = Math.abs(arrivalMins - expectedArrivalMins);
+        // Allow up to 2 minutes tolerance for timing differences
+        if (diff <= 2 && diff < bestMatchDiff) {
+          bestMatchDiff = diff;
+          bestMatchIndex = i;
+        }
+      }
+    }
+
+    if (bestMatchIndex >= 0) {
+      return bestMatchIndex;
+    }
+  }
+
+  // Fall back to next bus logic if no match found
+  return findNextBusIndex(vehicles, stopLat, stopLon);
+}
+
 export default function BusMapPopup({
   isOpen,
   onClose,
@@ -265,6 +304,7 @@ export default function BusMapPopup({
   stopLon,
   stopName,
   stopCode,
+  expectedArrivalMins,
   userLat,
   userLon,
   region,
@@ -274,6 +314,7 @@ export default function BusMapPopup({
   const [error, setError] = useState<string | null>(null);
   const [trialCount, setTrialCount] = useState<number | null>(null);
   const hasUsedTrial = useRef(false);
+  const hasAutoOpenedPopup = useRef(false);
 
   const { hasPlusAccess, isLoading: subLoading } = useSubscription();
 
@@ -306,10 +347,11 @@ export default function BusMapPopup({
     }
   }, [isOpen, hasPlusAccess, subLoading, trialCount, incrementTrialCount]);
 
-  // Reset trial tracking when popup closes
+  // Reset tracking when popup closes
   useEffect(() => {
     if (!isOpen) {
       hasUsedTrial.current = false;
+      hasAutoOpenedPopup.current = false;
     }
   }, [isOpen]);
 
@@ -523,18 +565,25 @@ export default function BusMapPopup({
 
             {/* Bus markers */}
             {(() => {
-              // Find the next bus (closest one heading towards the stop)
-              const nextBusIndex = findNextBusIndex(vehiclePositions, stopLat, stopLon);
+              // Find the selected bus (matches arrival time) or fall back to next bus
+              const selectedBusIndex = findSelectedBusIndex(vehiclePositions, stopCode, expectedArrivalMins, stopLat, stopLon);
 
               return vehiclePositions.map((vehicle, index) => {
                 const arrivalMins = findArrivalAtStop(vehicle, stopCode);
-                const isNextBus = index === nextBusIndex;
+                const isSelectedBus = index === selectedBusIndex;
 
                 return (
                   <Marker
                     key={vehicle.vehicleRef || index}
                     position={[vehicle.lat, vehicle.lon]}
-                    icon={createBusIcon(routeColor, vehicle.bearing, isNextBus)}
+                    icon={createBusIcon(routeColor, vehicle.bearing, isSelectedBus)}
+                    ref={(marker) => {
+                      // Auto-open popup for the selected bus (only once when first loaded)
+                      if (isSelectedBus && marker && !hasAutoOpenedPopup.current) {
+                        hasAutoOpenedPopup.current = true;
+                        setTimeout(() => marker.openPopup(), 100);
+                      }
+                    }}
                   >
                     <Popup>
                       <div style={{ fontWeight: 600, color: '#111827' }}>
@@ -544,9 +593,9 @@ export default function BusMapPopup({
                         <div style={{ fontSize: '13px', color: '#16a34a', fontWeight: 500, marginTop: '4px' }}>
                           Saapuu {arrivalMins === 0 ? 'nyt' : arrivalMins === 1 ? '1 min' : `${arrivalMins} min`}
                         </div>
-                      ) : isNextBus ? (
+                      ) : isSelectedBus ? (
                         <div style={{ fontSize: '13px', color: '#16a34a', fontWeight: 500, marginTop: '4px' }}>
-                          Seuraava bussi
+                          Valittu bussi
                         </div>
                       ) : null}
                     </Popup>
@@ -558,6 +607,8 @@ export default function BusMapPopup({
             <FitBoundsOnce
               stopLat={stopLat}
               stopLon={stopLon}
+              stopCode={stopCode}
+              expectedArrivalMins={expectedArrivalMins}
               userLat={userLat}
               userLon={userLon}
               vehiclePositions={vehiclePositions}

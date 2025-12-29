@@ -39,7 +39,7 @@ export function PlusPageClient() {
         {/* Pricing Cards */}
         <PricingCards />
 
-        {/* Terms of Service - kept in Finnish as it's a legal document */}
+        {/* Terms of Service */}
         <section className="mb-8 pt-8 border-t border-white/20">
           <h2 className="text-white font-bold text-lg sm:text-xl mb-4">
             {t("termsOfService")}
@@ -47,70 +47,46 @@ export function PlusPageClient() {
 
           <div className="space-y-6 text-white/80 text-sm">
             <div>
-              <h3 className="text-white font-semibold mb-2">1. Palvelun kuvaus</h3>
+              <h3 className="text-white font-semibold mb-2">{t("tos.section1Title")}</h3>
+              <p>{t("tos.section1Text")}</p>
+            </div>
+
+            <div>
+              <h3 className="text-white font-semibold mb-2">{t("tos.section2Title")}</h3>
               <p>
-                SeuraavaBussi Plus on maksullinen lisäpalvelu, joka tarjoaa pääsyn
-                reaaliaikaiseen bussien sijaintitietoon kartalla. Palvelu on tarkoitettu
-                henkilökohtaiseen, ei-kaupalliseen käyttöön.
+                {t("tos.section2Text")} <strong>{t("tos.section2Bold")}</strong>
               </p>
             </div>
 
             <div>
-              <h3 className="text-white font-semibold mb-2">2. Kolmansien osapuolten tietolähteet</h3>
-              <p>
-                SeuraavaBussi Plus -palvelu käyttää kolmansien osapuolten tarjoamia
-                avoimia rajapintoja (API), mukaan lukien Digitransit, ITS Factory,
-                HSL ja Waltti. <strong>Emme omista, hallinnoi tai vastaa näiden
-                rajapintojen toiminnasta, saatavuudesta tai tietojen oikeellisuudesta.</strong>
-              </p>
-            </div>
-
-            <div>
-              <h3 className="text-white font-semibold mb-2">3. Vastuunrajoitus</h3>
-              <p className="mb-2">
-                Palvelu tarjotaan &ldquo;sellaisena kuin se on&rdquo; ilman takuita.
-                TutorSwap Oy ei vastaa:
-              </p>
+              <h3 className="text-white font-semibold mb-2">{t("tos.section3Title")}</h3>
+              <p className="mb-2">{t("tos.section3Text")}</p>
               <ul className="list-disc list-inside space-y-1 ml-2">
-                <li>Sijaintitietojen oikeellisuudesta tai ajantasaisuudesta</li>
-                <li>Kolmansien osapuolten rajapintojen toimintahäiriöistä tai muutoksista</li>
-                <li>Palvelun keskeytyksistä tai käyttökatkoista</li>
-                <li>Vahingoista, jotka aiheutuvat palvelun käytöstä tai käytön estymisestä</li>
-                <li>Myöhästymisistä tai muista seuraamuksista, jotka johtuvat sijaintitietoihin luottamisesta</li>
+                <li>{t("tos.section3Item1")}</li>
+                <li>{t("tos.section3Item2")}</li>
+                <li>{t("tos.section3Item3")}</li>
+                <li>{t("tos.section3Item4")}</li>
+                <li>{t("tos.section3Item5")}</li>
               </ul>
             </div>
 
             <div>
-              <h3 className="text-white font-semibold mb-2">4. Tietojen tarkkuus</h3>
-              <p>
-                Bussien sijaintitiedot ovat arvioita, jotka perustuvat kolmansien osapuolten
-                tarjoamaan dataan. Tiedot voivat olla epätarkkoja, viivästyneitä tai puutteellisia.
-                Käyttäjän tulee aina tarkistaa viralliset aikataulut ja varautua muutoksiin.
-              </p>
+              <h3 className="text-white font-semibold mb-2">{t("tos.section4Title")}</h3>
+              <p>{t("tos.section4Text")}</p>
             </div>
 
             <div>
-              <h3 className="text-white font-semibold mb-2">5. Palvelun saatavuus</h3>
-              <p>
-                Emme takaa palvelun keskeytyksetöntä toimintaa. Kolmansien osapuolten
-                rajapintojen muutokset voivat vaikuttaa palvelun toimintaan tai johtaa
-                ominaisuuksien poistamiseen. Tällaisissa tapauksissa emme ole velvollisia
-                palauttamaan maksuja.
-              </p>
+              <h3 className="text-white font-semibold mb-2">{t("tos.section5Title")}</h3>
+              <p>{t("tos.section5Text")}</p>
             </div>
 
             <div>
-              <h3 className="text-white font-semibold mb-2">6. Maksut ja peruutukset</h3>
+              <h3 className="text-white font-semibold mb-2">{t("tos.section6Title")}</h3>
               <p className="mb-2">
-                <strong>Kuukausitilaus (3€/kk):</strong> Veloitetaan kuukausittain.
-                Voit peruuttaa tilauksen milloin tahansa, jolloin tilaus päättyy
-                kuluvan laskutuskauden lopussa. Kuukausimaksuja ei palauteta.
+                <strong>{t("tos.section6Monthly")}</strong> {t("tos.section6MonthlyText")}
               </p>
               <p>
-                <strong>Kertamaksu (30€):</strong> Kertamaksu antaa käyttöoikeuden
-                palveluun niin kauan kuin palvelu on toiminnassa. Jos et ole tyytyväinen,
-                voit pyytää täyden hyvityksen 7 päivän sisällä ostosta lähettämällä
-                sähköpostia osoitteeseen{" "}
+                <strong>{t("tos.section6Lifetime")}</strong> {t("tos.section6LifetimeText")}{" "}
                 <a href="mailto:zhiyuan.liu023@gmail.com" className="underline hover:text-white">
                   zhiyuan.liu023@gmail.com
                 </a>.
@@ -118,41 +94,28 @@ export function PlusPageClient() {
             </div>
 
             <div>
-              <h3 className="text-white font-semibold mb-2">7. Palvelun muutokset ja lopettaminen</h3>
-              <p>
-                Pidätämme oikeuden muuttaa, keskeyttää tai lopettaa palvelun tai sen
-                ominaisuuksia milloin tahansa. Mikäli palvelu lopetetaan kokonaan,
-                kuukausitilausten veloitus lopetetaan, mutta kertamaksuja ei palauteta.
-              </p>
+              <h3 className="text-white font-semibold mb-2">{t("tos.section7Title")}</h3>
+              <p>{t("tos.section7Text")}</p>
             </div>
 
             <div>
-              <h3 className="text-white font-semibold mb-2">8. Alueellinen saatavuus</h3>
-              <p>
-                Reaaliaikainen sijaintitieto on saatavilla vain alueilla, joilla
-                kolmannen osapuolen rajapinnat tarjoavat tätä tietoa. Tällä hetkellä
-                tuetut kaupungit ovat Helsinki, Tampere, Turku, Oulu, Jyväskylä ja Lahti.
-                Muissa kaupungeissa sijaintitieto ei ole vielä saatavilla.
-              </p>
+              <h3 className="text-white font-semibold mb-2">{t("tos.section8Title")}</h3>
+              <p>{t("tos.section8Text")}</p>
             </div>
 
             <div>
-              <h3 className="text-white font-semibold mb-2">9. Sovellettava laki</h3>
-              <p>
-                Näihin ehtoihin sovelletaan Suomen lakia. Mahdolliset riidat ratkaistaan
-                Pirkanmaan käräjäoikeudessa. Kuluttajalla on aina oikeus saattaa asia
-                oman kotipaikkansa käräjäoikeuden tai kuluttajariitalautakunnan käsiteltäväksi.
-              </p>
+              <h3 className="text-white font-semibold mb-2">{t("tos.section9Title")}</h3>
+              <p>{t("tos.section9Text")}</p>
             </div>
 
             <div>
-              <h3 className="text-white font-semibold mb-2">10. Yhteystiedot</h3>
+              <h3 className="text-white font-semibold mb-2">{t("tos.section10Title")}</h3>
               <div className="space-y-1">
-                <p className="font-semibold">TutorSwap Oy</p>
-                <p>Y-tunnus: 3552891-3</p>
-                <p>Ritakatu 13, 33530 Tampere</p>
+                <p className="font-semibold">{t("tos.section10Company")}</p>
+                <p>{t("tos.section10BusinessId")}</p>
+                <p>{t("tos.section10Address")}</p>
                 <p>
-                  Sähköposti:{" "}
+                  {t("tos.section10Email")}{" "}
                   <a
                     href="mailto:zhiyuan.liu023@gmail.com"
                     className="underline hover:text-white"
@@ -164,11 +127,8 @@ export function PlusPageClient() {
             </div>
 
             <div>
-              <h3 className="text-white font-semibold mb-2">11. Ehtojen hyväksyminen</h3>
-              <p>
-                Ostamalla SeuraavaBussi Plus -tilauksen hyväksyt nämä käyttöehdot
-                sekä palvelun tietosuojaselosteen.
-              </p>
+              <h3 className="text-white font-semibold mb-2">{t("tos.section11Title")}</h3>
+              <p>{t("tos.section11Text")}</p>
             </div>
           </div>
         </section>

@@ -38,7 +38,7 @@ const customMapStyles = `
   }
 `;
 
-const FREE_TRIAL_LIMIT = 4;
+const FREE_TRIAL_LIMIT = 3;
 const TRIAL_STORAGE_KEY = "seuraavabussi_map_trial_count";
 
 interface OnwardCall {
@@ -439,10 +439,10 @@ export default function BusMapPopup({
   const trialLoading = trialCount === null;
   const remainingTrials = trialCount !== null ? Math.max(0, FREE_TRIAL_LIMIT - trialCount) : FREE_TRIAL_LIMIT;
   const hasTrialsLeft = trialCount !== null && trialCount < FREE_TRIAL_LIMIT;
-  const isPaywalled = !hasPlusAccess && !subLoading && !trialLoading && !hasTrialsLeft;
+  const isPaywalled = !hasPlusAccess && !subLoading && !trialLoading && !hasTrialsLeft && !hasUsedTrial.current;
 
   useEffect(() => {
-    if (!isOpen || isPaywalled) return;
+    if (!isOpen) return;
 
     const fetchVehiclePositions = async () => {
       setIsLoading(true);
@@ -473,7 +473,7 @@ export default function BusMapPopup({
     // Refresh every 10 seconds
     const interval = setInterval(fetchVehiclePositions, 10000);
     return () => clearInterval(interval);
-  }, [isOpen, isPaywalled, routeNumber, region, city]);
+  }, [isOpen, routeNumber, region, city, t]);
 
   // Fetch route geometry and stops when popup opens
   useEffect(() => {
@@ -521,75 +521,129 @@ export default function BusMapPopup({
   }
 
   if (isPaywalled) {
+    // Paywall animation styles
+    const paywallAnimationStyles = `
+      @keyframes paywall-pulse {
+        0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        50% { transform: translate(-50%, -50%) scale(1.15); opacity: 0.9; }
+      }
+      @keyframes paywall-ring {
+        0% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; }
+        100% { transform: translate(-50%, -50%) scale(2.2); opacity: 0; }
+      }
+      @keyframes shimmer {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(100%); }
+      }
+    `;
+
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-md" style={{ touchAction: 'none' }}>
-        <div className="relative w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden">
-          {/* Glass background layer */}
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60" style={{ touchAction: 'none' }}>
+        <style dangerouslySetInnerHTML={{ __html: paywallAnimationStyles }} />
+        <div className="relative w-full max-w-lg bg-white rounded-2xl shadow-2xl overflow-hidden">
+          {/* Header - same as regular view */}
           <div
-            className="absolute inset-0 opacity-80"
+            className="flex items-center justify-between px-4 py-3"
             style={{ backgroundColor: routeColor }}
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent" />
+          >
+            <div className="flex items-center gap-3">
+              <span className="font-black text-white text-xl">{routeNumber}</span>
+              <span className="text-white/90 font-medium truncate">{headsign}</span>
+            </div>
+            <button
+              onClick={onClose}
+              className="p-1.5 rounded-full bg-white/20 hover:bg-white/30 transition-colors"
+            >
+              <X className="w-5 h-5 text-white" />
+            </button>
+          </div>
 
-          {/* Content */}
-          <div className="relative">
-            {/* Header */}
-            <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
-              <div className="flex items-center gap-3">
-                <span className="font-black text-white text-xl drop-shadow-sm">{routeNumber}</span>
-                <span className="text-white/80 font-medium truncate">{headsign}</span>
-              </div>
-              <button
-                onClick={onClose}
-                className="p-2 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/10 transition-all"
+          {/* Map Preview - visible but blurred with buses */}
+          <div className="h-80 relative overflow-hidden">
+            {/* Actual map with bus positions */}
+            <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 0 }}>
+              <MapContainer
+                center={[stopLat, stopLon]}
+                zoom={14}
+                className="h-full w-full"
+                zoomControl={false}
+                dragging={false}
+                scrollWheelZoom={false}
+                doubleClickZoom={false}
+                touchZoom={false}
+                keyboard={false}
+                attributionControl={false}
               >
-                <X className="w-5 h-5 text-white" />
-              </button>
+                <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+
+                {/* Show stop marker */}
+                <Marker position={[stopLat, stopLon]} icon={stopIcon} />
+
+                {/* Show bus markers with pulse animation */}
+                {vehiclePositions.map((vehicle, index) => (
+                  <Marker
+                    key={vehicle.vehicleRef || index}
+                    position={[vehicle.lat, vehicle.lon]}
+                    icon={createBusIcon(routeColor, vehicle.bearing, index === 0)}
+                  />
+                ))}
+              </MapContainer>
             </div>
 
-            {/* Paywall Content */}
-            <div className="h-80 relative flex flex-col items-center justify-center p-6">
-              {/* Blurred map preview background */}
-              <div className="absolute inset-0 opacity-15 blur-md">
-                <MapContainer
-                  center={[stopLat, stopLon]}
-                  zoom={14}
-                  className="h-full w-full"
-                  zoomControl={false}
-                  dragging={false}
-                  scrollWheelZoom={false}
-                >
-                  <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-                </MapContainer>
-              </div>
+            {/* Blur overlay */}
+            <div
+              className="absolute inset-0 backdrop-blur-[6px] bg-white/30 pointer-events-none"
+              style={{ zIndex: 1000 }}
+            />
 
-              {/* Paywall overlay */}
-              <div className="relative z-10 flex flex-col items-center text-center">
-                <div className="w-16 h-16 rounded-2xl bg-white/15 backdrop-blur-sm border border-white/20 flex items-center justify-center mb-5 shadow-lg">
-                  <Lock className="w-7 h-7 text-white drop-shadow-sm" />
-                </div>
-                <h3 className="text-xl font-bold text-white mb-2 drop-shadow-sm">
-                  {t("paywallTitle")}
-                </h3>
-                <p className="text-white/60 text-sm mb-6 max-w-xs">
-                  {t("paywallDescription", { limit: FREE_TRIAL_LIMIT })}
-                </p>
-                <a
-                  href="/plus"
-                  className="px-6 py-3 bg-white/95 hover:bg-white backdrop-blur-sm rounded-xl font-bold text-sm transition-all hover:scale-105 active:scale-95 shadow-lg border border-white/50 inline-block"
-                  style={{ color: routeColor }}
-                >
-                  {t("buyPlus")}
-                </a>
-              </div>
+            {/* Shimmer effect */}
+            <div
+              className="absolute inset-0 overflow-hidden pointer-events-none"
+              style={{ zIndex: 1001 }}
+            >
+              <div
+                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent"
+                style={{ animation: 'shimmer 2.5s ease-in-out infinite' }}
+              />
             </div>
 
-            {/* Footer */}
-            <div className="px-5 py-3 border-t border-white/10 bg-black/10">
-              <p className="text-center text-white/40 text-xs">
-                {t("paywallFooter")}
+            {/* Paywall CTA overlay */}
+            <div
+              className="absolute inset-0 flex flex-col items-center justify-center p-6"
+              style={{ zIndex: 1002 }}
+            >
+              <div
+                className="w-14 h-14 rounded-full bg-white shadow-lg flex items-center justify-center mb-4"
+                style={{ boxShadow: `0 4px 20px ${routeColor}40` }}
+              >
+                <Lock className="w-6 h-6" style={{ color: routeColor }} />
+              </div>
+
+              <h3 className="text-lg font-bold text-gray-900 mb-1 text-center">
+                {t("paywallTitle")}
+              </h3>
+
+              <p className="text-gray-500 text-sm mb-4 text-center max-w-xs">
+                {vehiclePositions.length > 0
+                  ? t("paywallBusesFound", { count: vehiclePositions.length })
+                  : t("paywallDescription", { limit: FREE_TRIAL_LIMIT })}
               </p>
+
+              <a
+                href="/plus"
+                className="px-6 py-3 rounded-xl font-bold text-sm text-white transition-all hover:scale-105 active:scale-95 shadow-lg inline-block"
+                style={{ backgroundColor: routeColor }}
+              >
+                {t("unlockMap")}
+              </a>
             </div>
+          </div>
+
+          {/* Footer */}
+          <div className="px-4 py-3 bg-gray-50 border-t">
+            <p className="text-center text-gray-400 text-xs">
+              {t("paywallFooter")}
+            </p>
           </div>
         </div>
       </div>

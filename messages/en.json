@@ -190,6 +190,18 @@
     "dataSourcesLabel": "Departure data:",
     "privacyPolicy": "Privacy Policy"
   },
+  "addToHomeScreen": {
+    "title": "Thanks for using us!",
+    "description": "Add SeuraavaBussi to your home screen for quick access with just one tap",
+    "close": "Close",
+    "noThanks": "No thanks",
+    "add": "Add",
+    "gotIt": "Got it!",
+    "iosInstructions": "Add to home screen in Safari:",
+    "iosStep1": "Tap the share button",
+    "iosStep2": "Select \"Add to Home Screen\"",
+    "iosStep3": "Tap \"Add\""
+  },
   "busMap": {
     "loadingMap": "Loading map...",
     "busLocationNotFound": "Bus location not found",
@@ -205,7 +217,9 @@
     "getPlus": "Get Plus",
     "paywallTitle": "SeuraavaBussi Plus",
     "paywallDescription": "You've used all {limit} free trials. Get SeuraavaBussi Plus to see bus locations on the map without limits.",
+    "paywallBusesFound": "{count} {count, plural, one {bus} other {buses}} found nearby - unlock to see exactly where!",
     "buyPlus": "Buy SeuraavaBussi Plus",
+    "unlockMap": "Unlock Map",
     "paywallFooter": "Plus: Unlimited map access and future features"
   }
 }

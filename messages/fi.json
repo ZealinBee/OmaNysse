@@ -190,6 +190,18 @@
     "dataSourcesLabel": "Lähtöaikatiedot:",
     "privacyPolicy": "Tietosuojaseloste"
   },
+  "addToHomeScreen": {
+    "title": "Kiitos käytöstä!",
+    "description": "Laita SeuraavaBussi kotinäytölle, niin se on aina yhdessä napautuksessa",
+    "close": "Sulje",
+    "noThanks": "Ei kiitos",
+    "add": "Lisää",
+    "gotIt": "Selvä!",
+    "iosInstructions": "Lisää kotinäytölle Safarissa:",
+    "iosStep1": "Napauta jakamispainiketta",
+    "iosStep2": "Valitse \"Lisää kotivalikkoon\"",
+    "iosStep3": "Napauta \"Lisää\""
+  },
   "busMap": {
     "loadingMap": "Ladataan karttaa...",
     "busLocationNotFound": "Bussin sijaintia ei löytynyt",
@@ -205,7 +217,9 @@
     "getPlus": "Hanki Plus",
     "paywallTitle": "SeuraavaBussi Plus",
     "paywallDescription": "Olet käyttänyt kaikki {limit} ilmaista kokeilukertaasi. Hanki SeuraavaBussi Plus nähdäksesi bussien sijainnit kartalla rajattomasti.",
+    "paywallBusesFound": "{count} {count, plural, one {bussi} other {bussia}} löydetty läheltä - avaa kartta nähdäksesi tarkan sijainnin!",
     "buyPlus": "Osta SeuraavaBussi Plus",
+    "unlockMap": "Avaa kartta",
     "paywallFooter": "Plus: Rajaton karttakäyttö ja tulevat ominaisuudet"
   }
 }

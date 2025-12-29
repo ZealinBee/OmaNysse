@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { X, Plus, Share } from "lucide-react";
 
 const VISIT_COUNT_KEY = "seuraavabussi_visit_count";
@@ -8,6 +9,7 @@ const PROMPT_DISMISSED_KEY = "seuraavabussi_a2hs_dismissed";
 const VISITS_TO_TRIGGER = 3;
 
 export default function AddToHomeScreenPrompt() {
+  const t = useTranslations("addToHomeScreen");
   const [showPrompt, setShowPrompt] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isIOS, setIsIOS] = useState(false);
@@ -88,7 +90,7 @@ export default function AddToHomeScreenPrompt() {
               </div>
               <div>
                 <h2 className="font-bold text-gray-900 text-lg">
-                  Kiitos käytöstä!
+                  {t("title")}
                 </h2>
                 <p className="text-gray-500 text-sm">
                   SeuraavaBussi.fi
@@ -98,7 +100,7 @@ export default function AddToHomeScreenPrompt() {
             <button
               onClick={handleDismiss}
               className="p-1 hover:bg-gray-100 rounded-full transition-colors"
-              aria-label="Sulje"
+              aria-label={t("close")}
             >
               <X className="w-5 h-5 text-gray-400" />
             </button>
@@ -106,27 +108,27 @@ export default function AddToHomeScreenPrompt() {
 
           {/* Content */}
           <p className="text-gray-600 mb-5">
-            Laita SeuraavaBussi kotinäytölle, niin se on aina yhdessä napautuksessa         
-           </p>
+            {t("description")}
+          </p>
 
           {isIOS ? (
             // iOS instructions
             <div className="bg-gray-50 rounded-xl p-4 mb-5">
               <p className="text-sm text-gray-700 font-medium mb-3">
-                Lisää kotinäytölle Safarissa:
+                {t("iosInstructions")}
               </p>
               <ol className="text-sm text-gray-600 space-y-2">
                 <li className="flex items-center gap-2">
                   <span className="bg-blue-100 text-blue-700 w-5 h-5 rounded-full flex items-center justify-center text-xs font-medium">1</span>
-                  <span>Napauta <Share className="w-4 h-4 inline text-blue-500" /> jakamispainiketta</span>
+                  <span>{t("iosStep1")} <Share className="w-4 h-4 inline text-blue-500" /></span>
                 </li>
                 <li className="flex items-center gap-2">
                   <span className="bg-blue-100 text-blue-700 w-5 h-5 rounded-full flex items-center justify-center text-xs font-medium">2</span>
-                  <span>Valitse &quot;Lisää kotivalikkoon&quot;</span>
+                  <span>{t("iosStep2")}</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <span className="bg-blue-100 text-blue-700 w-5 h-5 rounded-full flex items-center justify-center text-xs font-medium">3</span>
-                  <span>Napauta &quot;Lisää&quot;</span>
+                  <span>{t("iosStep3")}</span>
                 </li>
               </ol>
             </div>
@@ -138,7 +140,7 @@ export default function AddToHomeScreenPrompt() {
               onClick={handleDismiss}
               className="flex-1 px-4 py-3 text-gray-700 font-medium rounded-xl border border-gray-200 hover:bg-gray-50 transition-colors"
             >
-              Ei kiitos
+              {t("noThanks")}
             </button>
             {!isIOS && deferredPrompt ? (
               <button
@@ -146,14 +148,14 @@ export default function AddToHomeScreenPrompt() {
                 className="flex-1 px-4 py-3 bg-blue-500 text-white font-medium rounded-xl hover:bg-blue-600 transition-colors flex items-center justify-center gap-2"
               >
                 <Plus className="w-5 h-5" />
-                Lisää
+                {t("add")}
               </button>
             ) : (
               <button
                 onClick={handleDismiss}
                 className="flex-1 px-4 py-3 bg-blue-500 text-white font-medium rounded-xl hover:bg-blue-600 transition-colors"
               >
-                Selvä!
+                {t("gotIt")}
               </button>
             )}
           </div>

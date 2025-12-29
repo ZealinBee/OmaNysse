@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import dynamic from "next/dynamic";
+import { useTranslations } from "next-intl";
 import { LocateFixed, RefreshCw, MapPin, ChevronDown, ChevronUp } from "lucide-react";
 import {
   Departure,
@@ -25,6 +26,7 @@ import SearchInput from "./SearchInput";
 import DepartureRow, { DepartureRowSkeleton } from "./DepartureRow";
 import { useRefreshInterval } from "@/app/lib/hooks/useRefreshInterval";
 import AddToHomeScreenButton from "./AddToHomeScreenButton";
+import LanguageSwitcher from "./LanguageSwitcher";
 
 // Dynamic import to avoid SSR issues with Leaflet
 const BusMapPopup = dynamic(() => import("./BusMapPopup"), {
@@ -60,6 +62,7 @@ export default function DepartureBoard({
   initialLocationName,
   onRequestUserLocation,
 }: DepartureBoardProps) {
+  const t = useTranslations();
   const [location, setLocation] = useState<LocationState>({ status: "idle" });
   const [departures, setDepartures] = useState<Departure[]>([]);
   const [isLoadingDepartures, setIsLoadingDepartures] = useState(false);
@@ -167,7 +170,7 @@ export default function DepartureBoard({
         );
       } catch {
         // Network error - fetch itself failed (no internet, DNS failure, etc.)
-        setError("Pysäkkien haku epäonnistui. Tarkista verkkoyhteytesi.");
+        setError(t("errors.networkError"));
         setIsLoadingDepartures(false);
         return;
       }
@@ -176,9 +179,9 @@ export default function DepartureBoard({
         if (!response.ok) {
           // Check if it's a network error (503 from our API)
           if (response.status === 503) {
-            setError("Pysäkkien haku epäonnistui. Tarkista verkkoyhteytesi.");
+            setError(t("errors.networkError"));
           } else {
-            setError("Pysäkkien haku epäonnistui. Yritä myöhemmin uudelleen.");
+            setError(t("errors.fetchFailed"));
           }
           setIsLoadingDepartures(false);
           return;
@@ -240,11 +243,11 @@ export default function DepartureBoard({
         setDepartures(dedupedDepartures);
         setIsLoadingDepartures(false);
       } catch {
-        setError("Pysäkkien haku epäonnistui. Yritä myöhemmin uudelleen.");
+        setError(t("errors.fetchFailed"));
         setIsLoadingDepartures(false);
       }
     },
-    [radius]
+    [radius, t]
   );
 
   // Load location on mount - use initialCoords if provided, otherwise try GPS or saved
@@ -324,7 +327,7 @@ export default function DepartureBoard({
     if (!navigator.geolocation) {
       setLocation({
         status: "blocked",
-        message: "Selaimesi ei tue sijaintipalveluja. Kokeile toista selainta."
+        message: t("errors.browserNoGeolocation")
       });
       return;
     }
@@ -336,7 +339,7 @@ export default function DepartureBoard({
         if (permission.state === 'denied') {
           setLocation({
             status: "blocked",
-            message: "Sijainti on estetty. Salli sijainti selaimen tai laitteen asetuksista ja yritä uudelleen."
+            message: t("errors.locationBlocked")
           });
           return;
         }
@@ -364,17 +367,17 @@ export default function DepartureBoard({
         if (error.code === error.PERMISSION_DENIED) {
           setLocation({
             status: "blocked",
-            message: "Sijainti on estetty. Salli sijainti selaimen tai laitteen asetuksista ja yritä uudelleen."
+            message: t("errors.locationBlocked")
           });
         } else if (error.code === error.POSITION_UNAVAILABLE) {
           setLocation({
             status: "blocked",
-            message: "Sijaintia ei voitu määrittää. Tarkista että sijaintipalvelut ovat päällä laitteessasi."
+            message: t("errors.locationUnavailable")
           });
         } else if (error.code === error.TIMEOUT) {
           setLocation({
             status: "blocked",
-            message: "Sijainnin haku aikakatkaistiin. Yritä uudelleen."
+            message: t("errors.locationTimeout")
           });
         } else {
           setLocation({ status: "denied" });
@@ -439,15 +442,19 @@ export default function DepartureBoard({
   return (
     <>
       {location.status === "success" && (
-        <div className="absolute top-3 right-3 sm:top-6 sm:right-6 h-6 sm:h-8 flex items-center text-white/60 text-xs sm:text-sm font-medium">
-          Päivittyy {refreshCountdown} s kuluttua
+        <div className="absolute top-3 right-3 sm:top-6 sm:right-6 h-6 sm:h-8 flex items-center gap-3 text-white/60 text-xs sm:text-sm font-medium">
+          <LanguageSwitcher />
+          <span>{t("common.refreshingIn", { seconds: refreshCountdown })}</span>
         </div>
       )}
 
       {location.status === "idle" && (
         <div className="flex flex-col items-center gap-6 py-12">
+          <div className="absolute top-3 right-3 sm:top-6 sm:right-6">
+            <LanguageSwitcher />
+          </div>
           <p className="text-white/80 text-center font-bold text-xl sm:text-2xl">
-            Näytä lähistön bussit ja ratikat
+            {t("departure.showNearbyBuses")}
           </p>
 
           {/* Search - primary option */}
@@ -457,7 +464,7 @@ export default function DepartureBoard({
 
           <div className="flex items-center gap-4 text-white/50 text-sm">
             <span className="h-px w-12 bg-white/30" />
-            <span>tai</span>
+            <span>{t("common.or")}</span>
             <span className="h-px w-12 bg-white/30" />
           </div>
 
@@ -467,14 +474,14 @@ export default function DepartureBoard({
             className="inline-flex items-center gap-2 rounded-full bg-white/20 px-6 py-3 font-bold text-base text-white transition-all hover:bg-white/30"
           >
             <LocateFixed className="w-4 h-4" />
-            Käytä sijaintia
+            {t("common.useLocation")}
           </button>
 
           <a
             href="/tietosuoja"
             className="text-white/50 text-xs underline hover:text-white/70 transition-colors mt-4"
           >
-            Tietosuojaseloste
+            {t("common.privacyPolicy")}
           </a>
         </div>
       )}
@@ -486,35 +493,41 @@ export default function DepartureBoard({
             <div className="absolute inset-0 w-8 h-8 border-2 border-white/30 border-t-white/80 rounded-full animate-spin" />
           </div>
           <p className="text-white/60 text-center font-medium text-base">
-            Haetaan sijaintia...
+            {t("departure.fetchingLocation")}
           </p>
         </div>
       )}
 
       {location.status === "denied" && (
         <div className="flex flex-col items-center gap-8 py-16">
+          <div className="absolute top-3 right-3 sm:top-6 sm:right-6">
+            <LanguageSwitcher />
+          </div>
           <p className="text-white/80 text-center font-bold text-2xl sm:text-3xl">
-            Hae lähtöjä paikan nimellä
+            {t("departure.searchByPlace")}
           </p>
           <div className="w-full max-w-md">
             <SearchInput onLocationSelect={handleLocationSelect} />
           </div>
           <div className="flex items-center gap-4 text-white/50 text-sm">
             <span className="h-px w-12 bg-white/30" />
-            <span>tai</span>
+            <span>{t("common.or")}</span>
             <span className="h-px w-12 bg-white/30" />
           </div>
           <button
             onClick={requestLocation}
             className="rounded-full bg-white/20 px-8 py-4 font-bold text-lg text-white transition-all hover:bg-white/30"
           >
-            Käytä sijaintia
+            {t("common.useLocation")}
           </button>
         </div>
       )}
 
       {location.status === "blocked" && (
         <div className="flex flex-col items-center gap-6 py-12">
+          <div className="absolute top-3 right-3 sm:top-6 sm:right-6">
+            <LanguageSwitcher />
+          </div>
           {/* Error message box with help button */}
           <div className="w-full max-w-md">
             <div className="p-4 rounded-xl bg-red-500/20 border border-red-400/30">
@@ -525,7 +538,7 @@ export default function DepartureBoard({
                 onClick={() => setShowLocationHelp(!showLocationHelp)}
                 className="mt-3 mx-auto flex items-center gap-1.5 text-white/80 hover:text-white text-sm font-medium transition-colors"
               >
-                Miten sallin sijainnin?
+                {t("locationHelp.howToEnable")}
                 {showLocationHelp ? (
                   <ChevronUp className="w-4 h-4" />
                 ) : (
@@ -540,14 +553,14 @@ export default function DepartureBoard({
                 {/* iPhone Safari */}
                 {getDeviceType() === "ios-safari" && (
                   <div>
-                    <p className="font-bold text-white mb-2">Näin sallit sijainnin iPhonella:</p>
+                    <p className="font-bold text-white mb-2">{t("locationHelp.iosSafari.title")}</p>
                     <ol className="list-decimal list-inside space-y-1.5 text-white/80">
-                      <li>Avaa puhelimen <span className="font-medium">Asetukset</span></li>
-                      <li>Valitse <span className="font-medium">Yksityisyys ja turvallisuus</span></li>
-                      <li>Valitse <span className="font-medium">Sijaintipalvelut</span></li>
-                      <li>Varmista että sijaintipalvelut on <span className="font-medium text-green-400">päällä</span></li>
-                      <li>Selaa alas ja valitse <span className="font-medium">Safari-sivustot</span></li>
-                      <li>Valitse <span className="font-medium">&quot;Kysy&quot;</span> tai <span className="font-medium">&quot;Salli&quot;</span></li>
+                      <li>{t("locationHelp.iosSafari.step1")}</li>
+                      <li>{t("locationHelp.iosSafari.step2")}</li>
+                      <li>{t("locationHelp.iosSafari.step3")}</li>
+                      <li>{t("locationHelp.iosSafari.step4")}</li>
+                      <li>{t("locationHelp.iosSafari.step5")}</li>
+                      <li>{t("locationHelp.iosSafari.step6")}</li>
                     </ol>
                   </div>
                 )}
@@ -555,12 +568,12 @@ export default function DepartureBoard({
                 {/* iPhone Chrome */}
                 {getDeviceType() === "ios-chrome" && (
                   <div>
-                    <p className="font-bold text-white mb-2">Näin sallit sijainnin iPhonella (Chrome):</p>
+                    <p className="font-bold text-white mb-2">{t("locationHelp.iosChrome.title")}</p>
                     <ol className="list-decimal list-inside space-y-1.5 text-white/80">
-                      <li>Avaa puhelimen <span className="font-medium">Asetukset</span></li>
-                      <li>Selaa alas ja valitse <span className="font-medium">Chrome</span></li>
-                      <li>Valitse <span className="font-medium">Sijainti</span></li>
-                      <li>Valitse <span className="font-medium">&quot;Kysy&quot;</span> tai <span className="font-medium">&quot;Salli&quot;</span></li>
+                      <li>{t("locationHelp.iosChrome.step1")}</li>
+                      <li>{t("locationHelp.iosChrome.step2")}</li>
+                      <li>{t("locationHelp.iosChrome.step3")}</li>
+                      <li>{t("locationHelp.iosChrome.step4")}</li>
                     </ol>
                   </div>
                 )}
@@ -568,14 +581,14 @@ export default function DepartureBoard({
                 {/* Android */}
                 {getDeviceType() === "android" && (
                   <div>
-                    <p className="font-bold text-white mb-2">Näin sallit sijainnin Androidilla:</p>
+                    <p className="font-bold text-white mb-2">{t("locationHelp.android.title")}</p>
                     <ol className="list-decimal list-inside space-y-1.5 text-white/80">
-                      <li>Avaa puhelimen <span className="font-medium">Asetukset</span></li>
-                      <li>Valitse <span className="font-medium">Sijainti</span></li>
-                      <li>Varmista että sijainti on <span className="font-medium text-green-400">päällä</span></li>
-                      <li>Palaa selaimeen ja paina osoitepalkin lukkokuvaketta</li>
-                      <li>Valitse <span className="font-medium">&quot;Sivuston asetukset&quot;</span></li>
-                      <li>Salli <span className="font-medium">Sijainti</span></li>
+                      <li>{t("locationHelp.android.step1")}</li>
+                      <li>{t("locationHelp.android.step2")}</li>
+                      <li>{t("locationHelp.android.step3")}</li>
+                      <li>{t("locationHelp.android.step4")}</li>
+                      <li>{t("locationHelp.android.step5")}</li>
+                      <li>{t("locationHelp.android.step6")}</li>
                     </ol>
                   </div>
                 )}
@@ -583,12 +596,12 @@ export default function DepartureBoard({
                 {/* Desktop */}
                 {getDeviceType() === "desktop" && (
                   <div>
-                    <p className="font-bold text-white mb-2">Näin sallit sijainnin selaimessa:</p>
+                    <p className="font-bold text-white mb-2">{t("locationHelp.desktop.title")}</p>
                     <ol className="list-decimal list-inside space-y-1.5 text-white/80">
-                      <li>Paina osoitepalkin vasemmalla puolella olevaa lukkokuvaketta</li>
-                      <li>Etsi <span className="font-medium">&quot;Sijainti&quot;</span> tai <span className="font-medium">&quot;Location&quot;</span></li>
-                      <li>Vaihda asetukseksi <span className="font-medium">&quot;Salli&quot;</span></li>
-                      <li>Päivitä sivu</li>
+                      <li>{t("locationHelp.desktop.step1")}</li>
+                      <li>{t("locationHelp.desktop.step2")}</li>
+                      <li>{t("locationHelp.desktop.step3")}</li>
+                      <li>{t("locationHelp.desktop.step4")}</li>
                     </ol>
                   </div>
                 )}
@@ -597,14 +610,14 @@ export default function DepartureBoard({
           </div>
 
           <p className="text-white/80 text-center font-bold text-xl sm:text-2xl">
-            Hae lähtöjä paikan nimellä
+            {t("departure.searchByPlace")}
           </p>
           <div className="w-full max-w-md">
             <SearchInput onLocationSelect={handleLocationSelect} />
           </div>
           <div className="flex items-center gap-4 text-white/50 text-sm">
             <span className="h-px w-12 bg-white/30" />
-            <span>tai</span>
+            <span>{t("common.or")}</span>
             <span className="h-px w-12 bg-white/30" />
           </div>
           <button
@@ -612,7 +625,7 @@ export default function DepartureBoard({
             className="inline-flex items-center gap-2 rounded-full bg-white/20 px-6 py-3 font-bold text-base text-white transition-all hover:bg-white/30"
           >
             <LocateFixed className="w-4 h-4" />
-            Yritä uudelleen
+            {t("common.tryAgain")}
           </button>
         </div>
       )}
@@ -637,7 +650,7 @@ export default function DepartureBoard({
 
       {location.status === "success" && departures.length === 0 && !error && !isLoadingDepartures && (
         <p className="py-12 text-white/80 text-center font-bold text-2xl sm:text-3xl">
-          Lähistöltä ei löytynyt lähtöjä
+          {t("departure.noDeparturesFound")}
         </p>
       )}
 
@@ -655,21 +668,21 @@ export default function DepartureBoard({
                 <button
                   onClick={requestLocation}
                   className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/20 hover:bg-white/30 active:bg-white/40 rounded-full text-white/80 hover:text-white transition-all cursor-pointer"
-                  title="Käytä sijaintiasi"
+                  title={t("common.useLocation")}
                 >
                   <LocateFixed className="w-3.5 h-3.5" />
-                  <span className="text-xs font-medium">Käytä sijaintia</span>
+                  <span className="text-xs font-medium">{t("common.useLocation")}</span>
                 </button>
               </>
             ) : (
               <button
                 onClick={requestLocation}
                 className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/10 hover:bg-white/20 active:bg-white/30 rounded-full text-white/70 hover:text-white transition-all cursor-pointer"
-                title="Päivitä sijainti"
+                title={t("common.useLocation")}
               >
                 <LocateFixed className="w-3.5 h-3.5" />
                 <span className="text-xs font-medium truncate max-w-[180px]">
-                  {gpsLocationName || "Sijaintisi"}
+                  {gpsLocationName || t("common.yourLocation")}
                 </span>
                 <RefreshCw className="w-3.5 h-3.5" />
               </button>
@@ -694,7 +707,7 @@ export default function DepartureBoard({
           {/* Radius Slider */}
           <div className="flex flex-col items-center gap-2 w-full max-w-xs mx-auto mb-8">
             <label className="text-white/60 text-sm">
-              Hakusäde: <span className="font-bold text-white/80">{radius} m</span>
+              {t("common.searchRadius")}: <span className="font-bold text-white/80">{radius} m</span>
             </label>
             <input
               type="range"
@@ -713,7 +726,7 @@ export default function DepartureBoard({
 
           {/* Search Another Place */}
           <div className="w-full max-w-sm mx-auto">
-            <p className="text-white/60 text-sm text-center mb-2">Hae toinen paikka</p>
+            <p className="text-white/60 text-sm text-center mb-2">{t("common.searchAnotherPlace")}</p>
             <SearchInput onLocationSelect={handleLocationSelect} />
           </div>
         </div>
@@ -727,7 +740,7 @@ export default function DepartureBoard({
             <div className="flex flex-col items-center gap-4">
               <div className="text-center">
                 <p className="text-white/80 text-sm font-medium">
-                  Haluatko tukea kehittäjää ja saada lisäominaisuuksia?
+                  {t("plus.supportDeveloper")}
                 </p>
               </div>
               <a
@@ -737,7 +750,7 @@ export default function DepartureBoard({
                 <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
                 </svg>
-                Rajoittamaton bussikartta
+                {t("plus.unlimitedBusMap")}
               </a>
             </div>
           )}
@@ -750,7 +763,7 @@ export default function DepartureBoard({
             href="/tietosuoja"
             className="text-white/50 text-sm hover:text-white/70 transition-colors"
           >
-            Tietosuojaseloste
+            {t("common.privacyPolicy")}
           </a>
         </div>
       )}

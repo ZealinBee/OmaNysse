@@ -1,0 +1,73 @@
+{
+  "common": {
+    "or": "tai",
+    "privacyPolicy": "Tietosuojaseloste",
+    "searchRadius": "Hakusäde",
+    "searchAnotherPlace": "Hae toinen paikka",
+    "yourLocation": "Sijaintisi",
+    "useLocation": "Käytä sijaintia",
+    "tryAgain": "Yritä uudelleen",
+    "refreshingIn": "Päivittyy {seconds} s kuluttua"
+  },
+  "departure": {
+    "showNearbyBuses": "Näytä lähistön bussit ja ratikat",
+    "searchByPlace": "Hae lähtöjä paikan nimellä",
+    "fetchingLocation": "Haetaan sijaintia...",
+    "noDeparturesFound": "Lähistöltä ei löytynyt lähtöjä",
+    "now": "Nyt",
+    "min": "min",
+    "toStop": "Pysäkille",
+    "showBusOnMap": "Näytä bussin sijainti kartalla"
+  },
+  "search": {
+    "placeholder": "Hae paikkaa...",
+    "searching": "Haetaan..."
+  },
+  "errors": {
+    "networkError": "Pysäkkien haku epäonnistui. Tarkista verkkoyhteytesi.",
+    "fetchFailed": "Pysäkkien haku epäonnistui. Yritä myöhemmin uudelleen.",
+    "browserNoGeolocation": "Selaimesi ei tue sijaintipalveluja. Kokeile toista selainta.",
+    "locationBlocked": "Sijainti on estetty. Salli sijainti selaimen tai laitteen asetuksista ja yritä uudelleen.",
+    "locationUnavailable": "Sijaintia ei voitu määrittää. Tarkista että sijaintipalvelut ovat päällä laitteessasi.",
+    "locationTimeout": "Sijainnin haku aikakatkaistiin. Yritä uudelleen."
+  },
+  "locationHelp": {
+    "howToEnable": "Miten sallin sijainnin?",
+    "iosSafari": {
+      "title": "Näin sallit sijainnin iPhonella:",
+      "step1": "Avaa puhelimen Asetukset",
+      "step2": "Valitse Yksityisyys ja turvallisuus",
+      "step3": "Valitse Sijaintipalvelut",
+      "step4": "Varmista että sijaintipalvelut on päällä",
+      "step5": "Selaa alas ja valitse Safari-sivustot",
+      "step6": "Valitse \"Kysy\" tai \"Salli\""
+    },
+    "iosChrome": {
+      "title": "Näin sallit sijainnin iPhonella (Chrome):",
+      "step1": "Avaa puhelimen Asetukset",
+      "step2": "Selaa alas ja valitse Chrome",
+      "step3": "Valitse Sijainti",
+      "step4": "Valitse \"Kysy\" tai \"Salli\""
+    },
+    "android": {
+      "title": "Näin sallit sijainnin Androidilla:",
+      "step1": "Avaa puhelimen Asetukset",
+      "step2": "Valitse Sijainti",
+      "step3": "Varmista että sijainti on päällä",
+      "step4": "Palaa selaimeen ja paina osoitepalkin lukkokuvaketta",
+      "step5": "Valitse \"Sivuston asetukset\"",
+      "step6": "Salli Sijainti"
+    },
+    "desktop": {
+      "title": "Näin sallit sijainnin selaimessa:",
+      "step1": "Paina osoitepalkin vasemmalla puolella olevaa lukkokuvaketta",
+      "step2": "Etsi \"Sijainti\" tai \"Location\"",
+      "step3": "Vaihda asetukseksi \"Salli\"",
+      "step4": "Päivitä sivu"
+    }
+  },
+  "plus": {
+    "supportDeveloper": "Haluatko tukea kehittäjää ja saada lisäominaisuuksia?",
+    "unlimitedBusMap": "Rajoittamaton bussikartta"
+  }
+}

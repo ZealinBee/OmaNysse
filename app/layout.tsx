@@ -2,7 +2,11 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
 import Script from "next/script";
+import { NextIntlClientProvider } from 'next-intl';
+import { getLocale, getMessages } from 'next-intl/server';
 import { AuthProvider } from "./lib/supabase/auth-context";
+import { LocaleProvider } from "./lib/locale-context";
+import { type Locale } from "@/i18n/config";
 import "./globals.css";
 
 const inter = Inter({
@@ -57,7 +61,7 @@ const jsonLd = {
   applicationCategory: "TravelApplication",
   operatingSystem: "Web",
   browserRequirements: "Requires JavaScript and Geolocation API",
-  inLanguage: "fi",
+  inLanguage: ["fi", "en"],
   isAccessibleForFree: false,
   offers: [
     {
@@ -80,13 +84,16 @@ const jsonLd = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = await getLocale() as Locale;
+  const messages = await getMessages();
+
   return (
-    <html lang="fi">
+    <html lang={locale}>
       <head>
         <script
           type="application/ld+json"
@@ -94,9 +101,13 @@ export default function RootLayout({
         />
       </head>
       <body className={`${inter.variable} antialiased`}>
-        <AuthProvider>
-          {children}
-        </AuthProvider>
+        <NextIntlClientProvider messages={messages}>
+          <LocaleProvider initialLocale={locale}>
+            <AuthProvider>
+              {children}
+            </AuthProvider>
+          </LocaleProvider>
+        </NextIntlClientProvider>
         <Analytics />
         <Script
           src="https://scripts.simpleanalyticscdn.com/latest.js"

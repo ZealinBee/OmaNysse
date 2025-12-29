@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Navigation, Map } from "lucide-react";
 import { Departure } from "@/app/lib/types";
 
@@ -44,6 +45,8 @@ export function DepartureRowSkeleton() {
 }
 
 export default function DepartureRow({ departure, userCoords, region, onOpenMap, showMapButton = true }: DepartureRowProps) {
+  const t = useTranslations("departure");
+
   const handleMapClick = () => {
     onOpenMap({
       routeNumber: departure.routeNumber,
@@ -77,10 +80,10 @@ export default function DepartureRow({ departure, userCoords, region, onOpenMap,
         <div className="flex flex-col items-end">
           <span className="text-white font-extrabold text-base sm:text-3xl whitespace-nowrap">
             {departure.minutesUntil === 0
-              ? "Nyt"
+              ? t("now")
               : departure.minutesUntil === 1
-                ? "1 min"
-                : `${departure.minutesUntil} min`}
+                ? `1 ${t("min")}`
+                : `${departure.minutesUntil} ${t("min")}`}
           </span>
           <span className="text-white/50 text-[10px] sm:text-xs">
             {departure.departureTime}
@@ -91,7 +94,7 @@ export default function DepartureRow({ departure, userCoords, region, onOpenMap,
             <button
               onClick={handleMapClick}
               className="flex items-center justify-center p-1.5 sm:p-2 bg-white/20 hover:bg-white/30 rounded-lg text-white transition-all hover:scale-105 active:scale-95"
-              title="Näytä bussin sijainti kartalla"
+              title={t("showBusOnMap")}
             >
               <Map className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
@@ -101,10 +104,10 @@ export default function DepartureRow({ departure, userCoords, region, onOpenMap,
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center justify-center gap-1 px-2 py-1.5 sm:gap-1.5 sm:px-3 sm:py-2 bg-white/20 hover:bg-white/30 rounded-lg text-white text-xs sm:text-sm font-semibold transition-all hover:scale-105 active:scale-95"
-            title="Get directions to stop"
+            title={t("toStop")}
           >
             <Navigation className="w-4 h-4" />
-            <span className="hidden sm:inline">Pysäkille</span>
+            <span className="hidden sm:inline">{t("toStop")}</span>
           </a>
         </div>
       </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { Search, X, MapPin, History } from "lucide-react";
 import { GeocodedLocation } from "@/app/lib/types";
 
@@ -14,8 +15,9 @@ interface SearchInputProps {
 
 export default function SearchInput({
   onLocationSelect,
-  placeholder = "Hae paikkaa...",
+  placeholder,
 }: SearchInputProps) {
+  const t = useTranslations("search");
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<GeocodedLocation[]>([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -107,7 +109,7 @@ export default function SearchInput({
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder={placeholder}
+          placeholder={placeholder || t("placeholder")}
           className="flex-1 bg-transparent text-white placeholder-white/50 outline-none text-base"
         />
         {searchQuery && (
@@ -141,7 +143,7 @@ export default function SearchInput({
       )}
       {isSearching && (
         <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-lg p-4 text-center text-gray-500 text-sm">
-          Haetaan...
+          {t("searching")}
         </div>
       )}
       {recentSearches.length > 0 && !showSearchResults && !isSearching && (

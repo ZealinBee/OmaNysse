@@ -1,0 +1,73 @@
+{
+  "common": {
+    "or": "or",
+    "privacyPolicy": "Privacy Policy",
+    "searchRadius": "Search radius",
+    "searchAnotherPlace": "Search another place",
+    "yourLocation": "Your location",
+    "useLocation": "Use location",
+    "tryAgain": "Try again",
+    "refreshingIn": "Refreshing in {seconds}s"
+  },
+  "departure": {
+    "showNearbyBuses": "Show nearby buses and trams",
+    "searchByPlace": "Search departures by place name",
+    "fetchingLocation": "Getting location...",
+    "noDeparturesFound": "No departures found nearby",
+    "now": "Now",
+    "min": "min",
+    "toStop": "To stop",
+    "showBusOnMap": "Show bus location on map"
+  },
+  "search": {
+    "placeholder": "Search for a place...",
+    "searching": "Searching..."
+  },
+  "errors": {
+    "networkError": "Failed to fetch stops. Check your internet connection.",
+    "fetchFailed": "Failed to fetch stops. Please try again later.",
+    "browserNoGeolocation": "Your browser doesn't support location services. Try a different browser.",
+    "locationBlocked": "Location is blocked. Enable location in your browser or device settings and try again.",
+    "locationUnavailable": "Could not determine location. Check that location services are enabled on your device.",
+    "locationTimeout": "Location request timed out. Please try again."
+  },
+  "locationHelp": {
+    "howToEnable": "How do I enable location?",
+    "iosSafari": {
+      "title": "How to enable location on iPhone:",
+      "step1": "Open your phone's Settings",
+      "step2": "Select Privacy & Security",
+      "step3": "Select Location Services",
+      "step4": "Make sure location services are on",
+      "step5": "Scroll down and select Safari Websites",
+      "step6": "Select \"Ask\" or \"Allow\""
+    },
+    "iosChrome": {
+      "title": "How to enable location on iPhone (Chrome):",
+      "step1": "Open your phone's Settings",
+      "step2": "Scroll down and select Chrome",
+      "step3": "Select Location",
+      "step4": "Select \"Ask\" or \"Allow\""
+    },
+    "android": {
+      "title": "How to enable location on Android:",
+      "step1": "Open your phone's Settings",
+      "step2": "Select Location",
+      "step3": "Make sure location is on",
+      "step4": "Return to browser and tap the lock icon in the address bar",
+      "step5": "Select \"Site settings\"",
+      "step6": "Allow Location"
+    },
+    "desktop": {
+      "title": "How to enable location in browser:",
+      "step1": "Click the lock icon on the left side of the address bar",
+      "step2": "Find \"Location\"",
+      "step3": "Change the setting to \"Allow\"",
+      "step4": "Refresh the page"
+    }
+  },
+  "plus": {
+    "supportDeveloper": "Want to support the developer and get extra features?",
+    "unlimitedBusMap": "Unlimited bus map"
+  }
+}

@@ -183,7 +183,7 @@
     "faq2Question": "Ovatko lähtöajat reaaliaikaisia?",
     "faq2Answer": "Kyllä, lähtöajat perustuvat reaaliaikaiseen GPS-seurantaan aina kun se on saatavilla. Jos reaaliaikatietoa ei ole, näytetään aikataulun mukainen lähtöaika.",
     "faq3Question": "Onko sovellus ilmainen?",
-    "faq3Answer": "SeuraavaBussi.fi:n perustoiminnot ovat ilmaisia. Tarjoamme myös maksullisia lisäominaisuuksia, kuten live-kartta ja kotinäkymä-widget.",
+    "faq3Answer": "SeuraavaBussi.fi:n perustoiminnot ovat ilmaisia. Tarjoamme myös maksullisia lisäominaisuuksia.",
     "faq4Question": "Voinko käyttää sovellusta ilman sijaintia?",
     "faq4Answer": "Kyllä, voit hakea lähtöjä minkä tahansa osoitteen tai paikan läheltä käyttämällä hakutoimintoa.",
     "popularStops": "Suosituimmat pysäkit",

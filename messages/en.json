@@ -183,7 +183,7 @@
     "faq2Question": "Are departure times real-time?",
     "faq2Answer": "Yes, departure times are based on real-time GPS tracking when available. If real-time data is not available, the scheduled departure time is shown.",
     "faq3Question": "Is the app free?",
-    "faq3Answer": "Basic features of SeuraavaBussi.fi are free. We also offer paid features such as live map and home screen widget.",
+    "faq3Answer": "Basic features of SeuraavaBussi.fi are free. We also offer paid features such as live map and faster bus updates.",
     "faq4Question": "Can I use the app without location?",
     "faq4Answer": "Yes, you can search for departures near any address or place using the search function.",
     "popularStops": "Popular stops",

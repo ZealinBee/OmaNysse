@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef, useCallback } from "react";
+import { useTranslations } from "next-intl";
 import { X, Bus, Lock } from "lucide-react";
 import { MapContainer, TileLayer, Marker, Popup, Polyline, CircleMarker, useMap, Tooltip } from "react-leaflet";
 import L from "leaflet";
@@ -386,6 +387,7 @@ export default function BusMapPopup({
   region,
   city,
 }: BusMapPopupProps) {
+  const t = useTranslations("busMap");
   const [vehiclePositions, setVehiclePositions] = useState<VehiclePosition[]>([]);
   const [routeGeometry, setRouteGeometry] = useState<RouteGeometry[]>([]);
   const [routeStops, setRouteStops] = useState<RouteStop[]>([]);
@@ -457,10 +459,10 @@ export default function BusMapPopup({
         } else if (data.error) {
           setError(data.error);
         } else {
-          setError("Bussin sijaintia ei löytynyt");
+          setError(t("busLocationNotFound"));
         }
       } catch {
-        setError("Bussin sijainnin haku epäonnistui");
+        setError(t("busLocationFetchFailed"));
       } finally {
         setIsLoading(false);
       }
@@ -567,17 +569,17 @@ export default function BusMapPopup({
                   <Lock className="w-7 h-7 text-white drop-shadow-sm" />
                 </div>
                 <h3 className="text-xl font-bold text-white mb-2 drop-shadow-sm">
-                  SeuraavaBussi Plus
+                  {t("paywallTitle")}
                 </h3>
                 <p className="text-white/60 text-sm mb-6 max-w-xs">
-                  Olet käyttänyt kaikki {FREE_TRIAL_LIMIT} ilmaista kokeilukertaasi. Hanki SeuraavaBussi Plus nähdäksesi bussien sijainnit kartalla rajattomasti.
+                  {t("paywallDescription", { limit: FREE_TRIAL_LIMIT })}
                 </p>
                 <a
                   href="/plus"
                   className="px-6 py-3 bg-white/95 hover:bg-white backdrop-blur-sm rounded-xl font-bold text-sm transition-all hover:scale-105 active:scale-95 shadow-lg border border-white/50 inline-block"
                   style={{ color: routeColor }}
                 >
-                  Osta SeuraavaBussi Plus
+                  {t("buyPlus")}
                 </a>
               </div>
             </div>
@@ -585,7 +587,7 @@ export default function BusMapPopup({
             {/* Footer */}
             <div className="px-5 py-3 border-t border-white/10 bg-black/10">
               <p className="text-center text-white/40 text-xs">
-                Plus: Rajaton karttakäyttö ja tulevat ominaisuudet
+                {t("paywallFooter")}
               </p>
             </div>
           </div>
@@ -623,7 +625,7 @@ export default function BusMapPopup({
             <div className="absolute inset-0 z-10 flex items-center justify-center bg-gray-100">
               <div className="flex flex-col items-center gap-2">
                 <div className="w-8 h-8 border-4 border-gray-300 border-t-blue-500 rounded-full animate-spin" />
-                <span className="text-gray-600 text-sm">Ladataan karttaa...</span>
+                <span className="text-gray-600 text-sm">{t("loadingMap")}</span>
               </div>
             </div>
           )}
@@ -702,7 +704,7 @@ export default function BusMapPopup({
                     <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                       <polygon points="3 11 22 2 13 21 11 13 3 11"/>
                     </svg>
-                    Reitti
+                    {t("directions")}
                   </a>
                 </div>
               </Popup>
@@ -715,7 +717,7 @@ export default function BusMapPopup({
                 offset={[0, -15]}
                 className="minimal-tooltip"
               >
-                Sijaintisi
+                {t("yourLocation")}
               </Tooltip>
             </Marker>
 
@@ -760,7 +762,7 @@ export default function BusMapPopup({
                             padding: '3px 8px',
                             borderRadius: '4px',
                           }}>
-                            {arrivalMins === 0 ? 'nyt' : `${arrivalMins} min`}
+                            {arrivalMins === 0 ? t("now") : `${arrivalMins} min`}
                           </span>
                         ) : (
                           <span style={{
@@ -768,7 +770,7 @@ export default function BusMapPopup({
                             color: '#6b7280',
                             fontWeight: 500,
                           }}>
-                            matkalla
+                            {t("onTheWay")}
                           </span>
                         )}
                       </div>
@@ -797,13 +799,13 @@ export default function BusMapPopup({
           <div className="px-4 py-2 bg-amber-50 border-t border-amber-200" style={{ touchAction: 'none' }}>
             <div className="flex items-center justify-between">
               <p className="text-amber-800 text-xs">
-                Ilmainen kokeilu: {remainingTrials} {remainingTrials === 1 ? "kerta" : "kertaa"} jäljellä
+                {t("freeTrialRemaining", { remaining: remainingTrials })}
               </p>
               <a
                 href="/plus"
                 className="text-xs font-semibold text-amber-700 hover:text-amber-900 underline"
               >
-                Hanki Plus
+                {t("getPlus")}
               </a>
             </div>
           </div>
@@ -822,7 +824,7 @@ export default function BusMapPopup({
                 >
                   <Bus className="w-2.5 h-2.5 text-white" />
                 </div>
-                <span>Bussi ({vehiclePositions.length})</span>
+                <span>{t("bus")} ({vehiclePositions.length})</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <div className="w-4 h-5 relative">
@@ -831,14 +833,14 @@ export default function BusMapPopup({
                   </div>
                   <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1.5 bg-gray-500 rounded-b-sm"></div>
                 </div>
-                <span>Pysäkki</span>
+                <span>{t("stop")}</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <div className="w-4 h-4 relative">
                   <div className="absolute inset-0 bg-white rounded-full border-2 border-blue-500"></div>
                   <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-blue-500 rounded-full"></div>
                 </div>
-                <span>Sinä</span>
+                <span>{t("you")}</span>
               </div>
             </div>
           )}

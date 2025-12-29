@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { useAuth } from "@/app/lib/supabase/auth-context";
 import { useSubscription } from "@/app/lib/hooks/useSubscription";
 import { Check, Loader2, LogOut, Settings } from "lucide-react";
@@ -8,6 +9,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 export function PricingCards() {
+  const t = useTranslations("plus");
   const { user, loading, signOut } = useAuth();
   const { subscription, isLoading: subLoading, hasPlusAccess } = useSubscription();
   const router = useRouter();
@@ -73,7 +75,7 @@ export function PricingCards() {
           href="/auth/signup?next=/plus"
           className={`${className} block text-center`}
         >
-          Luo tili ostaaksesi
+          {t("createAccountToBuy")}
         </Link>
       );
     }
@@ -92,7 +94,7 @@ export function PricingCards() {
             ) : (
               <>
                 <Settings className="w-4 h-4 inline mr-2" />
-                Hallinnoi tilausta
+                {t("manageSubscription")}
               </>
             )}
           </button>
@@ -101,8 +103,8 @@ export function PricingCards() {
       return (
         <button className={className} disabled>
           {type === "lifetime"
-            ? "Sinulla on jo tilaus"
-            : "Sinulla on ikuinen käyttöoikeus"}
+            ? t("youAlreadyHaveSubscription")
+            : t("youHaveLifetimeAccess")}
         </button>
       );
     }
@@ -118,7 +120,7 @@ export function PricingCards() {
         {isLoading ? (
           <Loader2 className="w-5 h-5 animate-spin mx-auto" />
         ) : (
-          type === "monthly" ? "Tilaa 3€/kk" : "Osta 30€"
+          type === "monthly" ? `${t("subscribe")} 3€${t("perMonth")}` : `${t("buy")} 30€`
         )}
       </button>
     );
@@ -127,19 +129,19 @@ export function PricingCards() {
   return (
     <>
       <section className="mb-10">
-        <h2 className="text-white font-bold text-lg mb-4">Valitse tilaus</h2>
+        <h2 className="text-white font-bold text-lg mb-4">{t("chooseSubscription")}</h2>
 
         {user && (
           <div className="mb-4 p-3 bg-green-500/20 border border-green-500/40 rounded-xl flex items-center justify-between gap-3">
             <p className="text-green-200 text-sm truncate">
-              Kirjautuneena: <strong>{user.email}</strong>
+              {t("loggedInAs")}: <strong>{user.email}</strong>
             </p>
             <button
               onClick={handleSwitchAccount}
               className="flex items-center gap-1.5 text-green-200/70 hover:text-green-200 text-sm transition-colors flex-shrink-0"
             >
               <LogOut className="w-3.5 h-3.5" />
-              Vaihda tili
+              {t("switchAccount")}
             </button>
           </div>
         )}
@@ -147,14 +149,14 @@ export function PricingCards() {
         {hasPlusAccess && subscription && (
           <div className="mb-4 p-4 bg-white/10 border border-white/20 rounded-xl">
             <p className="text-white font-semibold mb-1">
-              Sinulla on SeuraavaBussi Plus
+              {t("youHavePlus")}
             </p>
             <p className="text-white/70 text-sm">
               {subscription.type === "lifetime"
-                ? "Ikuinen käyttöoikeus"
+                ? t("lifetimeAccess")
                 : subscription.cancelAtPeriodEnd
-                  ? `Tilaus päättyy ${new Date(subscription.currentPeriodEnd!).toLocaleDateString("fi-FI")}`
-                  : `Tilaus uusiutuu ${new Date(subscription.currentPeriodEnd!).toLocaleDateString("fi-FI")}`}
+                  ? `${t("subscriptionEnds")} ${new Date(subscription.currentPeriodEnd!).toLocaleDateString("fi-FI")}`
+                  : `${t("subscriptionRenews")} ${new Date(subscription.currentPeriodEnd!).toLocaleDateString("fi-FI")}`}
             </p>
           </div>
         )}
@@ -162,25 +164,25 @@ export function PricingCards() {
         <div className="grid gap-4 sm:grid-cols-2">
           {/* Monthly */}
           <div className="rounded-2xl bg-white/10 border border-white/20 p-5">
-            <p className="text-white/60 text-sm mb-1">Kuukausitilaus</p>
+            <p className="text-white/60 text-sm mb-1">{t("monthly")}</p>
             <p className="text-white font-bold text-3xl mb-1">
-              3€<span className="text-lg font-normal text-white/60">/kk</span>
+              3€<span className="text-lg font-normal text-white/60">{t("perMonth")}</span>
             </p>
             <p className="text-white/50 text-xs mb-4">
-              Peruutettavissa milloin vain
+              {t("cancelAnytime")}
             </p>
             <ul className="space-y-2 mb-5">
               <li className="flex items-center gap-2 text-white/80 text-sm">
                 <Check className="w-4 h-4 text-white/60" />
-                Rajaton karttakäyttö
+                {t("unlimitedMapAccess")}
               </li>
               <li className="flex items-center gap-2 text-white/80 text-sm">
                 <Check className="w-4 h-4 text-white/60" />
-                Nopeampi päivitysväli (10 s)
+                {t("fasterRefresh")}
               </li>
               <li className="flex items-center gap-2 text-white/80 text-sm">
                 <Check className="w-4 h-4 text-white/60" />
-                Tulevat ominaisuudet
+                {t("futureFeatures")}
               </li>
             </ul>
             {renderButton(
@@ -191,27 +193,27 @@ export function PricingCards() {
 
           {/* Lifetime */}
           <div className="rounded-2xl bg-white border border-white/20 p-5">
-            <p className="text-gray-500 text-sm mb-1">Kertamaksu</p>
+            <p className="text-gray-500 text-sm mb-1">{t("oneTime")}</p>
             <p className="text-gray-900 font-bold text-3xl mb-1">
-              30€<span className="text-lg font-normal text-gray-400"> kerran</span>
+              30€<span className="text-lg font-normal text-gray-400"> {t("once")}</span>
             </p>
-            <p className="text-gray-400 text-xs mb-4">Ikuinen käyttöoikeus</p>
+            <p className="text-gray-400 text-xs mb-4">{t("lifetimeAccess")}</p>
             <ul className="space-y-2 mb-5">
               <li className="flex items-center gap-2 text-gray-700 text-sm">
                 <Check className="w-4 h-4 text-green-500" />
-                Rajaton karttakäyttö
+                {t("unlimitedMapAccess")}
               </li>
               <li className="flex items-center gap-2 text-gray-700 text-sm">
                 <Check className="w-4 h-4 text-green-500" />
-                Nopeampi päivitysväli (10 s)
+                {t("fasterRefresh")}
               </li>
               <li className="flex items-center gap-2 text-gray-700 text-sm">
                 <Check className="w-4 h-4 text-green-500" />
-                Kaikki tulevat ominaisuudet
+                {t("allFutureFeatures")}
               </li>
               <li className="flex items-center gap-2 text-gray-700 text-sm">
                 <Check className="w-4 h-4 text-green-500" />
-                Ei toistuvia maksuja
+                {t("noRecurringFees")}
               </li>
             </ul>
             {renderButton(
@@ -224,20 +226,20 @@ export function PricingCards() {
         {/* 7-day money-back guarantee for lifetime */}
         <div className="mt-4 text-center">
           <p className="text-white/70 text-sm">
-            Kertamaksulle 7 päivän rahat takaisin -takuu.
+            {t("moneyBackGuarantee")}
           </p>
         </div>
 
         {!loading && !user && (
           <div className="mt-6 text-center">
             <p className="text-white/60 text-sm mb-2">
-              Oletko jo ostanut Plus-tilauksen?
+              {t("alreadyPurchased")}
             </p>
             <Link
               href="/auth/login?next=/plus"
               className="text-white font-semibold text-sm hover:underline"
             >
-              Palauta ostos kirjautumalla
+              {t("restorePurchase")}
             </Link>
           </div>
         )}

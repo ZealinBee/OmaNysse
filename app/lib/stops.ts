@@ -19,8 +19,8 @@ export const STOPS: StopConfig[] = [
     name: "Rautatientori",
     coords: { lat: 60.1712, lng: 24.9414 },
     description: "Rautatientori on Helsingin keskustan sydän ja tärkein joukkoliikenteen solmukohta. Täältä lähtee busseja, ratikoita ja metroja kaikkialle pääkaupunkiseudulle. Läheinen päärautatieasema yhdistää kauko- ja lähijunaliikenteen.",
-    metaTitle: "Rautatientori Helsinki - Bussit ja aikataulut reaaliajassa",
-    metaDescription: "Katso Rautatientorin bussien, ratikoiden ja metron aikataulut reaaliajassa. Helsingin keskustan joukkoliikenteen solmukohta.",
+    metaTitle: "Rautatientori Helsinki - Bussit, ratikat, metro ja junat reaaliajassa",
+    metaDescription: "Katso Rautatientorin bussien, ratikoiden, metron ja junien aikataulut reaaliajassa. | Real-time buses, trams, metro & trains at Rautatientori.",
     type: "hub",
   },
   {
@@ -29,8 +29,8 @@ export const STOPS: StopConfig[] = [
     name: "Kamppi",
     coords: { lat: 60.169, lng: 24.9324 },
     description: "Kamppi on Helsingin toiseksi vilkkain joukkoliikenneterminaali. Kampin keskuksen alta lähtee kaukobusseja ympäri Suomea sekä paikallisbusseja lähiöihin. Myös metro pysähtyy Kampissa.",
-    metaTitle: "Kamppi Helsinki - Bussit ja aikataulut reaaliajassa",
-    metaDescription: "Katso Kampin bussiterminaalin ja metroaseman aikataulut reaaliajassa. Kaukobussit ja paikallisliikenne Helsingissä.",
+    metaTitle: "Kamppi Helsinki - Bussit ja metro reaaliajassa",
+    metaDescription: "Katso Kampin bussiterminaalin ja metron aikataulut reaaliajassa. | Real-time buses & metro at Kamppi terminal.",
     type: "hub",
   },
   {
@@ -39,8 +39,8 @@ export const STOPS: StopConfig[] = [
     name: "Hakaniemi",
     coords: { lat: 60.1797, lng: 24.9503 },
     description: "Hakaniemi on vilkas kaupunginosa Helsingin keskustan itäpuolella. Hakaniemen tori ja kauppahalli houkuttelevat asiakkaita, ja metroasema yhdistää alueen muuhun kaupunkiin.",
-    metaTitle: "Hakaniemi Helsinki - Bussit ja aikataulut reaaliajassa",
-    metaDescription: "Katso Hakaniemen bussien ja metron aikataulut reaaliajassa. Hakaniemen torin ja kauppahallin läheisyydessä.",
+    metaTitle: "Hakaniemi Helsinki - Bussit, ratikat ja metro reaaliajassa",
+    metaDescription: "Katso Hakaniemen bussien, ratikoiden ja metron aikataulut reaaliajassa. | Real-time buses, trams & metro at Hakaniemi.",
     type: "hub",
   },
   {
@@ -50,7 +50,7 @@ export const STOPS: StopConfig[] = [
     coords: { lat: 60.1986, lng: 24.9336 },
     description: "Pasila on merkittävä liikenteen solmukohta Helsingin pohjoispuolella. Pasilan asema palvelee lähijunia ja kaukojunia, ja alue on kehittynyt modernin toimistorakentamisen keskukseksi.",
     metaTitle: "Pasila Helsinki - Bussit ja junat reaaliajassa",
-    metaDescription: "Katso Pasilan aseman bussien ja junien aikataulut reaaliajassa. Helsingin pohjoinen liikenteen solmukohta.",
+    metaDescription: "Katso Pasilan aseman bussien ja junien aikataulut reaaliajassa. | Real-time buses & trains at Pasila station.",
     type: "hub",
   },
   {
@@ -60,7 +60,7 @@ export const STOPS: StopConfig[] = [
     coords: { lat: 60.2103, lng: 25.0826 },
     description: "Itäkeskus on Itä-Helsingin kaupallinen ja liikenteellinen keskus. Kauppakeskus Itis on Pohjoismaiden suurimpia, ja metroasema yhdistää alueen keskustaan.",
     metaTitle: "Itäkeskus Helsinki - Bussit ja metro reaaliajassa",
-    metaDescription: "Katso Itäkeskuksen bussien ja metron aikataulut reaaliajassa. Itä-Helsingin joukkoliikenteen keskus.",
+    metaDescription: "Katso Itäkeskuksen bussien ja metron aikataulut reaaliajassa. | Real-time buses & metro at Itäkeskus.",
     type: "hub",
   },
   {
@@ -70,7 +70,7 @@ export const STOPS: StopConfig[] = [
     coords: { lat: 60.1842, lng: 24.9496 },
     description: "Kallio on Helsingin trendikkäin kaupunginosa, tunnettu ravintoloistaan ja yöelämästään. Kallion kirkko hallitsee maisemaa, ja alueen läpi kulkee useita bussi- ja ratikkalinjoja.",
     metaTitle: "Kallio Helsinki - Bussit ja ratikat reaaliajassa",
-    metaDescription: "Katso Kallion bussien ja ratikoiden aikataulut reaaliajassa. Helsingin suositun kaupunginosan joukkoliikenne.",
+    metaDescription: "Katso Kallion bussien ja ratikoiden aikataulut reaaliajassa. | Real-time buses & trams in Kallio.",
     type: "residential",
   },
   {
@@ -80,7 +80,7 @@ export const STOPS: StopConfig[] = [
     coords: { lat: 60.1572, lng: 24.8773 },
     description: "Lauttasaari on suosittu asuinalue Helsingin länsipuolella. Saari on yhdistetty mantereeseen sillalla, ja metro sekä bussit palvelevat aluetta hyvin.",
     metaTitle: "Lauttasaari Helsinki - Bussit ja metro reaaliajassa",
-    metaDescription: "Katso Lauttasaaren bussien ja metron aikataulut reaaliajassa. Länsi-Helsingin joukkoliikenne.",
+    metaDescription: "Katso Lauttasaaren bussien ja metron aikataulut reaaliajassa. | Real-time buses & metro at Lauttasaari.",
     type: "residential",
   },
   {
@@ -90,7 +90,7 @@ export const STOPS: StopConfig[] = [
     coords: { lat: 60.2195, lng: 24.8131 },
     description: "Leppävaara on Espoon suurin alakeskus ja vilkas kaupallinen keskittymä. Sello-kauppakeskus ja juna-asema tekevät alueesta tärkeän joukkoliikenteen solmukohdan.",
     metaTitle: "Leppävaara Espoo - Bussit ja junat reaaliajassa",
-    metaDescription: "Katso Leppävaaran bussien ja junien aikataulut reaaliajassa. Espoon joukkoliikenteen keskus.",
+    metaDescription: "Katso Leppävaaran bussien ja junien aikataulut reaaliajassa. | Real-time buses & trains at Leppävaara.",
     type: "hub",
   },
   {
@@ -100,7 +100,7 @@ export const STOPS: StopConfig[] = [
     coords: { lat: 60.1762, lng: 24.8046 },
     description: "Tapiola on Espoon perinteinen keskus, tunnettu puutarhakaupunkisuunnittelustaan. Metroasema ja bussiterminaali yhdistävät Tapiolan muuhun pääkaupunkiseutuun.",
     metaTitle: "Tapiola Espoo - Bussit ja metro reaaliajassa",
-    metaDescription: "Katso Tapiolan bussien ja metron aikataulut reaaliajassa. Espoon puutarhakaupungin joukkoliikenne.",
+    metaDescription: "Katso Tapiolan bussien ja metron aikataulut reaaliajassa. | Real-time buses & metro at Tapiola.",
     type: "hub",
   },
   {
@@ -110,7 +110,7 @@ export const STOPS: StopConfig[] = [
     coords: { lat: 60.2512, lng: 25.0093 },
     description: "Malmi on Koillis-Helsingin keskus ja vilkas kaupallinen alue. Malmin juna-asema ja bussiterminaali palvelevat laajaa aluetta Pohjois- ja Itä-Helsingissä.",
     metaTitle: "Malmi Helsinki - Bussit ja junat reaaliajassa",
-    metaDescription: "Katso Malmin bussien ja junien aikataulut reaaliajassa. Koillis-Helsingin joukkoliikenteen keskus.",
+    metaDescription: "Katso Malmin bussien ja junien aikataulut reaaliajassa. | Real-time buses & trains at Malmi station.",
     type: "hub",
   },
 
@@ -122,7 +122,7 @@ export const STOPS: StopConfig[] = [
     coords: { lat: 61.4978, lng: 23.761 },
     description: "Keskustori on Tampereen sydän ja joukkoliikenteen keskipiste. Historiallinen tori on ympäröity kaupoilla ja kahviloilla, ja raitiotie sekä bussit kulkevat torin läpi.",
     metaTitle: "Keskustori Tampere - Bussit ja ratikat reaaliajassa",
-    metaDescription: "Katso Keskustorin bussien ja ratikoiden aikataulut reaaliajassa. Tampereen keskustan joukkoliikenne.",
+    metaDescription: "Katso Keskustorin bussien ja ratikoiden aikataulut reaaliajassa. | Real-time buses & trams at Keskustori.",
     type: "hub",
   },
   {
@@ -131,8 +131,8 @@ export const STOPS: StopConfig[] = [
     name: "Rautatieasema",
     coords: { lat: 61.4986, lng: 23.773 },
     description: "Tampereen rautatieasema on maan kolmanneksi vilkkain. Asemalta lähtee junia Helsinkiin, Turkuun, Ouluun ja Poriin. Raitiotie ja bussit yhdistävät aseman keskustaan.",
-    metaTitle: "Rautatieasema Tampere - Bussit ja junat reaaliajassa",
-    metaDescription: "Katso Tampereen rautatieaseman bussien ja junien aikataulut. Suomen kolmanneksi vilkkain asema.",
+    metaTitle: "Rautatieasema Tampere - Bussit, ratikat ja junat reaaliajassa",
+    metaDescription: "Katso Tampereen rautatieaseman bussien, ratikoiden ja junien aikataulut reaaliajassa. | Real-time buses, trams & trains at Tampere station.",
     type: "hub",
   },
   {
@@ -142,7 +142,7 @@ export const STOPS: StopConfig[] = [
     coords: { lat: 61.4503, lng: 23.8512 },
     description: "Hervanta on Tampereen suurin lähiö ja teknologiakeskittymä. Tampereen yliopiston Hervannan kampus ja TTY sijaitsevat täällä. Raitiotie yhdistää Hervannan keskustaan.",
     metaTitle: "Hervanta Tampere - Bussit ja ratikat reaaliajassa",
-    metaDescription: "Katso Hervannan bussien ja ratikoiden aikataulut reaaliajassa. Tampereen yliopistokampuksen joukkoliikenne.",
+    metaDescription: "Katso Hervannan bussien ja ratikoiden aikataulut reaaliajassa. | Real-time buses & trams at Hervanta.",
     type: "residential",
   },
   {
@@ -152,7 +152,7 @@ export const STOPS: StopConfig[] = [
     coords: { lat: 61.5047, lng: 23.8169 },
     description: "Tampereen yliopistollinen sairaala (TAYS) on yksi Suomen suurimmista sairaaloista. Raitiotie ja useat bussilinjat palvelevat sairaalaa ja sen henkilökuntaa ja potilaita.",
     metaTitle: "TAYS Tampere - Bussit ja ratikat reaaliajassa",
-    metaDescription: "Katso Taysin sairaalan bussien ja ratikoiden aikataulut. Tampereen yliopistollisen sairaalan joukkoliikenne.",
+    metaDescription: "Katso Taysin sairaalan bussien ja ratikoiden aikataulut reaaliajassa. | Real-time buses & trams at TAYS hospital.",
     type: "hospital",
   },
   {
@@ -162,7 +162,7 @@ export const STOPS: StopConfig[] = [
     coords: { lat: 61.4928, lng: 23.7716 },
     description: "Ratina on Tampereen moderni kauppakeskus ja stadionalue. Ratinan stadion isännöi jalkapallo-otteluita ja konsertteja. Raitiotie ja bussit pysähtyvät Ratinassa.",
     metaTitle: "Ratina Tampere - Bussit ja ratikat reaaliajassa",
-    metaDescription: "Katso Ratinan kauppakeskuksen ja stadionin bussien aikataulut. Tampereen suosittu kohde.",
+    metaDescription: "Katso Ratinan bussien ja ratikoiden aikataulut reaaliajassa. | Real-time buses & trams at Ratina.",
     type: "shopping",
   },
   {
@@ -172,7 +172,7 @@ export const STOPS: StopConfig[] = [
     coords: { lat: 61.493, lng: 23.8059 },
     description: "Kaleva on suosittu asuinalue Tampereen itäpuolella. Kalevan kirkko on alueen maamerkki. Bussit ja raitiotie yhdistävät Kalevan keskustaan ja muihin kaupunginosiin.",
     metaTitle: "Kaleva Tampere - Bussit ja ratikat reaaliajassa",
-    metaDescription: "Katso Kalevan bussien ja ratikoiden aikataulut reaaliajassa. Tampereen itäinen kaupunginosa.",
+    metaDescription: "Katso Kalevan bussien ja ratikoiden aikataulut reaaliajassa. | Real-time buses & trams in Kaleva.",
     type: "residential",
   },
   {
@@ -182,7 +182,7 @@ export const STOPS: StopConfig[] = [
     coords: { lat: 61.5104, lng: 23.6981 },
     description: "Lielahti on Tampereen lännen kaupallinen keskus, tunnettu Ideapark-kauppakeskuksestaan. Alue on kasvanut merkittäväksi ostoskohteeksi hyvien liikenneyhteyksien ansiosta.",
     metaTitle: "Lielahti Tampere - Bussit reaaliajassa",
-    metaDescription: "Katso Lielahden ja Ideaparkin bussien aikataulut reaaliajassa. Tampereen läntinen kauppakeskittymä.",
+    metaDescription: "Katso Lielahden ja Ideaparkin bussien aikataulut reaaliajassa. | Real-time buses at Lielahti.",
     type: "shopping",
   },
   {
@@ -192,7 +192,7 @@ export const STOPS: StopConfig[] = [
     coords: { lat: 61.4942, lng: 23.7794 },
     description: "Tampereen yliopiston keskustakampus sijaitsee aivan keskustan tuntumassa. Kampus on vilkas opiskelijakeskittymä, ja raitiotie kulkee yliopiston ohi.",
     metaTitle: "Tampereen yliopisto - Bussit ja ratikat reaaliajassa",
-    metaDescription: "Katso Tampereen yliopiston bussien ja ratikoiden aikataulut. Keskustakampuksen joukkoliikenne.",
+    metaDescription: "Katso Tampereen yliopiston bussien ja ratikoiden aikataulut reaaliajassa. | Real-time buses & trams at Tampere University.",
     type: "university",
   },
   {
@@ -202,7 +202,7 @@ export const STOPS: StopConfig[] = [
     coords: { lat: 61.5178, lng: 23.6619 },
     description: "Lentävänniemi on Tampereen luoteinen asuinalue Näsijärven rannalla. Alue on rauhallinen ja luonnonläheinen, ja bussiyhteydet keskustaan ovat hyvät.",
     metaTitle: "Lentävänniemi Tampere - Bussit reaaliajassa",
-    metaDescription: "Katso Lentävänniemen bussien aikataulut reaaliajassa. Tampereen luoteinen asuinalue.",
+    metaDescription: "Katso Lentävänniemen bussien aikataulut reaaliajassa. | Real-time buses at Lentävänniemi.",
     type: "residential",
   },
   {
@@ -212,7 +212,7 @@ export const STOPS: StopConfig[] = [
     coords: { lat: 61.4836, lng: 23.7882 },
     description: "Hatanpää on historiallinen alue Tampereen eteläpuolella. Hatanpään arboretum ja kartano ovat suosittuja vierailukohteita. Bussit palvelevat aluetta säännöllisesti.",
     metaTitle: "Hatanpää Tampere - Bussit reaaliajassa",
-    metaDescription: "Katso Hatanpään bussien aikataulut reaaliajassa. Tampereen historiallinen eteläinen alue.",
+    metaDescription: "Katso Hatanpään bussien aikataulut reaaliajassa. | Real-time buses at Hatanpää.",
     type: "residential",
   },
 
@@ -224,7 +224,7 @@ export const STOPS: StopConfig[] = [
     coords: { lat: 60.4518, lng: 22.2666 },
     description: "Kauppatori on Turun keskustan sydän ja joukkoliikenteen solmukohta. Historiallinen tori on ympäröity kaupoilla ja nähtävyyksillä. Lähes kaikki bussilinjat kulkevat torin kautta.",
     metaTitle: "Kauppatori Turku - Bussit reaaliajassa",
-    metaDescription: "Katso Kauppatorin bussien aikataulut reaaliajassa. Turun keskustan joukkoliikenteen solmukohta.",
+    metaDescription: "Katso Kauppatorin bussien aikataulut reaaliajassa. Turun joukkoliikenteen solmukohta. | Real-time buses at Turku Market Square.",
     type: "hub",
   },
   {
@@ -234,7 +234,7 @@ export const STOPS: StopConfig[] = [
     coords: { lat: 60.4485, lng: 22.2952 },
     description: "Kupittaa on Turun itäinen keskus, tunnettu Kupittaan puistosta ja teknologiakeskittymästä. Juna-asema ja bussit yhdistävät alueen muuhun kaupunkiin.",
     metaTitle: "Kupittaa Turku - Bussit ja junat reaaliajassa",
-    metaDescription: "Katso Kupittaan bussien ja junien aikataulut reaaliajassa. Turun itäinen liikenteen keskus.",
+    metaDescription: "Katso Kupittaan bussien ja junien aikataulut reaaliajassa. | Real-time buses & trains at Kupittaa.",
     type: "hub",
   },
   {
@@ -326,7 +326,7 @@ export const STOPS: StopConfig[] = [
     coords: { lat: 65.0121, lng: 25.4651 },
     description: "Oulun keskusta on pohjoisen Suomen vilkkain kaupunkikeskus. Rotuaari-kävelykatu ja tori ovat alueen sydän. Bussit lähtevät keskustasta kaikkialle Ouluun.",
     metaTitle: "Oulu keskusta - Bussit reaaliajassa",
-    metaDescription: "Katso Oulun keskustan bussien aikataulut reaaliajassa. Pohjoisen Suomen vilkkain keskusta.",
+    metaDescription: "Katso Oulun keskustan bussien aikataulut reaaliajassa. | Real-time buses in Oulu city center.",
     type: "hub",
   },
   {
@@ -336,7 +336,7 @@ export const STOPS: StopConfig[] = [
     coords: { lat: 65.0116, lng: 25.483 },
     description: "Oulun rautatieasema on Pohjois-Suomen tärkein junaliikenteen solmukohta. Asemalta lähtee junia etelään ja pohjoiseen, ja bussit yhdistävät aseman keskustaan.",
     metaTitle: "Oulun rautatieasema - Bussit ja junat reaaliajassa",
-    metaDescription: "Katso Oulun rautatieaseman bussien ja junien aikataulut. Pohjois-Suomen liikenteen keskus.",
+    metaDescription: "Katso Oulun rautatieaseman bussien ja junien aikataulut reaaliajassa. | Real-time buses & trains at Oulu station.",
     type: "hub",
   },
   {
@@ -428,7 +428,7 @@ export const STOPS: StopConfig[] = [
     coords: { lat: 62.2426, lng: 25.7473 },
     description: "Jyväskylän matkakeskus yhdistää bussi- ja junaliikenteen. Asemalta lähtee kaukobusseja ympäri Suomea ja paikallisbusseja koko Jyväskylän seudulle.",
     metaTitle: "Jyväskylän matkakeskus - Bussit ja junat reaaliajassa",
-    metaDescription: "Katso Jyväskylän matkakeskuksen bussien ja junien aikataulut. Keski-Suomen liikenteen solmukohta.",
+    metaDescription: "Katso Jyväskylän matkakeskuksen bussien ja junien aikataulut reaaliajassa. | Real-time buses & trains at Jyväskylä Travel Centre.",
     type: "hub",
   },
   {
@@ -530,7 +530,7 @@ export const STOPS: StopConfig[] = [
     coords: { lat: 60.9827, lng: 25.6556 },
     description: "Lahden matkakeskus on kaupungin liikenteen solmukohta, jossa yhdistyvät juna- ja bussiliikenne. Asemalta pääsee nopeasti Helsinkiin ja ympäri Päijät-Hämettä.",
     metaTitle: "Lahden matkakeskus - Bussit ja junat reaaliajassa",
-    metaDescription: "Katso Lahden matkakeskuksen bussien ja junien aikataulut. Päijät-Hämeen liikenteen keskus.",
+    metaDescription: "Katso Lahden matkakeskuksen bussien ja junien aikataulut reaaliajassa. | Real-time buses & trains at Lahti Travel Centre.",
     type: "hub",
   },
   {
@@ -632,7 +632,7 @@ export const STOPS: StopConfig[] = [
     coords: { lat: 62.8925, lng: 27.6783 },
     description: "Kuopion keskusta on Itä-Suomen vilkkain kaupunkikeskus. Tori ja kauppahalli ovat alueen sydän, ja bussit lähtevät keskustasta kaikkialle.",
     metaTitle: "Kuopion keskusta - Bussit reaaliajassa",
-    metaDescription: "Katso Kuopion keskustan bussien aikataulut reaaliajassa. Itä-Suomen pääkaupunki.",
+    metaDescription: "Katso Kuopion keskustan bussien aikataulut reaaliajassa. | Real-time buses in Kuopio city center.",
     type: "hub",
   },
   {
@@ -734,7 +734,7 @@ export const STOPS: StopConfig[] = [
     coords: { lat: 61.0587, lng: 28.1887 },
     description: "Lappeenrannan keskusta sijaitsee Saimaan rannalla. Kauppakadut ja satama-alue houkuttelevat niin paikallisia kuin turistejakin.",
     metaTitle: "Lappeenrannan keskusta - Bussit reaaliajassa",
-    metaDescription: "Katso Lappeenrannan keskustan bussien aikataulut. Saimaan rannan kaupunki.",
+    metaDescription: "Katso Lappeenrannan keskustan bussien aikataulut reaaliajassa. | Real-time buses in Lappeenranta city center.",
     type: "hub",
   },
   {
@@ -836,7 +836,7 @@ export const STOPS: StopConfig[] = [
     coords: { lat: 60.9945, lng: 24.4642 },
     description: "Hämeenlinnan keskusta on historiallinen kaupunkikeskus Vanajaveden rannalla. Hämeenlinnan linna ja tori ovat alueen nähtävyyksiä.",
     metaTitle: "Hämeenlinnan keskusta - Bussit reaaliajassa",
-    metaDescription: "Katso Hämeenlinnan keskustan bussien aikataulut. Historiallinen linnakaupunki.",
+    metaDescription: "Katso Hämeenlinnan keskustan bussien aikataulut reaaliajassa. | Real-time buses in Hämeenlinna city center.",
     type: "hub",
   },
   {
@@ -938,7 +938,7 @@ export const STOPS: StopConfig[] = [
     coords: { lat: 61.4851, lng: 21.7975 },
     description: "Porin keskusta on Satakunnan pääkaupungin sydän. Kävelykatu ja tori ovat alueen keskipisteenä, ja bussit lähtevät keskustasta kaikkialle.",
     metaTitle: "Porin keskusta - Bussit reaaliajassa",
-    metaDescription: "Katso Porin keskustan bussien aikataulut. Satakunnan pääkaupunki.",
+    metaDescription: "Katso Porin keskustan bussien aikataulut reaaliajassa. | Real-time buses in Pori city center.",
     type: "hub",
   },
   {

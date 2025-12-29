@@ -16,8 +16,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Seuraava Bussi - Näe milloin seuraava bussi on lähdössä",
-  description: "Näyttää lähellä olevien pysäkkien seuraavat bussit reaaliajassa.",
+  title: "Seuraava Bussi - Bussit, ratikat, metrot ja junat reaaliajassa",
+  description: "Näyttää lähipysäkkien bussit, raitiovaunut, metrot ja VR-junat reaaliajassa. Toimii HSL:n, Nyssen, Fölin ja muiden kaupunkien alueilla. | Real-time arrivals for buses, trams, metros, and VR trains at nearby stops across Finland.",
   icons: {
     icon: "/logo.png",
     apple: "/logo.png",
@@ -25,8 +25,8 @@ export const metadata: Metadata = {
   manifest: "/manifest.json",
   metadataBase: new URL("https://seuraavabussi.fi"),
   openGraph: {
-    title: "Seuraava Bussi - Näe milloin seuraava bussi on lähdössä",
-    description: "Näyttää lähellä olevien pysäkkien seuraavat bussit reaaliajassa.",
+    title: "Seuraava Bussi - Bussit, ratikat, metrot ja junat reaaliajassa",
+    description: "Näyttää lähipysäkkien bussit, raitiovaunut, metrot ja VR-junat reaaliajassa. Toimii HSL:n, Nyssen, Fölin ja muiden kaupunkien alueilla.",
     images: [
       {
         url: "/banner.png",
@@ -37,15 +37,16 @@ export const metadata: Metadata = {
     ],
     type: "website",
     locale: "fi_FI",
+    alternateLocale: "en_US",
     siteName: "Seuraava Bussi",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Seuraava Bussi - Näe milloin seuraava bussi on lähdössä",
-    description: "Näyttää lähellä olevien pysäkkien seuraavat bussit reaaliajassa.",
+    title: "Seuraava Bussi - Buses, trams, metros & trains in real-time",
+    description: "Shows real-time arrivals for buses, trams, metros, and VR trains at nearby stops across Finland.",
     images: ["/banner.png"],
   },
-  keywords: ["bussi", "aikataulu", "julkinen liikenne", "HSL", "Nysse", "Föli", "Linkki", "reaaliaikainen"],
+  keywords: ["bussi", "raitiovaunu", "ratikka", "metro", "juna", "VR", "aikataulu", "julkinen liikenne", "HSL", "Nysse", "Föli", "Linkki", "reaaliaikainen", "bus", "tram", "train", "public transport", "real-time"],
   authors: [{ name: "Zhiyuan Liu" }],
   creator: "Zhiyuan Liu",
   applicationName: "Seuraava Bussi",
@@ -56,7 +57,7 @@ const jsonLd = {
   "@context": "https://schema.org",
   "@type": "WebApplication",
   name: "Seuraava Bussi",
-  description: "Näyttää lähellä olevien pysäkkien seuraavat bussit reaaliajassa.",
+  description: "Näyttää lähipysäkkien bussit, raitiovaunut, metrot ja VR-junat reaaliajassa. | Real-time arrivals for buses, trams, metros, and VR trains at nearby stops.",
   url: "https://seuraavabussi.fi",
   applicationCategory: "TravelApplication",
   operatingSystem: "Web",

@@ -5,19 +5,26 @@ import { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Hallintapaneeli yrityksille | SeuraavaBussi.fi",
   description:
-    "Joukkoliikenteen aikataulunäyttö yrityksille. Koko näytön tila, oma logo, kulkuvälineiden valinta ja kävelyaika pysäkille. 20 €/kk/näyttö.",
+    "Joukkoliikenteen aikataulunäyttö yrityksille - bussit, ratikat, metrot ja junat. Koko näytön tila, oma logo ja kävelyaika pysäkille. | Real-time transit display for businesses - buses, trams, metros, and trains.",
   keywords: [
     "joukkoliikenne",
     "aikataulunäyttö",
     "yritys",
     "bussiaikataulu",
+    "ratikka-aikataulu",
+    "metro",
+    "juna",
     "infotaulu",
     "digitaalinen näyttö",
+    "public transit display",
+    "bus schedule",
+    "tram",
+    "train",
   ],
   openGraph: {
     title: "Hallintapaneeli yrityksille | SeuraavaBussi.fi",
     description:
-      "Joukkoliikenteen aikataulunäyttö yrityksille. Koko näytön tila, oma logo ja muokattavat asetukset.",
+      "Joukkoliikenteen aikataulunäyttö yrityksille - bussit, ratikat, metrot ja junat. Koko näytön tila ja muokattavat asetukset.",
     url: "https://seuraavabussi.fi/for-companies",
     siteName: "SeuraavaBussi.fi",
     locale: "fi_FI",

@@ -10,19 +10,41 @@ interface LocaleContextType {
 
 const LocaleContext = createContext<LocaleContextType | undefined>(undefined);
 
+// Detect if user's browser language is Finnish
+function detectPreferredLocale(): Locale {
+  if (typeof navigator === 'undefined') return defaultLocale;
+
+  const browserLang = navigator.language || (navigator as { userLanguage?: string }).userLanguage || '';
+  // If browser language starts with 'fi', use Finnish, otherwise English
+  return browserLang.toLowerCase().startsWith('fi') ? 'fi' : 'en';
+}
+
 export function LocaleProvider({ children, initialLocale }: { children: ReactNode; initialLocale: Locale }) {
   const [locale, setLocaleState] = useState<Locale>(initialLocale);
 
-  // On mount, check localStorage for user preference
+  // On mount, check localStorage for user preference, or detect from browser
   useEffect(() => {
     const stored = localStorage.getItem(LOCALE_STORAGE_KEY) as Locale | null;
+
     if (stored && (stored === 'fi' || stored === 'en')) {
+      // User has a stored preference
       if (stored !== locale) {
         setLocaleState(stored);
-        // Set cookie for server-side
         document.cookie = `${LOCALE_STORAGE_KEY}=${stored};path=/;max-age=31536000`;
-        // Reload to get new translations from server
         window.location.reload();
+      }
+    } else {
+      // No stored preference - detect from browser language
+      const detected = detectPreferredLocale();
+      if (detected !== locale) {
+        // Save the detected preference
+        localStorage.setItem(LOCALE_STORAGE_KEY, detected);
+        document.cookie = `${LOCALE_STORAGE_KEY}=${detected};path=/;max-age=31536000`;
+        window.location.reload();
+      } else {
+        // Same as server default, just save it
+        localStorage.setItem(LOCALE_STORAGE_KEY, detected);
+        document.cookie = `${LOCALE_STORAGE_KEY}=${detected};path=/;max-age=31536000`;
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps

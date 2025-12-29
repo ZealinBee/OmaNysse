@@ -442,17 +442,13 @@ export default function DepartureBoard({
   return (
     <>
       {location.status === "success" && (
-        <div className="absolute top-3 right-3 sm:top-6 sm:right-6 h-6 sm:h-8 flex items-center gap-3 text-white/60 text-xs sm:text-sm font-medium">
-          <LanguageSwitcher />
-          <span>{t("common.refreshingIn", { seconds: refreshCountdown })}</span>
+        <div className="absolute top-3 right-3 sm:top-6 sm:right-6 h-6 sm:h-8 flex items-center text-white/60 text-xs sm:text-sm font-medium">
+          {t("common.refreshingIn", { seconds: refreshCountdown })}
         </div>
       )}
 
       {location.status === "idle" && (
         <div className="flex flex-col items-center gap-6 py-12">
-          <div className="absolute top-3 right-3 sm:top-6 sm:right-6">
-            <LanguageSwitcher />
-          </div>
           <p className="text-white/80 text-center font-bold text-xl sm:text-2xl">
             {t("departure.showNearbyBuses")}
           </p>
@@ -477,12 +473,16 @@ export default function DepartureBoard({
             {t("common.useLocation")}
           </button>
 
-          <a
-            href="/tietosuoja"
-            className="text-white/50 text-xs underline hover:text-white/70 transition-colors mt-4"
-          >
-            {t("common.privacyPolicy")}
-          </a>
+          <div className="flex items-center gap-3 mt-4">
+            <a
+              href="/tietosuoja"
+              className="text-white/50 text-xs underline hover:text-white/70 transition-colors"
+            >
+              {t("common.privacyPolicy")}
+            </a>
+            <span className="text-white/30">·</span>
+            <LanguageSwitcher />
+          </div>
         </div>
       )}
 
@@ -500,9 +500,6 @@ export default function DepartureBoard({
 
       {location.status === "denied" && (
         <div className="flex flex-col items-center gap-8 py-16">
-          <div className="absolute top-3 right-3 sm:top-6 sm:right-6">
-            <LanguageSwitcher />
-          </div>
           <p className="text-white/80 text-center font-bold text-2xl sm:text-3xl">
             {t("departure.searchByPlace")}
           </p>
@@ -525,9 +522,6 @@ export default function DepartureBoard({
 
       {location.status === "blocked" && (
         <div className="flex flex-col items-center gap-6 py-12">
-          <div className="absolute top-3 right-3 sm:top-6 sm:right-6">
-            <LanguageSwitcher />
-          </div>
           {/* Error message box with help button */}
           <div className="w-full max-w-md">
             <div className="p-4 rounded-xl bg-red-500/20 border border-red-400/30">
@@ -758,13 +752,17 @@ export default function DepartureBoard({
           {/* Add to Homescreen */}
           <AddToHomeScreenButton />
 
-          {/* Privacy Policy */}
-          <a
-            href="/tietosuoja"
-            className="text-white/50 text-sm hover:text-white/70 transition-colors"
-          >
-            {t("common.privacyPolicy")}
-          </a>
+          {/* Privacy Policy & Language */}
+          <div className="flex items-center gap-4">
+            <a
+              href="/tietosuoja"
+              className="text-white/50 text-sm hover:text-white/70 transition-colors"
+            >
+              {t("common.privacyPolicy")}
+            </a>
+            <span className="text-white/30">·</span>
+            <LanguageSwitcher />
+          </div>
         </div>
       )}
 

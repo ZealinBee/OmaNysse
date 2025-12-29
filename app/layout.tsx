@@ -19,11 +19,7 @@ export const metadata: Metadata = {
     apple: "/logo.png",
   },
   manifest: "/manifest.json",
-  metadataBase: new URL(
-    process.env.VERCEL_URL
-      ? `https://${process.env.VERCEL_URL}`
-      : "http://localhost:3000"
-  ),
+  metadataBase: new URL("https://seuraavabussi.fi"),
   openGraph: {
     title: "Seuraava Bussi - Näe milloin seuraava bussi on lähdössä",
     description: "Näyttää lähellä olevien pysäkkien seuraavat bussit reaaliajassa.",
@@ -75,17 +71,12 @@ const jsonLd = {
       name: "Plus",
       price: "2.99",
       priceCurrency: "EUR",
-      priceValidUntil: "2025-12-31",
+      priceValidUntil: "2026-12-31",
     },
   ],
   author: {
     "@type": "Person",
     name: "Zhiyuan Liu",
-  },
-  aggregateRating: {
-    "@type": "AggregateRating",
-    ratingValue: "5",
-    ratingCount: "1",
   },
 };
 

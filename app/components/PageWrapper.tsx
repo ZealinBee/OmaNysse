@@ -21,6 +21,9 @@ export default function PageWrapper({ children }: PageWrapperProps) {
       className="min-h-screen p-6 sm:p-10 transition-colors duration-500 relative"
       style={{ backgroundColor: themeColor }}
     >
+      <h1 className="sr-only">
+        SeuraavaBussi - Reaaliaikaiset bussiaikataulut ja joukkoliikenteen lähtöajat
+      </h1>
       <div className="max-w-2xl mx-auto pt-6">
         {/* Logo */}
         <div className="absolute top-[11px] left-3 sm:top-[23px] sm:left-6 flex items-center gap-2">

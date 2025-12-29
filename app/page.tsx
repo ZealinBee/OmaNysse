@@ -1,4 +1,11 @@
+import { Metadata } from "next";
 import PageWrapper from "./components/PageWrapper";
+
+export const metadata: Metadata = {
+  alternates: {
+    canonical: "https://seuraavabussi.fi",
+  },
+};
 
 const faqJsonLd = {
   "@context": "https://schema.org",

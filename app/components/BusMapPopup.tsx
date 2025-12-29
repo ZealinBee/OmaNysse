@@ -581,6 +581,10 @@ export default function BusMapPopup({
               {t("startFreeTrial", { days: FREE_TRIAL_DAYS })}
             </button>
 
+            <p className="text-center text-gray-400 text-xs mt-2">
+              {t("trialNoSignup")}
+            </p>
+
             <button
               onClick={onClose}
               className="w-full mt-3 py-2 text-gray-500 text-sm hover:text-gray-700 transition-colors"

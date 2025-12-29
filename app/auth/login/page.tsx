@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { useAuth } from "@/app/lib/supabase/auth-context";
 import { ArrowLeft, Mail, Loader2 } from "lucide-react";
 import Link from "next/link";
@@ -8,6 +9,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 
 function LoginForm() {
+  const t = useTranslations("auth");
   const { signInWithGoogle, signInWithEmail } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -27,7 +29,7 @@ function LoginForm() {
     const { error } = await signInWithEmail(email, password);
 
     if (error) {
-      setError("Virheellinen sähköposti tai salasana");
+      setError(t("invalidCredentials"));
       setLoading(false);
     } else {
       router.push(next);
@@ -49,14 +51,14 @@ function LoginForm() {
           className="inline-flex items-center gap-2 text-white/70 hover:text-white font-bold text-sm transition-colors mb-8"
         >
           <ArrowLeft className="w-4 h-4" />
-          Takaisin
+          {t("back")}
         </Link>
 
         <h1 className="text-white font-bold text-2xl sm:text-3xl mb-2">
-          Kirjaudu sisään
+          {t("login")}
         </h1>
         <p className="text-white/70 text-base mb-8">
-          Kirjaudu sisään käyttääksesi SeuraavaBussi Plus -ominaisuuksia
+          {t("loginDescription")}
         </p>
 
         {/* Google Login */}
@@ -87,14 +89,14 @@ function LoginForm() {
                   d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                 />
               </svg>
-              Jatka Googlella
+              {t("continueWithGoogle")}
             </>
           )}
         </button>
 
         <div className="flex items-center gap-4 mb-4">
           <div className="flex-1 h-px bg-white/20" />
-          <span className="text-white/50 text-sm">tai</span>
+          <span className="text-white/50 text-sm">{t("or")}</span>
           <div className="flex-1 h-px bg-white/20" />
         </div>
 
@@ -108,7 +110,7 @@ function LoginForm() {
 
           <div>
             <label htmlFor="email" className="block text-white/70 text-sm mb-2">
-              Sähköposti
+              {t("email")}
             </label>
             <div className="relative">
               <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -117,7 +119,7 @@ function LoginForm() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="sinun@email.fi"
+                placeholder={t("emailPlaceholder")}
                 required
                 className="w-full py-3 px-4 pl-11 bg-white/10 border border-white/20 rounded-xl text-white placeholder:text-white/40 focus:outline-none focus:border-white/40 transition-colors"
               />
@@ -126,7 +128,7 @@ function LoginForm() {
 
           <div>
             <label htmlFor="password" className="block text-white/70 text-sm mb-2">
-              Salasana
+              {t("password")}
             </label>
             <input
               id="password"
@@ -147,15 +149,15 @@ function LoginForm() {
             {loading ? (
               <Loader2 className="w-5 h-5 animate-spin" />
             ) : (
-              "Kirjaudu sisään"
+              t("loginButton")
             )}
           </button>
         </form>
 
         <p className="text-white/60 text-sm text-center mt-6">
-          Ei vielä tiliä?{" "}
+          {t("noAccount")}{" "}
           <Link href={signupUrl} className="text-white hover:underline font-semibold">
-            Luo tili
+            {t("createAccount")}
           </Link>
         </p>
       </div>

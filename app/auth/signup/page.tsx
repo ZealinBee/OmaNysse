@@ -1,12 +1,14 @@
 "use client";
 
 import { useState, Suspense } from "react";
+import { useTranslations } from "next-intl";
 import { useAuth } from "@/app/lib/supabase/auth-context";
 import { ArrowLeft, Mail, Loader2, Check, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 
 function SignupForm() {
+  const t = useTranslations("auth");
   const { signInWithGoogle, signUpWithEmail } = useAuth();
   const searchParams = useSearchParams();
   const next = searchParams.get("next") || "/plus";
@@ -27,12 +29,12 @@ function SignupForm() {
     setError("");
 
     if (password !== confirmPassword) {
-      setError("Salasanat eivät täsmää");
+      setError(t("passwordsDontMatch"));
       return;
     }
 
     if (password.length < 6) {
-      setError("Salasanan tulee olla vähintään 6 merkkiä");
+      setError(t("passwordTooShort"));
       return;
     }
 
@@ -41,7 +43,7 @@ function SignupForm() {
     const { error } = await signUpWithEmail(email, password);
 
     if (error) {
-      setError("Rekisteröinti epäonnistui. Kokeile eri sähköpostia.");
+      setError(t("signupFailed"));
       setLoading(false);
     } else {
       setSuccess(true);
@@ -63,17 +65,17 @@ function SignupForm() {
               <Check className="w-8 h-8 text-green-400" />
             </div>
             <h1 className="text-white font-bold text-2xl mb-3">
-              Tarkista sähköpostisi
+              {t("checkEmail")}
             </h1>
             <p className="text-white/70 mb-8">
-              Lähetimme vahvistuslinkin osoitteeseen <strong className="text-white">{email}</strong>.
-              Klikkaa linkkiä vahvistaaksesi tilisi.
+              {t("emailSent")} <strong className="text-white">{email}</strong>.
+              {" "}{t("clickLink")}
             </p>
             <Link
               href={loginUrl}
               className="inline-flex items-center gap-2 text-white font-semibold hover:underline"
             >
-              Palaa kirjautumissivulle
+              {t("backToLogin")}
             </Link>
           </div>
         </div>
@@ -89,14 +91,14 @@ function SignupForm() {
           className="inline-flex items-center gap-2 text-white/70 hover:text-white font-bold text-sm transition-colors mb-8"
         >
           <ArrowLeft className="w-4 h-4" />
-          Takaisin
+          {t("back")}
         </Link>
 
         <h1 className="text-white font-bold text-2xl sm:text-3xl mb-2">
-          Luo tili
+          {t("createAccount")}
         </h1>
         <p className="text-white/70 text-base mb-8">
-          Rekisteröidy käyttääksesi SeuraavaBussi Plus -ominaisuuksia
+          {t("createAccountDescription")}
         </p>
 
         {/* Google Login */}
@@ -127,14 +129,14 @@ function SignupForm() {
                   d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                 />
               </svg>
-              Jatka Googlella
+              {t("continueWithGoogle")}
             </>
           )}
         </button>
 
         <div className="flex items-center gap-4 mb-4">
           <div className="flex-1 h-px bg-white/20" />
-          <span className="text-white/50 text-sm">tai</span>
+          <span className="text-white/50 text-sm">{t("or")}</span>
           <div className="flex-1 h-px bg-white/20" />
         </div>
 
@@ -148,7 +150,7 @@ function SignupForm() {
 
           <div>
             <label htmlFor="email" className="block text-white/70 text-sm mb-2">
-              Sähköposti
+              {t("email")}
             </label>
             <div className="relative">
               <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -157,7 +159,7 @@ function SignupForm() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="sinun@email.fi"
+                placeholder={t("emailPlaceholder")}
                 required
                 className="w-full py-3 px-4 pl-11 bg-white/10 border border-white/20 rounded-xl text-white placeholder:text-white/40 focus:outline-none focus:border-white/40 transition-colors"
               />
@@ -166,7 +168,7 @@ function SignupForm() {
 
           <div>
             <label htmlFor="password" className="block text-white/70 text-sm mb-2">
-              Salasana
+              {t("password")}
             </label>
             <div className="relative">
               <input
@@ -174,7 +176,7 @@ function SignupForm() {
                 type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Vähintään 6 merkkiä"
+                placeholder={t("passwordPlaceholder")}
                 required
                 className="w-full py-3 px-4 pr-11 bg-white/10 border border-white/20 rounded-xl text-white placeholder:text-white/40 focus:outline-none focus:border-white/40 transition-colors"
               />
@@ -190,7 +192,7 @@ function SignupForm() {
 
           <div>
             <label htmlFor="confirmPassword" className="block text-white/70 text-sm mb-2">
-              Vahvista salasana
+              {t("confirmPassword")}
             </label>
             <div className="relative">
               <input
@@ -198,7 +200,7 @@ function SignupForm() {
                 type={showPassword ? "text" : "password"}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="Kirjoita salasana uudelleen"
+                placeholder={t("confirmPasswordPlaceholder")}
                 required
                 className="w-full py-3 px-4 pr-11 bg-white/10 border border-white/20 rounded-xl text-white placeholder:text-white/40 focus:outline-none focus:border-white/40 transition-colors"
               />
@@ -220,26 +222,26 @@ function SignupForm() {
             {loading ? (
               <Loader2 className="w-5 h-5 animate-spin" />
             ) : (
-              "Luo tili"
+              t("createAccountButton")
             )}
           </button>
         </form>
 
         <p className="text-white/60 text-sm text-center mt-6">
-          Onko sinulla jo tili?{" "}
+          {t("hasAccount")}{" "}
           <Link href={loginUrl} className="text-white hover:underline font-semibold">
-            Kirjaudu sisään
+            {t("login")}
           </Link>
         </p>
 
         <p className="text-white/40 text-xs text-center mt-8">
-          Rekisteröitymällä hyväksyt{" "}
+          {t("bySigningUp")}{" "}
           <Link href="/plus" className="underline hover:text-white/60">
-            käyttöehdot
+            {t("termsOfService")}
           </Link>{" "}
-          ja{" "}
+          {t("and")}{" "}
           <Link href="/tietosuoja" className="underline hover:text-white/60">
-            tietosuojaselosteen
+            {t("privacyPolicy")}
           </Link>
         </p>
       </div>

@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useTranslations } from "next-intl";
-import { X, Bus, Lock } from "lucide-react";
+import { X, Bus, Lock, MapPin } from "lucide-react";
 import { MapContainer, TileLayer, Marker, Popup, Polyline, CircleMarker, useMap, Tooltip } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -38,8 +38,8 @@ const customMapStyles = `
   }
 `;
 
-const FREE_TRIAL_LIMIT = 3;
-const TRIAL_STORAGE_KEY = "seuraavabussi_map_trial_count";
+const FREE_TRIAL_DAYS = 7;
+const TRIAL_START_KEY = "seuraavabussi_map_trial_start";
 
 interface OnwardCall {
   stopCode: string;
@@ -393,53 +393,57 @@ export default function BusMapPopup({
   const [routeStops, setRouteStops] = useState<RouteStop[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [trialCount, setTrialCount] = useState<number | null>(null);
-  const hasUsedTrial = useRef(false);
+  const [trialStartDate, setTrialStartDate] = useState<number | null | "not_started">(null);
+  const [showTrialOptIn, setShowTrialOptIn] = useState(false);
   const hasAutoOpenedPopup = useRef(false);
 
   const { hasPlusAccess, isLoading: subLoading } = useSubscription();
 
-  // Get trial count from localStorage
-  const getTrialCount = useCallback(() => {
-    if (typeof window === "undefined") return 0;
-    const stored = localStorage.getItem(TRIAL_STORAGE_KEY);
-    return stored ? parseInt(stored, 10) : 0;
+  // Get trial start date from localStorage
+  const getTrialStartDate = useCallback((): number | null => {
+    if (typeof window === "undefined") return null;
+    const stored = localStorage.getItem(TRIAL_START_KEY);
+    return stored ? parseInt(stored, 10) : null;
   }, []);
 
-  // Increment trial count
-  const incrementTrialCount = useCallback(() => {
+  // Start the free trial
+  const startTrial = useCallback(() => {
     if (typeof window === "undefined") return;
-    const current = getTrialCount();
-    const newCount = current + 1;
-    localStorage.setItem(TRIAL_STORAGE_KEY, newCount.toString());
-    setTrialCount(newCount);
-  }, [getTrialCount]);
+    const now = Date.now();
+    localStorage.setItem(TRIAL_START_KEY, now.toString());
+    setTrialStartDate(now);
+    setShowTrialOptIn(false);
+  }, []);
 
-  // Load trial count on mount
+  // Load trial start date on mount
   useEffect(() => {
-    setTrialCount(getTrialCount());
-  }, [getTrialCount]);
+    const startDate = getTrialStartDate();
+    setTrialStartDate(startDate ?? "not_started");
+  }, [getTrialStartDate]);
 
-  // Track trial usage when map opens (only once per open)
+  // Show opt-in modal when popup opens and no trial started yet
   useEffect(() => {
-    if (isOpen && !hasPlusAccess && !subLoading && trialCount !== null && trialCount < FREE_TRIAL_LIMIT && !hasUsedTrial.current) {
-      hasUsedTrial.current = true;
-      incrementTrialCount();
+    if (isOpen && !hasPlusAccess && !subLoading && trialStartDate === "not_started") {
+      setShowTrialOptIn(true);
     }
-  }, [isOpen, hasPlusAccess, subLoading, trialCount, incrementTrialCount]);
+  }, [isOpen, hasPlusAccess, subLoading, trialStartDate]);
 
   // Reset tracking when popup closes
   useEffect(() => {
     if (!isOpen) {
-      hasUsedTrial.current = false;
       hasAutoOpenedPopup.current = false;
+      setShowTrialOptIn(false);
     }
   }, [isOpen]);
 
-  const trialLoading = trialCount === null;
-  const remainingTrials = trialCount !== null ? Math.max(0, FREE_TRIAL_LIMIT - trialCount) : FREE_TRIAL_LIMIT;
-  const hasTrialsLeft = trialCount !== null && trialCount < FREE_TRIAL_LIMIT;
-  const isPaywalled = !hasPlusAccess && !subLoading && !trialLoading && !hasTrialsLeft && !hasUsedTrial.current;
+  // Calculate trial status
+  const trialLoading = trialStartDate === null;
+  const hasTrialStarted = typeof trialStartDate === "number";
+  const daysSinceTrialStart = hasTrialStarted ? Math.floor((Date.now() - trialStartDate) / (1000 * 60 * 60 * 24)) : 0;
+  const daysRemaining = hasTrialStarted ? Math.max(0, FREE_TRIAL_DAYS - daysSinceTrialStart) : FREE_TRIAL_DAYS;
+  const isTrialActive = hasTrialStarted && daysRemaining > 0;
+  const isTrialExpired = hasTrialStarted && daysRemaining === 0;
+  const isPaywalled = !hasPlusAccess && !subLoading && !trialLoading && isTrialExpired;
 
   useEffect(() => {
     if (!isOpen) return;
@@ -514,6 +518,75 @@ export default function BusMapPopup({
         <div className="relative w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden bg-white">
           <div className="flex items-center justify-center py-20">
             <div className="w-8 h-8 border-4 border-gray-300 border-t-blue-500 rounded-full animate-spin" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Trial opt-in modal for first-time users
+  if (showTrialOptIn && !hasPlusAccess) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60" style={{ touchAction: 'none' }}>
+        <div className="relative w-full max-w-sm bg-white rounded-2xl shadow-2xl overflow-hidden">
+          {/* Header */}
+          <div
+            className="px-6 py-4 text-center"
+            style={{ backgroundColor: routeColor }}
+          >
+            <div className="w-16 h-16 mx-auto mb-3 bg-white/20 rounded-full flex items-center justify-center">
+              <MapPin className="w-8 h-8 text-white" />
+            </div>
+            <h2 className="text-xl font-bold text-white">{t("trialOptInTitle")}</h2>
+          </div>
+
+          {/* Content */}
+          <div className="px-6 py-5">
+            <p className="text-gray-600 text-center mb-4">
+              {t("trialOptInDescription", { days: FREE_TRIAL_DAYS })}
+            </p>
+
+            <ul className="space-y-2 mb-6">
+              <li className="flex items-center gap-2 text-sm text-gray-700">
+                <div className="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
+                  <svg className="w-3 h-3 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                {t("trialFeature1")}
+              </li>
+              <li className="flex items-center gap-2 text-sm text-gray-700">
+                <div className="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
+                  <svg className="w-3 h-3 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                {t("trialFeature2")}
+              </li>
+              <li className="flex items-center gap-2 text-sm text-gray-700">
+                <div className="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
+                  <svg className="w-3 h-3 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                {t("trialFeature3")}
+              </li>
+            </ul>
+
+            <button
+              onClick={startTrial}
+              className="w-full py-3 rounded-xl font-bold text-white transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg"
+              style={{ backgroundColor: routeColor }}
+            >
+              {t("startFreeTrial", { days: FREE_TRIAL_DAYS })}
+            </button>
+
+            <button
+              onClick={onClose}
+              className="w-full mt-3 py-2 text-gray-500 text-sm hover:text-gray-700 transition-colors"
+            >
+              {t("maybeLater")}
+            </button>
           </div>
         </div>
       </div>
@@ -620,13 +693,11 @@ export default function BusMapPopup({
               </div>
 
               <h3 className="text-lg font-bold text-gray-900 mb-1 text-center">
-                {t("paywallTitle")}
+                {t("trialEndedTitle")}
               </h3>
 
               <p className="text-gray-500 text-sm mb-4 text-center max-w-xs">
-                {vehiclePositions.length > 0
-                  ? t("paywallBusesFound", { count: vehiclePositions.length })
-                  : t("paywallDescription", { limit: FREE_TRIAL_LIMIT })}
+                {t("trialEndedThankYou")}
               </p>
 
               <a
@@ -849,11 +920,11 @@ export default function BusMapPopup({
         </div>
 
         {/* Trial Banner - show when using free trial */}
-        {!hasPlusAccess && hasTrialsLeft && (
+        {!hasPlusAccess && isTrialActive && (
           <div className="px-4 py-2 bg-amber-50 border-t border-amber-200" style={{ touchAction: 'none' }}>
             <div className="flex items-center justify-between">
               <p className="text-amber-800 text-xs">
-                {t("freeTrialRemaining", { remaining: remainingTrials })}
+                {t("trialDaysRemaining", { days: daysRemaining })}
               </p>
               <a
                 href="/plus"

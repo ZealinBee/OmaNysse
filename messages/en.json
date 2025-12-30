@@ -230,6 +230,7 @@
     "paywallBusesFound": "{count} {count, plural, one {bus} other {buses}} found nearby - unlock to see exactly where!",
     "buyPlus": "Buy SeuraavaBussi Plus",
     "unlockMap": "Unlock Map",
-    "paywallFooter": "Plus: Unlimited map access and future features"
+    "paywallFooter": "Plus: Unlimited map access and future features",
+    "alreadySubscriber": "Already a subscriber? Log in to restore access"
   }
 }

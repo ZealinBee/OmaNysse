@@ -711,6 +711,13 @@ export default function BusMapPopup({
               >
                 {t("unlockMap")}
               </a>
+
+              <a
+                href="/auth/login?next=/plus"
+                className="block mt-3 text-gray-500 text-xs hover:text-gray-700 transition-colors"
+              >
+                {t("alreadySubscriber")}
+              </a>
             </div>
           </div>
 

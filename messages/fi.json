@@ -230,6 +230,7 @@
     "paywallBusesFound": "{count} {count, plural, one {bussi} other {bussia}} löydetty läheltä - avaa kartta nähdäksesi tarkan sijainnin!",
     "buyPlus": "Osta SeuraavaBussi Plus",
     "unlockMap": "Avaa kartta",
-    "paywallFooter": "Plus: Rajaton karttakäyttö ja tulevat ominaisuudet"
+    "paywallFooter": "Plus: Rajaton karttakäyttö ja tulevat ominaisuudet",
+    "alreadySubscriber": "Oletko jo tilaaja? Kirjaudu sisään palauttaaksesi pääsyn"
   }
 }

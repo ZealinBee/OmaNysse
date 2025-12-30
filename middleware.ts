@@ -1,6 +1,13 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
+// Cookie options for long-lived sessions (1 year)
+const COOKIE_OPTIONS = {
+  maxAge: 60 * 60 * 24 * 365, // 1 year in seconds
+  sameSite: "lax" as const,
+  secure: process.env.NODE_ENV === "production",
+};
+
 export async function middleware(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
     request,
@@ -22,7 +29,10 @@ export async function middleware(request: NextRequest) {
             request,
           });
           cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options)
+            supabaseResponse.cookies.set(name, value, {
+              ...options,
+              ...COOKIE_OPTIONS,
+            })
           );
         },
       },

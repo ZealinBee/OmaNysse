@@ -1,7 +1,7 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
-import { User, Session } from "@supabase/supabase-js";
+import { createContext, useContext, useEffect, useState, useMemo } from "react";
+import { User, Session, AuthChangeEvent } from "@supabase/supabase-js";
 import { createClient } from "./client";
 
 type AuthContextType = {
@@ -20,27 +20,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
-  const supabase = createClient();
+
+  // Use memoized client to ensure stable reference (singleton from createClient)
+  const supabase = useMemo(() => createClient(), []);
 
   useEffect(() => {
     // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
+    const getInitialSession = async () => {
+      const {
+        data: { session: initialSession },
+      } = await supabase.auth.getSession();
+      setSession(initialSession);
+      setUser(initialSession?.user ?? null);
       setLoading(false);
-    });
+    };
+    getInitialSession();
 
-    // Listen for auth changes
+    // Listen for auth changes including TOKEN_REFRESHED events
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
+    } = supabase.auth.onAuthStateChange(
+      (event: AuthChangeEvent, session: Session | null) => {
+        setSession(session);
+        setUser(session?.user ?? null);
+        setLoading(false);
+
+        // Log auth events for debugging (can be removed in production)
+        if (process.env.NODE_ENV === "development") {
+          console.log("Auth event:", event);
+        }
+      }
+    );
 
     return () => subscription.unsubscribe();
-  }, [supabase.auth]);
+  }, [supabase]);
 
   const signInWithGoogle = async (redirectTo: string = "/plus") => {
     await supabase.auth.signInWithOAuth({

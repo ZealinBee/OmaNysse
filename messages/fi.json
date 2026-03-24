@@ -171,7 +171,21 @@
     "bySigningUp": "Rekisteröitymällä hyväksyt",
     "termsOfService": "käyttöehdot",
     "and": "ja",
-    "privacyPolicy": "tietosuojaselosteen"
+    "privacyPolicy": "tietosuojaselosteen",
+    "forgotPassword": "Unohditko salasanan?",
+    "forgotPasswordDescription": "Kirjoita sähköpostiosoitteesi, niin lähetämme sinulle linkin salasanan vaihtamiseksi.",
+    "sendResetLink": "Lähetä palautuslinkki",
+    "resetEmailSent": "Lähetimme salasanan palautuslinkin osoitteeseen",
+    "clickResetLink": "Klikkaa sähköpostissa olevaa linkkiä vaihtaaksesi salasanasi.",
+    "resetPasswordFailed": "Palautuslinkin lähetys epäonnistui. Tarkista sähköpostiosoite.",
+    "rememberPassword": "Muistatko salasanasi?",
+    "resetPassword": "Vaihda salasana",
+    "resetPasswordDescription": "Kirjoita uusi salasanasi alle.",
+    "newPassword": "Uusi salasana",
+    "updatePasswordButton": "Vaihda salasana",
+    "updatePasswordFailed": "Salasanan vaihto epäonnistui. Yritä uudelleen.",
+    "passwordUpdated": "Salasana vaihdettu",
+    "passwordUpdatedDescription": "Salasanasi on vaihdettu onnistuneesti. Voit nyt kirjautua sisään uudella salasanallasi."
   },
   "footer": {
     "aboutTitle": "Tietoa SeuraavaBussi.fi-palvelusta",

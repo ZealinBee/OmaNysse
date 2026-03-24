@@ -171,7 +171,21 @@
     "bySigningUp": "By signing up, you agree to the",
     "termsOfService": "terms of service",
     "and": "and",
-    "privacyPolicy": "privacy policy"
+    "privacyPolicy": "privacy policy",
+    "forgotPassword": "Forgot password?",
+    "forgotPasswordDescription": "Enter your email address and we'll send you a link to reset your password.",
+    "sendResetLink": "Send reset link",
+    "resetEmailSent": "We sent a password reset link to",
+    "clickResetLink": "Click the link in the email to reset your password.",
+    "resetPasswordFailed": "Failed to send reset link. Please check your email address.",
+    "rememberPassword": "Remember your password?",
+    "resetPassword": "Reset password",
+    "resetPasswordDescription": "Enter your new password below.",
+    "newPassword": "New password",
+    "updatePasswordButton": "Update password",
+    "updatePasswordFailed": "Failed to update password. Please try again.",
+    "passwordUpdated": "Password updated",
+    "passwordUpdatedDescription": "Your password has been successfully updated. You can now log in with your new password."
   },
   "footer": {
     "aboutTitle": "About SeuraavaBussi.fi",

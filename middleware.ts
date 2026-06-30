@@ -39,11 +39,41 @@ export async function middleware(request: NextRequest) {
     }
   );
 
-  // Refresh session if expired - uses getSession() to avoid unnecessary API calls
-  // getSession() reads from cookies and only refreshes when the token is actually expired
-  await supabase.auth.getSession();
+  // Refresh session if expired. This must never block or crash the request:
+  // a stale/corrupt auth cookie (e.g. after a password reset revokes the refresh
+  // token) would otherwise make the refresh hang or throw on EVERY request for
+  // that user, surfacing as a Vercel function timeout / Cloudflare 504. Incognito
+  // works because it has no cookie. So we bound it with a timeout and, on any
+  // failure, clear the auth cookies so the bad state self-heals (user is simply
+  // logged out and can sign in again) instead of being permanently bricked.
+  try {
+    const TIMEOUT_MS = 3000;
+    const result = await Promise.race([
+      supabase.auth.getSession(),
+      new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error("getSession timeout")), TIMEOUT_MS)
+      ),
+    ]);
+
+    if (result?.error) {
+      clearAuthCookies(request, supabaseResponse);
+    }
+  } catch {
+    // Timed out or threw — drop the bad session rather than 504 the user.
+    clearAuthCookies(request, supabaseResponse);
+  }
 
   return supabaseResponse;
+}
+
+// Remove Supabase auth cookies (including chunked `.0`, `.1` variants) so a
+// corrupt session can't keep failing on every subsequent request.
+function clearAuthCookies(request: NextRequest, response: NextResponse) {
+  for (const { name } of request.cookies.getAll()) {
+    if (name.startsWith("sb-") && name.includes("-auth-token")) {
+      response.cookies.delete(name);
+    }
+  }
 }
 
 export const config = {

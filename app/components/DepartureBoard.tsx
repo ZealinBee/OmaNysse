@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
-import { LocateFixed, RefreshCw, MapPin, ChevronDown, ChevronUp } from "lucide-react";
+import { LocateFixed, RefreshCw, MapPin, ChevronDown, ChevronUp, ArrowUpToLine, ArrowDownToLine } from "lucide-react";
 import {
   Departure,
   StopNode,
@@ -15,6 +15,7 @@ import {
 import {
   STORAGE_KEY,
   RADIUS_STORAGE_KEY,
+  SEARCH_POSITION_STORAGE_KEY,
   getMinutesUntil,
   formatDepartureTime,
   getRegion,
@@ -93,6 +94,21 @@ export default function DepartureBoard({
   });
   const [refreshCountdown, setRefreshCountdown] = useState(30);
   const [searchedLocationName, setSearchedLocationName] = useState<string | null>(null);
+  // User can pin the "search another place" box above the departures instead of below them
+  const [searchAtTop, setSearchAtTop] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem(SEARCH_POSITION_STORAGE_KEY) === "top";
+    }
+    return false;
+  });
+
+  const toggleSearchPosition = useCallback(() => {
+    setSearchAtTop((prev) => {
+      const next = !prev;
+      localStorage.setItem(SEARCH_POSITION_STORAGE_KEY, next ? "top" : "bottom");
+      return next;
+    });
+  }, []);
 
   // Premium users get faster refresh rate
   const { refreshInterval, refreshSeconds } = useRefreshInterval();
@@ -439,6 +455,28 @@ export default function DepartureBoard({
     return () => clearInterval(countdownInterval);
   }, [location, refreshSeconds]);
 
+  // Rendered either above the departures or in the controls section below them
+  const searchAnotherPlaceBlock = (
+    <div className={`w-full max-w-sm mx-auto ${searchAtTop ? "mb-8" : ""}`}>
+      <div className="flex items-center justify-center gap-1.5 mb-2">
+        <p className="text-white/60 text-sm">{t("common.searchAnotherPlace")}</p>
+        <button
+          onClick={toggleSearchPosition}
+          className="p-1 rounded-full text-white/50 hover:text-white hover:bg-white/10 active:bg-white/20 transition-all cursor-pointer"
+          title={searchAtTop ? t("common.moveSearchToBottom") : t("common.moveSearchToTop")}
+          aria-label={searchAtTop ? t("common.moveSearchToBottom") : t("common.moveSearchToTop")}
+        >
+          {searchAtTop ? (
+            <ArrowDownToLine className="w-3.5 h-3.5" />
+          ) : (
+            <ArrowUpToLine className="w-3.5 h-3.5" />
+          )}
+        </button>
+      </div>
+      <SearchInput onLocationSelect={handleLocationSelect} />
+    </div>
+  );
+
   return (
     <>
       {location.status === "success" && (
@@ -446,6 +484,9 @@ export default function DepartureBoard({
           {t("common.refreshingIn", { seconds: refreshCountdown })}
         </div>
       )}
+
+      {/* Search moved above the departures when the user pinned it there */}
+      {location.status === "success" && searchAtTop && searchAnotherPlaceBlock}
 
       {location.status === "idle" && (
         <div className="flex flex-col items-center gap-6 py-12">
@@ -699,7 +740,7 @@ export default function DepartureBoard({
       {location.status === "success" && (
         <div className="mt-10 pt-8 border-t border-white/10">
           {/* Radius Slider */}
-          <div className="flex flex-col items-center gap-2 w-full max-w-xs mx-auto mb-8">
+          <div className={`flex flex-col items-center gap-2 w-full max-w-xs mx-auto ${searchAtTop ? "" : "mb-8"}`}>
             <label className="text-white/60 text-sm">
               {t("common.searchRadius")}: <span className="font-bold text-white/80">{radius} m</span>
             </label>
@@ -718,11 +759,8 @@ export default function DepartureBoard({
             </div>
           </div>
 
-          {/* Search Another Place */}
-          <div className="w-full max-w-sm mx-auto">
-            <p className="text-white/60 text-sm text-center mb-2">{t("common.searchAnotherPlace")}</p>
-            <SearchInput onLocationSelect={handleLocationSelect} />
-          </div>
+          {/* Search Another Place - unless the user pinned it above the departures */}
+          {!searchAtTop && searchAnotherPlaceBlock}
         </div>
       )}
 

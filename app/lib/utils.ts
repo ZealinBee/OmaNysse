@@ -3,6 +3,7 @@ import { CITIES } from "./cities";
 
 export const STORAGE_KEY = "nysse-saved-location";
 export const RADIUS_STORAGE_KEY = "nysse-saved-radius";
+export const SEARCH_POSITION_STORAGE_KEY = "nysse-search-position";
 
 export function getMinutesUntil(serviceDay: number, departureSeconds: number): number {
   const departureTime = (serviceDay + departureSeconds) * 1000;

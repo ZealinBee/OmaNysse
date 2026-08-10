@@ -4,6 +4,8 @@
     "privacyPolicy": "Privacy Policy",
     "searchRadius": "Search radius",
     "searchAnotherPlace": "Search another place",
+    "moveSearchToTop": "Move search to top",
+    "moveSearchToBottom": "Move search to bottom",
     "yourLocation": "Your location",
     "useLocation": "Use location",
     "tryAgain": "Try again",

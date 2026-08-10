@@ -4,6 +4,8 @@
     "privacyPolicy": "Tietosuojaseloste",
     "searchRadius": "Hakusäde",
     "searchAnotherPlace": "Hae toinen paikka",
+    "moveSearchToTop": "Siirrä haku ylös",
+    "moveSearchToBottom": "Siirrä haku alas",
     "yourLocation": "Sijaintisi",
     "useLocation": "Käytä sijaintia",
     "tryAgain": "Yritä uudelleen",

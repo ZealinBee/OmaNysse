@@ -5,6 +5,27 @@ export const STORAGE_KEY = "nysse-saved-location";
 export const RADIUS_STORAGE_KEY = "nysse-saved-radius";
 export const SEARCH_POSITION_STORAGE_KEY = "nysse-search-position";
 
+// A phone waking from sleep can leave a request stuck on a connection that no
+// longer exists, so requests give up instead of hanging forever.
+export const FETCH_TIMEOUT_MS = 12000;
+
+export async function fetchWithTimeout(
+  url: string,
+  timeoutMs: number = FETCH_TIMEOUT_MS
+): Promise<Response> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, { signal: controller.signal });
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+export function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 export function getMinutesUntil(serviceDay: number, departureSeconds: number): number {
   const departureTime = (serviceDay + departureSeconds) * 1000;
   const now = Date.now();

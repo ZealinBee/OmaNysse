@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
 import { LocateFixed, RefreshCw, MapPin, ChevronDown, ChevronUp, ArrowUpToLine, ArrowDownToLine } from "lucide-react";
@@ -21,6 +21,8 @@ import {
   getRegion,
   getRegionColor,
   getCityFromCoords,
+  fetchWithTimeout,
+  delay,
 } from "@/app/lib/utils";
 import { cityHasVehiclePositions } from "@/app/lib/cities";
 import SearchInput from "./SearchInput";
@@ -49,6 +51,10 @@ interface PopupData {
 }
 
 const MAX_DEPARTURES = 20;
+
+// Waking a phone from sleep often lands the first request while the network is
+// still reconnecting, so transient failures are retried before showing an error.
+const RETRY_DELAYS_MS = [800, 2500];
 
 interface DepartureBoardProps {
   onThemeColorChange?: (color: string) => void;
@@ -174,22 +180,49 @@ export default function DepartureBoard({
     }
   }, []);
 
+  // Only the newest request is allowed to write state. Waking the phone can
+  // fire a refresh while an older one is still pending on a dead connection.
+  const requestIdRef = useRef(0);
+
   const fetchNearbyStops = useCallback(
     async (lat: number, lng: number, searchRadius: number = radius) => {
+      const requestId = ++requestIdRef.current;
+      const isStale = () => requestId !== requestIdRef.current;
+
       setError(null);
       setIsLoadingDepartures(true);
       const region = getRegion(lat, lng);
-      let response: Response;
-      try {
-        response = await fetch(
-          `/api/stops?lat=${lat}&lon=${lng}&radius=${searchRadius}&region=${region}`
-        );
-      } catch {
-        // Network error - fetch itself failed (no internet, DNS failure, etc.)
-        setError(t("errors.networkError"));
-        setIsLoadingDepartures(false);
-        return;
+      const url = `/api/stops?lat=${lat}&lon=${lng}&radius=${searchRadius}&region=${region}`;
+
+      let response: Response | null = null;
+      for (let attempt = 0; response === null; attempt++) {
+        // A request that fails or times out while the connection is coming
+        // back gets another chance before the user sees anything.
+        const canRetry = attempt < RETRY_DELAYS_MS.length;
+        try {
+          const attempted = await fetchWithTimeout(url);
+          // 503 means our API couldn't reach the transit API - also transient
+          if (!attempted.ok && attempted.status === 503 && canRetry) {
+            await delay(RETRY_DELAYS_MS[attempt]);
+            if (isStale()) return;
+            continue;
+          }
+          response = attempted;
+        } catch {
+          // Network error - fetch itself failed (no internet, DNS failure, etc.)
+          if (isStale()) return;
+          if (canRetry) {
+            await delay(RETRY_DELAYS_MS[attempt]);
+            if (isStale()) return;
+            continue;
+          }
+          setError(t("errors.networkError"));
+          setIsLoadingDepartures(false);
+          return;
+        }
       }
+
+      if (isStale()) return;
 
       try {
         if (!response.ok) {
@@ -203,6 +236,7 @@ export default function DepartureBoard({
           return;
         }
         const data = await response.json();
+        if (isStale()) return;
         const stopNodes: StopNode[] =
           data.data?.stopsByRadius?.edges?.map(
             (edge: { node: StopNode }) => edge.node
@@ -259,6 +293,7 @@ export default function DepartureBoard({
         setDepartures(dedupedDepartures);
         setIsLoadingDepartures(false);
       } catch {
+        if (isStale()) return;
         setError(t("errors.fetchFailed"));
         setIsLoadingDepartures(false);
       }
@@ -437,12 +472,43 @@ export default function DepartureBoard({
     if (location.status !== "success") return;
 
     const interval = setInterval(() => {
+      // Skip while backgrounded - a phone with its screen off has no usable
+      // connection, so refreshing there only produces errors
+      if (document.visibilityState !== "visible") return;
       fetchNearbyStops(location.coords.lat, location.coords.lng, debouncedRadius);
       setRefreshCountdown(refreshSeconds);
     }, refreshInterval);
 
     return () => clearInterval(interval);
   }, [location, debouncedRadius, fetchNearbyStops, refreshInterval, refreshSeconds]);
+
+  // Refresh as soon as the phone comes back, instead of showing times that
+  // went stale while the screen was off or waiting for the next interval tick
+  useEffect(() => {
+    if (location.status !== "success") return;
+
+    const refreshNow = () => {
+      if (document.visibilityState !== "visible") return;
+      fetchNearbyStops(location.coords.lat, location.coords.lng, debouncedRadius);
+      setRefreshCountdown(refreshSeconds);
+    };
+
+    // pageshow covers back/forward cache restores, where visibilitychange
+    // doesn't always fire
+    const handlePageShow = (event: PageTransitionEvent) => {
+      if (event.persisted) refreshNow();
+    };
+
+    document.addEventListener("visibilitychange", refreshNow);
+    window.addEventListener("pageshow", handlePageShow);
+    window.addEventListener("online", refreshNow);
+
+    return () => {
+      document.removeEventListener("visibilitychange", refreshNow);
+      window.removeEventListener("pageshow", handlePageShow);
+      window.removeEventListener("online", refreshNow);
+    };
+  }, [location, debouncedRadius, fetchNearbyStops, refreshSeconds]);
 
   // Countdown timer
   useEffect(() => {

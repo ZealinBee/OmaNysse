@@ -3,7 +3,7 @@
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { CityConfig } from "@/app/lib/cities";
-import { StopConfig, getStopsByCity } from "@/app/lib/stops";
+import type { StopConfig } from "@/app/lib/stops";
 import { REGION_COLORS } from "@/app/lib/types";
 import DepartureBoard from "@/app/components/DepartureBoard";
 import AddToHomeScreenPrompt from "@/app/components/AddToHomeScreenPrompt";
@@ -12,6 +12,7 @@ import { MapPin, Building2, GraduationCap, Cross, ShoppingBag, Home } from "luci
 interface StopPageClientProps {
   city: CityConfig;
   stop: StopConfig;
+  otherStops: StopConfig[];
 }
 
 const TYPE_ICONS = {
@@ -30,7 +31,7 @@ const TYPE_LABELS = {
   residential: "Asuinalue",
 };
 
-export default function StopPageClient({ city, stop }: StopPageClientProps) {
+export default function StopPageClient({ city, stop, otherStops }: StopPageClientProps) {
   const router = useRouter();
   const [themeColor, setThemeColor] = useState(city.color || REGION_COLORS.default);
 
@@ -43,7 +44,6 @@ export default function StopPageClient({ city, stop }: StopPageClientProps) {
   }, [router]);
 
   const TypeIcon = TYPE_ICONS[stop.type] || Building2;
-  const otherStops = getStopsByCity(city.slug).filter((s) => s.slug !== stop.slug);
 
   return (
     <main

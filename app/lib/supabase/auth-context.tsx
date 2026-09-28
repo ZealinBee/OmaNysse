@@ -1,8 +1,11 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, useMemo } from "react";
-import { User, Session, AuthChangeEvent } from "@supabase/supabase-js";
-import { createClient } from "./client";
+import { createContext, useContext, useEffect, useState } from "react";
+import type { User, Session, AuthChangeEvent } from "@supabase/supabase-js";
+
+// Supabase is loaded on demand so its large bundle stays off the critical path
+// for the departure board. The client itself is a singleton inside ./client.
+const getSupabase = () => import("./client").then((m) => m.createClient());
 
 type AuthContextType = {
   user: User | null;
@@ -23,41 +26,47 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Use memoized client to ensure stable reference (singleton from createClient)
-  const supabase = useMemo(() => createClient(), []);
-
   useEffect(() => {
-    // Get initial session
-    const getInitialSession = async () => {
-      const {
-        data: { session: initialSession },
-      } = await supabase.auth.getSession();
-      setSession(initialSession);
-      setUser(initialSession?.user ?? null);
-      setLoading(false);
-    };
-    getInitialSession();
+    let cancelled = false;
+    let unsubscribe: (() => void) | undefined;
 
-    // Listen for auth changes including TOKEN_REFRESHED events
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(
-      (event: AuthChangeEvent, session: Session | null) => {
-        setSession(session);
-        setUser(session?.user ?? null);
+    getSupabase().then((supabase) => {
+      if (cancelled) return;
+
+      // Get initial session
+      supabase.auth.getSession().then(({ data: { session: initialSession } }: { data: { session: Session | null } }) => {
+        if (cancelled) return;
+        setSession(initialSession);
+        setUser(initialSession?.user ?? null);
         setLoading(false);
+      });
 
-        // Log auth events for debugging (can be removed in production)
-        if (process.env.NODE_ENV === "development") {
-          console.log("Auth event:", event);
+      // Listen for auth changes including TOKEN_REFRESHED events
+      const {
+        data: { subscription },
+      } = supabase.auth.onAuthStateChange(
+        (event: AuthChangeEvent, session: Session | null) => {
+          setSession(session);
+          setUser(session?.user ?? null);
+          setLoading(false);
+
+          // Log auth events for debugging (can be removed in production)
+          if (process.env.NODE_ENV === "development") {
+            console.log("Auth event:", event);
+          }
         }
-      }
-    );
+      );
+      unsubscribe = () => subscription.unsubscribe();
+    });
 
-    return () => subscription.unsubscribe();
-  }, [supabase]);
+    return () => {
+      cancelled = true;
+      unsubscribe?.();
+    };
+  }, []);
 
   const signInWithGoogle = async (redirectTo: string = "/plus") => {
+    const supabase = await getSupabase();
     await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
@@ -67,6 +76,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signInWithEmail = async (email: string, password: string) => {
+    const supabase = await getSupabase();
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -75,6 +85,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signUpWithEmail = async (email: string, password: string) => {
+    const supabase = await getSupabase();
     const { error } = await supabase.auth.signUp({
       email,
       password,
@@ -86,10 +97,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signOut = async () => {
+    const supabase = await getSupabase();
     await supabase.auth.signOut();
   };
 
   const resetPasswordForEmail = async (email: string) => {
+    const supabase = await getSupabase();
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/auth/reset-password`,
     });
@@ -97,6 +110,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const updatePassword = async (password: string) => {
+    const supabase = await getSupabase();
     const { error } = await supabase.auth.updateUser({ password });
     return { error };
   };

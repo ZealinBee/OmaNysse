@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { LOCALE_STORAGE_KEY } from "./i18n/config";
 
 // Cookie options for long-lived sessions (1 year)
 const COOKIE_OPTIONS = {
@@ -9,6 +10,16 @@ const COOKIE_OPTIONS = {
 };
 
 export async function middleware(request: NextRequest) {
+  // First visit: pick the locale from the browser's language here so the page
+  // renders in the right language immediately. Otherwise LocaleProvider detects
+  // it on the client and has to reload the whole page.
+  const detectedLocale = request.cookies.has(LOCALE_STORAGE_KEY)
+    ? null
+    : detectLocale(request);
+  if (detectedLocale) {
+    request.cookies.set(LOCALE_STORAGE_KEY, detectedLocale);
+  }
+
   let supabaseResponse = NextResponse.next({
     request,
   });
@@ -63,7 +74,22 @@ export async function middleware(request: NextRequest) {
     clearAuthCookies(request, supabaseResponse);
   }
 
+  if (detectedLocale) {
+    supabaseResponse.cookies.set(LOCALE_STORAGE_KEY, detectedLocale, {
+      path: "/",
+      maxAge: 31536000,
+    });
+  }
+
   return supabaseResponse;
+}
+
+// Same rule as LocaleProvider: Finnish if the browser's primary language is
+// Finnish, English otherwise.
+function detectLocale(request: NextRequest): "fi" | "en" | null {
+  const header = request.headers.get("accept-language");
+  if (!header) return null;
+  return header.trim().toLowerCase().startsWith("fi") ? "fi" : "en";
 }
 
 // Remove Supabase auth cookies (including chunked `.0`, `.1` variants) so a
@@ -84,7 +110,8 @@ export const config = {
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
      * - public folder
+     * - public transit data APIs, which never read the auth session
      */
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!api/stops|api/geocode|api/reverse-geocode|api/trip-pattern|api/vehicle-position|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };

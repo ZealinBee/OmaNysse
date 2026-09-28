@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getCityBySlug } from "@/app/lib/cities";
-import { getStopBySlug, getAllStopParams } from "@/app/lib/stops";
+import { getStopBySlug, getStopsByCity, getAllStopParams } from "@/app/lib/stops";
 import StopPageClient from "./StopPageClient";
 
 interface StopPageProps {
@@ -76,5 +76,9 @@ export default async function StopPage({ params }: StopPageProps) {
     notFound();
   }
 
-  return <StopPageClient city={cityConfig} stop={stopConfig} />;
+  return <StopPageClient
+      city={cityConfig}
+      stop={stopConfig}
+      otherStops={getStopsByCity(city).filter((s) => s.slug !== stop)}
+    />;
 }

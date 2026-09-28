@@ -3,19 +3,19 @@
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { CityConfig } from "@/app/lib/cities";
-import { getStopsByCity } from "@/app/lib/stops";
+import type { StopConfig } from "@/app/lib/stops";
 import { REGION_COLORS } from "@/app/lib/types";
 import DepartureBoard from "@/app/components/DepartureBoard";
 import AddToHomeScreenPrompt from "@/app/components/AddToHomeScreenPrompt";
 
 interface CityPageClientProps {
   city: CityConfig;
+  cityStops: StopConfig[];
 }
 
-export default function CityPageClient({ city }: CityPageClientProps) {
+export default function CityPageClient({ city, cityStops }: CityPageClientProps) {
   const router = useRouter();
   const [themeColor, setThemeColor] = useState(city.color || REGION_COLORS.default);
-  const cityStops = getStopsByCity(city.slug);
 
   const handleThemeColorChange = useCallback((color: string) => {
     setThemeColor(color);

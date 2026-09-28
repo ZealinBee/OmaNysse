@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { CITIES, CITY_SLUGS, getCityBySlug } from "@/app/lib/cities";
+import { getStopsByCity } from "@/app/lib/stops";
 import CityPageClient from "./CityPageClient";
 
 interface CityPageProps {
@@ -71,5 +72,5 @@ export default async function CityPage({ params }: CityPageProps) {
     notFound();
   }
 
-  return <CityPageClient city={cityConfig} />;
+  return <CityPageClient city={cityConfig} cityStops={getStopsByCity(city)} />;
 }
